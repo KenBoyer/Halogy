@@ -219,9 +219,11 @@ class Forums extends MX_Controller {
 						anchor('/forums/editpost/'.$post['postID'], 'Edit').' | '.anchor('/forums/deletepost/'.$post['postID'], 'Delete') : ''
 					),
 					'post:body' => bbcode($post['body']),
-					'user:name' => anchor('/users/profile/'.$post['userID'], (($post['displayName']) ? $post['displayName'] : $post['firstName'].' '.$post['lastName'])),
+					'user:name' => (($post['displayName']) ? $post['displayName'] : $post['firstName'].' '.$post['lastName']),
+					'user:id' => $post['userID'],
 					'user:group' => ($post['groupName']) ? $post['groupName'] : '',
-					'user:avatar' => anchor('/users/profile/'.$post['userID'], display_image($this->forums->get_avatar($post['avatar']), 'post Avatar', 80, 'class="avatar"', $this->config->item('staticPath').'/images/noavatar.gif')),					
+					'user:avatar' => display_image($this->users->get_avatar($data['avatar']), 'User Avatar', 150, 'class="bordered"', $this->config->item('staticPath').'/images/noavatar.gif'),
+					'user:link' => anchor(site_url('/users/profile/'.$data['userID'])),
 					'user:posts' => $post['posts'],
 					'user:kudos' => $post['kudos'],
 					'user:signature' => ($post['signature']) ? '<hr /><small>'.bbcode($post['signature']).'</small>' : ''
@@ -272,9 +274,9 @@ class Forums extends MX_Controller {
 		// populate template
 		$output['forum:title'] = $forum['forumName'];
 		$output['forum:id'] = $forum['forumID'];
-		$output['topic:title'] = $topic['topicTitle'] . (($topic['userID'] == $this->session->userdata('userID') || @in_array('forums', @$this->permission->permissions)) ?
-			anchor('/forums/edittopic/'.$topic['topicID'], ' <small>(edit)</small>') : '');
+		$output['topic:title'] = $topic['topicTitle'];
 		$output['topic:id'] = $topic['topicID'];			
+		$output['topic:creator'] = ($topic['userID'] == $this->session->userdata('userID'));
 		$output['topic:subscribed'] = (@in_array($this->session->userdata('userID'), $subscriptions)) ? TRUE : FALSE;
 		$output['topic:locked'] = ($topic['locked']) ? TRUE : FALSE;
 
@@ -474,7 +476,8 @@ class Forums extends MX_Controller {
 					'post:body' => bbcode($post['body']),
 					'user:name' => anchor('/users/profile/'.$post['userID'], (($post['displayName']) ? $post['displayName'] : $post['firstName'].' '.$post['lastName'])),
 					'user:group' => ($post['groupName']) ? $post['groupName'] : '',
-					'user:avatar' => anchor('/users/profile/'.$post['userID'], display_image($this->forums->get_avatar($post['avatar']), 'post Avatar', 80, 'class="avatar"', $this->config->item('staticPath').'/images/noavatar.gif')),					
+					'user:avatar' => display_image($this->users->get_avatar($data['avatar']), 'User Avatar', 150, 'class="bordered"', $this->config->item('staticPath').'/images/noavatar.gif'),
+					'user:link' => anchor(site_url('/users/profile/'.$data['userID'])),
 					'user:posts' => $post['posts'],
 					'user:kudos' => $post['kudos'],
 					'user:signature' => ($post['signature']) ? '<hr /><small>'.bbcode($post['signature']).'</small>' : ''
@@ -728,6 +731,8 @@ class Forums extends MX_Controller {
 
 		// populate template
 		$output['post:body'] = bbcode($post['body']);
+		$output['topic:id'] = $topic['topicID'];
+		$output['topic:link'] = site_url('/forums/viewtopic/'.$topic['topicID']);
 
 		// show that they will be deleting the topic
 		if ($isTopic)

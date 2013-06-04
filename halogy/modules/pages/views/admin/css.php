@@ -1,10 +1,12 @@
+<div class="headingleft">
 <h1 class="headingleft">CSS Files</h1>
+</div>
 
 <div class="headingright">
-	<a href="<?php echo site_url('/admin/pages/templates'); ?>" class="button blue">Templates</a>
-	<a href="<?php echo site_url('/admin/pages/includes'); ?>" class="button blue">Includes</a>	
-	<a href="<?php echo site_url('/admin/pages/includes/js'); ?>" class="button blue">Javascript</a>	
-	<a href="<?php echo site_url('/admin/pages/add_include/css'); ?>" class="button">Add CSS</a>
+	<a href="<?php echo site_url('/admin/pages/templates'); ?>" class="btn btn-info">Templates</a>
+	<a href="<?php echo site_url('/admin/pages/includes'); ?>" class="btn btn-info">Includes</a>
+	<a href="<?php echo site_url('/admin/pages/includes/J'); ?>" class="btn btn-info">Javascript</a>	
+	<a href="<?php echo site_url('/admin/pages/add_include/C'); ?>" class="btn btn-success">Add CSS <i class="icon-plus-sign"></i></a>
 </div>
 
 <div class="hidden">
@@ -30,10 +32,10 @@
 	<tr<?php echo $class;?>>
 		<td><?php echo anchor('/admin/pages/edit_include/'.$include['includeID'], $include['includeRef']); ?></td>	
 		<td>
-			<?php echo anchor('/admin/pages/edit_include/'.$include['includeID'], 'Edit'); ?>
+			<?php echo anchor('/admin/pages/edit_include/'.$include['includeID'], 'Edit <i class="icon-edit"></i>', 'class="btn btn-info"'); ?>
 		</td>
 		<td>			
-			<?php echo anchor('/admin/pages/delete_include/'.$include['includeID'].'/css', 'Delete', 'onclick="return confirm(\'Are you sure you want to delete this?\')"'); ?>
+			<?php echo anchor('/admin/pages/delete_include/'.$include['includeID'].'/css', 'Delete <i class="icon-trash"></i>', array('onclick' => 'return confirm(\'Are you sure you want to delete this?\')', 'class' => 'btn btn-danger')); ?>
 		</td>
 	</tr>
 <?php endforeach; ?>
@@ -41,7 +43,7 @@
 
 <?php echo $this->pagination->create_links(); ?>
 
-<p class="clear" style="text-align: right;"><a href="#" class="button grey" id="totop">Back to top</a></p>
+<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>
 
 <?php else: ?>
 

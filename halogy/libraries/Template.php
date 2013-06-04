@@ -23,22 +23,34 @@ class Template {
 	var $base_path = '';					// default base path
 	var $moduleTemplates = array();
 	var $template = array();
-	
+	var $events;
+
 	function Template()
 	{
 		$this->CI =& get_instance();
-		
+
 		// get siteID, if available
 		if (defined('SITEID'))
 		{
 			$this->siteID = SITEID;
 		}
 
+		// $this->CI->load->library('gcal');				// Google Calendar API Library
+		// $events = $this->CI->gcal->listEvents(array(
+			// 'ispublic' => false,  // defaults to false
+			// 'calendarId' => 'odvn8c23uktpcj0kte9mptr71o@group.calendar.google.com',   // required
+			// 'usecache' => true,  // defaults to true
+// //			'cachefile' => '[/path/to/custom/cache/file]',  // optional, defaults to [yourClientID]-calendars.json
+			// 'cacheduration' => 5,  // in minutes, defaults to 5
+			// 'redirectURI' => 'http://news.notecan.net/index.php'  // defaults to the URL of the current page
+		// ));
+//		print "<h1>Calendar Event List</h1><pre>" . print_r($events, true) . "</pre>";
+
 		$this->uploadsPath = $this->CI->config->item('uploadsPath');
 
 		// populate module templates array
 		$this->moduleTemplates = array(
-			'blog',		
+			'blog',
 			'blog_single',
 			'blog_search',
 			'community_account',
@@ -54,13 +66,14 @@ class Template {
 			'community_reset',
 			'community_view_profile',
 			'community_view_profile_private',
-			'events',		
+			'events',
 			'events_single',
+			'events_featured',
 			'events_search',
 			'forums',
 			'forums_delete',
 			'forums_edit_post',
-			'forums_edit_topic',						
+			'forums_edit_topic',
 			'forums_forum',
 			'forums_post_reply',
 			'forums_post_topic',
@@ -80,7 +93,7 @@ class Template {
 			'shop_prelogin',
 			'shop_product',
 			'shop_recommend',
-			'shop_recommend_popup',			
+			'shop_recommend_popup',
 			'shop_reset',
 			'shop_review',
 			'shop_review_popup',
@@ -90,11 +103,11 @@ class Template {
 			'wiki_form',
 			'wiki_page',
 			'wiki_search'
-		);		
+		);
 	}
 
 	function generate_template($pagedata, $file = false)
-	{	
+	{
 		// page data
 		@$this->template['page:title'] = (isset($pagedata['title'])) ? htmlentities($pagedata['title']) : htmlentities($this->CI->site->config['siteName']);
 		@$this->template['page:keywords'] = (isset($pagedata['keywords'])) ? $pagedata['keywords'] : '';
@@ -110,12 +123,12 @@ class Template {
 
 		// find out if logged in
 		$this->template['logged-in'] = ($this->CI->session->userdata('session_user')) ? TRUE : FALSE;
-		
+
 		// find out if subscribed
-		$this->template['subscribed'] = ($this->CI->session->userdata('subscribed')) ? TRUE : FALSE;		
+		$this->template['subscribed'] = ($this->CI->session->userdata('subscribed')) ? TRUE : FALSE;
 
 		// find out if admin
-		$this->template['admin'] = ($this->CI->session->userdata('session_admin')) ? TRUE : FALSE;		
+		$this->template['admin'] = ($this->CI->session->userdata('session_admin')) ? TRUE : FALSE;
 
 		// find out if this is ajax
 		$this->template['ajax'] = ((isset($_SERVER['HTTP_X_REQUESTED_WITH']) && ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'))) ? TRUE : FALSE;
@@ -155,7 +168,7 @@ class Template {
 		// get navigation and build menu
 		if (preg_match_all('/{navigation(\:([a-z0-9\.-]+))?}/i', $this->template['body'], $matches))
 		{
-			$this->template = $this->parse_navigation('navigation', $this->template);			
+			$this->template = $this->parse_navigation('navigation', $this->template);
 		}
 
 		return $this->template;
@@ -163,8 +176,12 @@ class Template {
 
 	function parse_includes($body)
 	{
-		// get includes
-		preg_match_all('/include\:([a-z0-9\.-]+)/i', $body, $includes);
+		// TBD: first, get the specified header and footer files, if non-zero
+//		$includeRow = $this->CI->core->get_include(NULL, $headerID);
+//		$includeRow = $this->CI->core->get_include(NULL, $footerID);
+
+		// get includes (KWB: added _ so it can be used in included filenames)
+		preg_match_all('/include\:([a-z0-9_\.-]+)/i', $body, $includes);
 
 		if ($includes)
 		{
@@ -188,13 +205,13 @@ class Template {
 	{
 		// get all navigation
 		$template[$navTag] = $this->parse_nav();
-		
+
 		// get parents
 		$template[$navTag.':parents'] = $this->parse_nav(0, FALSE);
-		
+
 		// get uri
 		$uri = (!$this->CI->uri->segment(1)) ? 'home' : $this->CI->uri->segment(1);
-		
+
 		// get children of active nav item
 		if ($parent = $this->CI->core->get_page(FALSE, $uri))
 		{
@@ -207,13 +224,13 @@ class Template {
 
 		return $template;
 	}
-	
+
 	function parse_nav($parentID = 0, $showChildren = TRUE)
 	{
 		$output = '';
-		
+
 		if ($navigation = $this->get_nav_parents($parentID))
-		{			
+		{
 			$i = 1;
 			foreach($navigation as $nav)
 			{
@@ -221,44 +238,44 @@ class Template {
 				$class = '';
 				$class .= ($i == 1) ? 'first ' : '';
 				$class .= (sizeof($navigation) == $i) ? 'last ' : '';
-				
+
 				// look for children
 				$children = ($showChildren) ? $this->get_nav_children($nav['navID']) : FALSE;
-								
+
 				// parse the nav item for the link
 				$output .= $this->parse_nav_item($nav['uri'], $nav['navName'], $children, $class);
-				
+
 				// parse for children
 				if ($children)
 				{
 					$x = 1;
-					$output .= '<ul class="subnav">';
+					$output .= '<ul class="dropdown-menu">';
 					foreach($children as $child)
 					{
 						// set first and last state on menu
 						$class = '';
 						$class .= ($x == 1) ? 'first ' : '';
 						$class .= (sizeof($children) == $x) ? 'last ' : '';
-								
+
 						// look for sub children
 						$subChildren = $this->get_nav_children($child['navID']);
-						
+
 						// parse nav item
 						$navItem = $this->parse_nav_item($child['uri'], $child['navName'], $subChildren, $class);
 						$output .= $navItem;
-						
+
 						// parse for children
 						if ($subChildren)
 						{
 							$y = 1;
-							$output .= '<ul class="subnav">';
+							$output .= '<ul class="dropdown-menu">';
 							foreach($subChildren as $subchild)
 							{
 								// set first and last state on menu
 								$class = '';
 								$class .= ($y == 1) ? 'first ' : '';
 								$class .= (sizeof($subChildren) == $y) ? 'last ' : '';
-								
+
 								$navItem = $this->parse_nav_item($subchild['uri'], $subchild['navName'], '', $class).'</li>';
 								$output .= $navItem;
 								$y++;
@@ -272,17 +289,18 @@ class Template {
 				}
 
 				$output .= '</li>';
-				
+
 				$i++;
 			}
 		}
-		
+
 		return $output;
 	}
 
 	function parse_nav_item($uri, $name, $children = FALSE, $class = '')
 	{
 		// init stuff
+		$class = '';
 		$output = '';
 		$childs = array();
 
@@ -294,13 +312,14 @@ class Template {
 				$childs[] = $child['uri'];
 			}
 		}
-		
+
 		// set active state on menu
+		// TBD: need to fix selection of modules like the blog
 		$currentNav = $uri;
 		$output .= '<li class="';
-		if (($currentNav != '/' && $currentNav == $this->CI->uri->uri_string()) || 
-			$currentNav == $this->CI->uri->segment(1) ||  
-			(($currentNav == '' || $currentNav == 'home' || $currentNav == '/') && 
+		if (($currentNav != '/' && $currentNav == $this->CI->uri->uri_string()) ||
+			$currentNav == $this->CI->uri->segment(1) ||
+			(($currentNav == '' || $currentNav == 'home' || $currentNav == '/') &&
 				($this->CI->uri->uri_string() == '' || $this->CI->uri->uri_string() == '/home' || $this->CI->uri->uri_string() == '/')) ||
 			@in_array(substr($this->CI->uri->uri_string(),1), $childs)
 		)
@@ -309,9 +328,9 @@ class Template {
 		}
 		if ($children)
 		{
-			$class .= 'expanded ';
+			$class .= 'dropdown ';
 		}
-		
+
 		// filter uri to make sure it's cool
 		if (substr($uri,0,1) == '/')
 		{
@@ -332,14 +351,41 @@ class Template {
 		elseif ($uri == 'home')
 		{
 			$href = '/';
-		}			
+		}
 		else
 		{
 			$href = '/'.$uri;
 		}
 
-		// output anchor with span in case of additional styling
-		$output .= trim($class).'" id="nav-'.trim($uri).'"><a href="'.site_url($href).'" class="'.trim($class).'"><span>'.htmlentities($name).'</span></a>';
+		$output .= trim($class).' ';
+//		$output .= '" id="nav-'.trim($uri).'">';
+		$output .= '" >';
+
+		if ($children)
+		{
+			// output anchor with span in case of additional styling
+			if ($this->CI->config->item('bootstrap'))
+			{
+				// insert special Twitter Bootstrap styling
+				$class .= 'dropdown-toggle';
+				$output .= '<a href="#" class="'.trim($class).'" data-toggle="dropdown"><span>'.htmlentities($name).'</span><i class="icon-caret-down"></i></a>';
+			}
+			else
+			{
+				$output .= '<a href="'.site_url($href).'" class="'.trim($class).'"><span>'.htmlentities($name).'</span></a>';
+			}
+		}
+		else
+		{
+			$output .= '<a href="'.site_url($href).'"';
+			// TBD: Make this conditional upon config setting: 'single-page'
+			if (true)
+			{
+				$output .= ' class="single-page"';
+			}
+			// output anchor with span in case of additional styling
+			$output .= '><span>'.htmlentities($name).'</span></a>';
+		}
 
 		return $output;
 	}
@@ -354,11 +400,11 @@ class Template {
 
 		// get navigation from pages
 		$this->CI->db->select('uri, pageID as navID, pageName as navName');
-				
+
 		$this->CI->db->order_by('pageOrder', 'asc');
-		
+
 		$query = $this->CI->db->get('pages');
-		
+
 		if ($query->num_rows())
 		{
 			return $query->result_array();
@@ -366,7 +412,7 @@ class Template {
 		else
 		{
 			return false;
-		}		
+		}
 	}
 
 	function get_nav_parents($parentID = 0)
@@ -375,21 +421,21 @@ class Template {
 		$this->CI->db->where(array('siteID' => $this->siteID, 'deleted' => 0));
 
 		// where parent is set
-		$this->CI->db->where('parentID', $parentID); 
-		
+		$this->CI->db->where('parentID', $parentID);
+
 		// where parent is set
 		$this->CI->db->where('active', 1);
 
 		// get navigation from pages
 		$this->CI->db->select('uri, pageID as navID, pageName as navName');
-		
+
 		// nav has to be active because its parents
 		$this->CI->db->where('navigation', 1);
-		
+
 		$this->CI->db->order_by('pageOrder', 'asc');
-		
+
 		$query = $this->CI->db->get('pages');
-		
+
 		if ($query->num_rows())
 		{
 			return $query->result_array();
@@ -397,7 +443,7 @@ class Template {
 		else
 		{
 			return false;
-		}		
+		}
 	}
 
 	function get_nav_children($navID = '')
@@ -407,22 +453,22 @@ class Template {
 
 		// get nav by ID
 		$this->CI->db->where('parentID', $navID);
-		
+
 		// where parent is set
 		$this->CI->db->where('active', 1);
 
 		// select
 		$this->CI->db->select('uri, pageID as navID, pageName as navName');
-		
+
 		// where viewable
 		$this->CI->db->where('navigation', 1);
-		
+
 		// page order
 		$this->CI->db->order_by('pageOrder', 'asc');
-		
+
 		// grab
 		$query = $this->CI->db->get('pages');
-				
+
 		if ($query->num_rows())
 		{
 			return $query->result_array();
@@ -430,36 +476,36 @@ class Template {
 		else
 		{
 			return FALSE;
-		}		
+		}
 	}
 
 	function parse_template($body, $condense = FALSE, $link = '', $mkdn = TRUE)
-	{		
+	{
 		$body = $this->parse_body($body, $condense, $link, $mkdn);
-		
+
 		return $body;
 	}
 
 	function parse_body($body, $condense = FALSE, $link = '', $mkdn = TRUE)
-	{		
-		// parse for images		
+	{
+		// parse for images
 		$body = $this->parse_images($body);
 
 		// parse for files
 		$body = $this->parse_files($body);
 
-		// parse for files
+		// parse for includes
 		$body = $this->parse_includes($body);
 
 		// parse for modules
-		$this->template = $this->parse_modules($body, $this->template);	
-		
+		$this->template = $this->parse_modules($body, $this->template);
+
 		// site globals
 		$body = str_replace('{site:name}', $this->CI->site->config['siteName'], $body);
 		$body = str_replace('{site:domain}', $this->CI->site->config['siteDomain'], $body);
 		$body = str_replace('{site:url}', $this->CI->site->config['siteURL'], $body);
 		$body = str_replace('{site:email}', $this->CI->site->config['siteEmail'], $body);
-		$body = str_replace('{site:tel}', $this->CI->site->config['siteTel'], $body);		
+		$body = str_replace('{site:tel}', $this->CI->site->config['siteTel'], $body);
 		$body = str_replace('{site:currency}', $this->CI->site->config['currency'], $body);
 		$body = str_replace('{site:currency-symbol}', currency_symbol(), $body);
 
@@ -467,21 +513,28 @@ class Template {
 		$body = str_replace('{userdata:id}', ($this->CI->session->userdata('userID')) ? $this->CI->session->userdata('userID') : '', $body);
 		$body = str_replace('{userdata:email}', ($this->CI->session->userdata('email')) ? $this->CI->session->userdata('email') : '', $body);
 		$body = str_replace('{userdata:username}', ($this->CI->session->userdata('username')) ? $this->CI->session->userdata('username') : '', $body);
-		$body = str_replace('{userdata:name}', ($this->CI->session->userdata('firstName') && $this->CI->session->userdata('lastName')) ? $this->CI->session->userdata('firstName').' '.$this->CI->session->userdata('lastName') : '', $body);		
+		$body = str_replace('{userdata:name}', ($this->CI->session->userdata('firstName') && $this->CI->session->userdata('lastName')) ? $this->CI->session->userdata('firstName').' '.$this->CI->session->userdata('lastName') : '', $body);
 		$body = str_replace('{userdata:first-name}', ($this->CI->session->userdata('firstName')) ? $this->CI->session->userdata('firstName') : '', $body);
 		$body = str_replace('{userdata:last-name}', ($this->CI->session->userdata('lastName')) ? $this->CI->session->userdata('lastName') : '', $body);
 
 		// other useful stuff
 		$body = str_replace('{date}', dateFmt(date("Y-m-d H:i:s"), ($this->CI->site->config['dateOrder'] == 'MD') ? 'M jS Y' : 'jS M Y'), $body);
 		$body = str_replace('{date:unixtime}', time(), $body);
-		
+		// Vizlogix additions
+		// 4-digit year:
+		$body = str_replace('{date:year}', dateFmt(date("Y"), 'Y'), $body);
+		// month:
+		$body = str_replace('{date:month}', dateFmt(date("F"), 'F'), $body);
+		// day of month:
+		$body = str_replace('{date:dayofmonth}', dateFmt(date("j"), 'j'), $body);
+
 		// condense
 		if ($condense)
 		{
 			if ($endchr = strpos($body, '{more}'))
 			{
 				$body = substr($body, 0, ($endchr + 6));
-				$body = str_replace('{more}', '<p class="more"><a href="'.$link.'" class="button more">Read more</a></p>', $body);				
+				$body = str_replace('{more}', '<p class="more"><a href="'.$link.'" class="button more">Read more</a></p>', $body);
 			}
 		}
 		else
@@ -494,14 +547,14 @@ class Template {
 
 		// parse for pads
 		$body = str_replace('{pad}', '<div style="padding-bottom:10px;width:10px;clear:both;"/></div>', $body);
-		
+
 		// parse body for markdown and images
 		if ($mkdn === TRUE)
 		{
 			// parse for mkdn
 			$body = mkdn($body);
 		}
-		
+
 		return $body;
 	}
 
@@ -515,7 +568,7 @@ class Template {
 			$webform = $this->CI->core->get_web_form_by_ref($matches[1][0]);
 			$template[$webformID] = '';
 			$required = array();
-	
+
 			// get web form
 			if ($webform)
 			{
@@ -524,32 +577,55 @@ class Template {
 				{
 					$required[] = 'fullName';
 					$required[] = 'subject';
-					$required[] = 'message';					
+					$required[] = 'message';
 
 					// populate template
 					$template[$webformID] .= '
-						<div class="formrow field-fullName">
-							<label for="fullName">Full Name</label>
-							<input type="text" id="fullName" name="fullName" value="'.$this->CI->input->post('fullName').'" class="formelement" />
+						<div class="control-group formrow field-fullName">
+						<div class="controls">
+							<label class="control-label" for="fullName">Full Name:</label>
+							<input type="text" id="fullName" name="fullName" value="'.$this->CI->input->post('fullName').'" class="required formelement" />
 						</div>
-			
-						<div class="formrow field-email">
-							<label for="email">Email</label>
-							<input type="text" id="email" name="email" value="'.$this->CI->input->post('email').'" class="formelement" />
 						</div>
-	
-						<div class="formrow field-subject">
-							<label for="subject">Subject</label>
-							<input type="text" id="subject" name="subject" value="'.$this->CI->input->post('subject').'" class="formelement" />
+
+						<div class="control-group formrow field-email">
+						<div class="controls">
+							<label class="control-label" for="email">Email:</label>
+							<input type="text" id="email" name="email" value="'.$this->CI->input->post('email').'" class="required email formelement" />
 						</div>
-	
-						<div class="formrow field-message">		
-							<label for="message">Message</label>
-							<textarea id="message" name="message" class="formelement small">'.$this->CI->input->post('message').'</textarea>
 						</div>
+
+						<div class="control-group formrow field-subject">
+						<div class="controls">
+							<label class="control-label" for="subject">Subject:</label>
+							<input type="text" id="subject" name="subject" value="'.$this->CI->input->post('subject').'" class="required formelement" />
+						</div>
+						</div>
+
+						<div class="control-group formrow field-message">
+						<div class="controls">
+							<label class="control-label" for="message">Message:</label>
+							<textarea id="message" name="message" class="required formelement small">'.$this->CI->input->post('message').'</textarea>
+						</div>
+						</div>
+
+						<input type="hidden" id="address" name="address" value="" />
+						';
+
+					// set required
+					if ($required)
+					{
+						$template[$webformID] .= '
+							<input type="hidden" name="required" value="'.implode('|', $required).'" />
+						';
+					}
+
+					// output encoded webform ID
+					$template[$webformID] .= '
+						<input style="display: none;" type="hidden" name="formID" value="'.$this->CI->core->encode($matches[1][0]).'" />
 					';
 				}
-				
+
 				// set fields
 				if ($webform['fieldSet'] == 2)
 				{
@@ -557,18 +633,104 @@ class Template {
 
 					// populate template
 					$template[$webformID] .= '
-						<div class="formrow field-fullName">
-							<label for="fullName">Full Name</label>
-							<input type="text" id="fullName" name="fullName" value="'.$this->CI->input->post('fullName').'" class="formelement" />
+						<div class="control-group formrow field-fullName">
+						<div class="controls">
+							<label class="control-label" for="fullName">Full Name:</label>
+							<input type="text" id="fullName" name="fullName" value="'.$this->CI->input->post('fullName').'" class="required formelement" />
 						</div>
-			
-						<div class="formrow field-email">
-							<label for="email">Email</label>
-							<input type="text" id="email" name="email" value="'.$this->CI->input->post('email').'" class="formelement" />
+						</div>
+
+						<div class="control-group formrow field-email">
+						<div class="controls">
+							<label class="control-label" for="email">Email:</label>
+							<input type="text" id="email" name="email" value="'.$this->CI->input->post('email').'" class="required email formelement" />
+						</div>
 						</div>
 
 						<input type="hidden" name="subject" value="'.$webform['formName'].'" />
 					';
+
+					// set required
+					if ($required)
+					{
+						$template[$webformID] .= '
+							<input type="hidden" name="required" value="'.implode('|', $required).'" />
+						';
+					}
+
+					// output encoded webform ID
+					$template[$webformID] .= '
+						<input style="display: none;" type="hidden" name="formID" value="'.$this->CI->core->encode($matches[1][0]).'" />
+					';
+					$template[$webformID] .= '
+						<input style="display: none;" type="hidden" name="'.$this->CI->security->get_csrf_token_name().'" value="'.$this->CI->security->get_csrf_hash().'" />
+					';
+				}
+
+				// set fields for Vizlogix anti-CSRF Contact Form
+				if ($webform['fieldSet'] == 3)
+				{
+					$required[] = 'fullName';
+					$required[] = 'subject';
+					$required[] = 'message';
+
+					// populate template
+					// <form name="my-form" id="contactForm" method="post" action="{page:uri}">
+					$url = "";	// "this" page?
+					$attributes = array('class' => 'email', 'name' => 'my-form', 'id' => 'contactForm');
+					$template[$webformID] .= form_open($url, $attributes);
+					$template[$webformID] .= '
+						<div class="control-group formrow field-fullName">
+						<div class="controls">
+							<label class="control-label" for="fullName">Full Name:</label>
+							<input type="text" id="fullName" name="fullName" value="'.$this->CI->input->post('fullName').'" class="required formelement" />
+						</div>
+						</div>
+
+						<div class="control-group formrow field-email">
+						<div class="controls">
+							<label class="control-label" for="email">Email:</label>
+							<input type="text" id="email" name="email" value="'.$this->CI->input->post('email').'" class="required email formelement" />
+						</div>
+						</div>
+
+						<div class="control-group formrow field-subject">
+						<div class="controls">
+							<label class="control-label" for="subject">Subject:</label>
+							<input type="text" id="subject" name="subject" value="'.$this->CI->input->post('subject').'" class="required formelement" />
+						</div>
+						</div>
+
+						<div class="control-group formrow field-message">
+						<div class="controls">
+							<label class="control-label" for="message">Message:</label>
+							<textarea id="message" name="message" class="required formelement small">'.$this->CI->input->post('message').'</textarea>
+						</div>
+						</div>
+
+						<input type="hidden" id="address" name="address" value="" />
+						';
+					// set required
+					if ($required)
+					{
+						$template[$webformID] .= '
+							<input type="hidden" name="required" value="'.implode('|', $required).'" />
+						';
+					}
+
+					// output encoded webform ID
+					$template[$webformID] .= '
+						<input style="display: none;" type="hidden" name="formID" value="'.$this->CI->core->encode($matches[1][0]).'" />
+					';
+
+					$template[$webformID] .= '
+						<input style="display: none;" type="hidden" name="'.$this->CI->security->get_csrf_token_name().'" value="'.$this->CI->security->get_csrf_hash().'" />
+					';
+
+					$template[$webformID] .= '
+						<input type="submit" value="Submit" class="btn btn-primary"/>
+					';
+					$template[$webformID] .= form_close();
 				}
 
 				// set fields
@@ -578,6 +740,19 @@ class Template {
 					$template[$webformID] .= '
 						<input type="hidden" name="subject" value="'.$webform['formName'].'" />
 					';
+
+					// set required
+					if ($required)
+					{
+						$template[$webformID] .= '
+							<input type="hidden" name="required" value="'.implode('|', $required).'" />
+						';
+					}
+
+					// output encoded webform ID
+					$template[$webformID] .= '
+						<input style="display: none;" type="hidden" name="formID" value="'.$this->CI->core->encode($matches[1][0]).'" />
+					';
 				}
 
 				// set account
@@ -585,24 +760,11 @@ class Template {
 				{
 					// populate template
 					$template[$webformID] .= '
-						<input type="hidden" name="subject" value="'.$webform['formName'].'" />					
+						<input type="hidden" name="subject" value="'.$webform['formName'].'" />
 						<input type="hidden" name="message" value="'.$webform['outcomeMessage'].'" />
-						<input type="hidden" name="groupID" value="'.$webform['groupID'].'" />						
+						<input type="hidden" name="groupID" value="'.$webform['groupID'].'" />
 					';
 				}
-
-				// set required
-				if ($required)
-				{
-					$template[$webformID] .= '
-						<input type="hidden" name="required" value="'.implode('|', $required).'" />
-					';
-				}
-
-				// output encoded webform ID
-				$template[$webformID] .= '
-					<input type="hidden" name="formID" value="'.$this->CI->core->encode($matches[1][0]).'" />
-				';	
 			}
 			else
 			{
@@ -621,12 +783,12 @@ class Template {
 			{
 				// filter matches
 				$headlineID = preg_replace('/{|}/', '', $matches[0][$x]);
-				$limit = ($matches[6][$x]) ? $matches[6][$x] : $this->CI->site->config['headlines'];			
+				$limit = ($matches[6][$x]) ? $matches[6][$x] : $this->CI->site->config['headlines'];
 				$headlines = ($matches[3][$x]) ? $this->CI->blog->get_posts_by_category($matches[3][$x], $limit) : $this->CI->blog->get_posts($limit);
-			
+
 				// get latest posts
 				if ($headlines)
-				{	
+				{
 					// fill up template array
 					$i = 0;
 					foreach ($headlines as $headline)
@@ -634,23 +796,26 @@ class Template {
 						// get rid of any template tags
 						$headlineBody = $this->parse_body($headline['body'], TRUE, site_url('blog/'.dateFmt($headline['dateCreated'], 'Y/m').'/'.$headline['uri']));
 						$headlineExcerpt = $this->parse_body($headline['excerpt'], TRUE, site_url('blog/'.dateFmt($headline['dateCreated'], 'Y/m').'/'.$headline['uri']));
-	
+
 						// populate loop
 						$template[$headlineID][$i] = array(
 							'headline:link' => site_url('blog/'.dateFmt($headline['dateCreated'], 'Y/m').'/'.$headline['uri']),
 							'headline:title' => $headline['postTitle'],
-							'headline:date' => dateFmt($headline['dateCreated'], ($this->CI->site->config['dateOrder'] == 'MD') ? 'M jS Y' : 'jS M Y'),
+							'headline:date' => dateFmt($headline['dateCreated'], ($this->CI->site->config['dateOrder'] == 'MD') ? 'M jS, Y' : 'jS M Y'),
+							'headline:fulldate' => dateFmt($headline['dateCreated'], ($this->CI->site->config['dateOrder'] == 'MD') ? 'l, F jS, Y' : 'l, jS F Y'),
 							'headline:day' => dateFmt($headline['dateCreated'], 'd'),
+							'headline:dayofmonth' => dateFmt($headline['dateCreated'], 'j'),
 							'headline:month' => dateFmt($headline['dateCreated'], 'M'),
-							'headline:year' => dateFmt($headline['dateCreated'], 'y'),						
+							'headline:fullmonth' => dateFmt($headline['dateCreated'], 'F'),
+							'headline:year' => dateFmt($headline['dateCreated'], 'y'),
 							'headline:body' => $headlineBody,
-							'headline:excerpt' => $headlineExcerpt,						
+							'headline:excerpt' => $headlineExcerpt,
 							'headline:comments-count' => $headline['numComments'],
 							'headline:author' => $this->CI->blog->lookup_user($headline['userID'], TRUE),
 							'headline:author-id' => $headline['userID'],
-							'headline:class' => ($i % 2) ? ' alt ' : ''						
+							'headline:class' => ($i % 2) ? ' alt ' : ''
 						);
-	
+
 						$i++;
 					}
 				}
@@ -661,37 +826,41 @@ class Template {
 			}
 		}
 
-		// get events headlines
-		if (preg_match_all('/{headlines:events(:limit(\(([0-9]+)\))?)?}/i', $body, $matches))
+		// get featured event headlines
+		if (preg_match_all('/{headlines:events:featured(:limit(\(([0-9]+)\))?)?}/i', $body, $matches))
 		{
 			// load events model
 			$this->CI->load->model('events/events_model', 'events');
 
 			// filter matches
 			$headlineID = preg_replace('/{|}/', '', $matches[0][0]);
-			$limit = ($matches[3][0]) ? $matches[3][0] : $this->CI->site->config['headlines'];			
+			$limit = ($matches[3][0]) ? $matches[3][0] : $this->CI->site->config['headlines'];
 
-			// get latest posts
-			if ($headlines = $this->CI->events->get_events($limit))
-			{	
+			// get featured events
+			if ($headlines = $this->CI->events->get_featured_events($limit))
+			{
 				// fill up template array
 				$i = 0;
 				foreach ($headlines as $headline)
 				{
 					$headlineBody = $this->parse_body($headline['description'], TRUE, site_url('events/viewevent/'.$headline['eventID']));
 					$headlineExcerpt = $this->parse_body($headline['excerpt'], TRUE, site_url('events/viewevent/'.$headline['eventID']));
-					
+
 					$template[$headlineID][$i] = array(
 						'headline:link' => site_url('events/viewevent/'.$headline['eventID']),
 						'headline:title' => $headline['eventTitle'],
-						'headline:date' => dateFmt($headline['eventDate'], ($this->CI->site->config['dateOrder'] == 'MD') ? 'M jS Y' : 'jS M Y'),
+						'headline:date' => dateFmt($headline['eventDate'], ($this->CI->site->config['dateOrder'] == 'MD') ? 'M jS, Y' : 'jS M Y'),
+						'headline:fulldate' => dateFmt($headline['eventDate'], ($this->CI->site->config['dateOrder'] == 'MD') ? 'l, F jS, Y' : 'l, jS F Y'),
+						'headline:time' => dateFmt($headline['eventDate'], 'g:i a'),
 						'headline:day' => dateFmt($headline['eventDate'], 'd'),
+						'headline:dayofmonth' => dateFmt($headline['eventDate'], 'j'),
 						'headline:month' => dateFmt($headline['eventDate'], 'M'),
-						'headline:year' => dateFmt($headline['eventDate'], 'y'),	
+						'headline:fullmonth' => dateFmt($headline['eventDate'], 'F'),
+						'headline:year' => dateFmt($headline['eventDate'], 'y'),
 						'headline:body' => $headlineBody,
 						'headline:excerpt' => $headlineExcerpt,
 						'headline:author' => $this->CI->events->lookup_user($headline['userID'], TRUE),
-						'headline:author-id' => $headline['userID'],						
+						'headline:author-id' => $headline['userID'],
 						'headline:class' => ($i % 2) ? ' alt ' : ''
 					);
 
@@ -703,7 +872,101 @@ class Template {
 				$template[$headlineID] = array();
 			}
 		}
-		
+
+		// get events headlines
+		if (preg_match_all('/{headlines:events(:limit(\(([0-9]+)\))?)?}/i', $body, $matches))
+		{
+			// load events model
+			$this->CI->load->model('events/events_model', 'events');
+
+			// filter matches
+			$headlineID = preg_replace('/{|}/', '', $matches[0][0]);
+			$limit = ($matches[3][0]) ? $matches[3][0] : $this->CI->site->config['headlines'];
+
+			// get latest posts
+			if ($headlines = $this->CI->events->get_events($limit))
+			{
+				// fill up template array
+				$i = 0;
+				foreach ($headlines as $headline)
+				{
+					$headlineBody = $this->parse_body($headline['description'], TRUE, site_url('events/viewevent/'.$headline['eventID']));
+					$headlineExcerpt = $this->parse_body($headline['excerpt'], TRUE, site_url('events/viewevent/'.$headline['eventID']));
+
+					$template[$headlineID][$i] = array(
+						'headline:link' => site_url('events/viewevent/'.$headline['eventID']),
+						'headline:title' => $headline['eventTitle'],
+						'headline:date' => dateFmt($headline['eventDate'], ($this->CI->site->config['dateOrder'] == 'MD') ? 'M jS, Y' : 'jS M Y'),
+						'headline:fulldate' => dateFmt($headline['eventDate'], ($this->CI->site->config['dateOrder'] == 'MD') ? 'l, F jS, Y' : 'l, jS F Y'),
+						'headline:time' => dateFmt($headline['eventDate'], 'g:i a'),
+						'headline:day' => dateFmt($headline['eventDate'], 'd'),
+						'headline:dayofmonth' => dateFmt($headline['eventDate'], 'j'),
+						'headline:month' => dateFmt($headline['eventDate'], 'M'),
+						'headline:fullmonth' => dateFmt($headline['eventDate'], 'F'),
+						'headline:year' => dateFmt($headline['eventDate'], 'y'),
+						'headline:body' => $headlineBody,
+						'headline:excerpt' => $headlineExcerpt,
+						'headline:author' => $this->CI->events->lookup_user($headline['userID'], TRUE),
+						'headline:author-id' => $headline['userID'],
+						'headline:class' => ($i % 2) ? ' alt ' : ''
+					);
+
+					$i++;
+				}
+			}
+			else
+			{
+				$template[$headlineID] = array();
+			}
+		}
+
+		// get occurring event headlines
+		if (preg_match_all('/{headlines:events:occurring(:limit(\(([0-9]+)\))?)?}/i', $body, $matches))
+		{
+			// load events model
+			$this->CI->load->model('events/events_model', 'events');
+
+			// filter matches
+			$headlineID = preg_replace('/{|}/', '', $matches[0][0]);
+			$limit = ($matches[3][0]) ? $matches[3][0] : $this->CI->site->config['headlines'];
+
+			// get occurring events
+			if ($headlines = $this->CI->events->get_occurring_events($limit))
+			{
+				// fill up template array
+				$i = 0;
+				foreach ($headlines as $headline)
+				{
+					$headlineBody = $this->parse_body($headline['description'], TRUE, site_url('events/viewevent/'.$headline['eventID']));
+					$headlineExcerpt = $this->parse_body($headline['excerpt'], TRUE, site_url('events/viewevent/'.$headline['eventID']));
+
+					$template[$headlineID][$i] = array(
+						'headline:link' => site_url('events/viewevent/'.$headline['eventID']),
+						'headline:title' => $headline['eventTitle'],
+						'headline:date' => dateFmt($headline['eventDate'], ($this->CI->site->config['dateOrder'] == 'MD') ? 'M jS, Y' : 'jS M Y'),
+						'headline:fulldate' => dateFmt($headline['eventDate'], ($this->CI->site->config['dateOrder'] == 'MD') ? 'l, F jS, Y' : 'l, jS F Y'),
+						'headline:time' => dateFmt($headline['eventDate'], 'g:i a'),
+						'headline:day' => dateFmt($headline['eventDate'], 'd'),
+						'headline:dayofmonth' => dateFmt($headline['eventDate'], 'j'),
+						'headline:month' => dateFmt($headline['eventDate'], 'M'),
+						'headline:fullmonth' => dateFmt($headline['eventDate'], 'F'),
+						'headline:year' => dateFmt($headline['eventDate'], 'y'),
+						'headline:body' => $headlineBody,
+						'headline:excerpt' => $headlineExcerpt,
+						'headline:author' => $this->CI->events->lookup_user($headline['userID'], TRUE),
+						'headline:author-id' => $headline['userID'],
+						'headline:class' => ($i % 2) ? ' alt ' : ''
+					);
+
+					$i++;
+				}
+			}
+			else
+			{
+				$template[$headlineID] = array();
+			}
+		}
+
 		// get wiki headlines
 		if (preg_match_all('/{headlines:wiki(:category(\(([A-Za-z0-9_-]+)\))?)?(:limit(\(([0-9]+)\))?)?}/i', $body, $matches))
 		{
@@ -712,16 +975,16 @@ class Template {
 
 			// filter matches
 			$headlineID = preg_replace('/{|}/', '', $matches[0][0]);
-			$limit = ($matches[3][0]) ? $matches[3][0] : $this->CI->site->config['headlines'];			
+			$limit = ($matches[3][0]) ? $matches[3][0] : $this->CI->site->config['headlines'];
 
 			// get latest posts
 			if ($headlines = $this->CI->wiki->get_pages($limit))
-			{	
+			{
 				// fill up template array
 				$i = 0;
 				foreach ($headlines as $headline)
 				{
-					
+
 					$template[$headlineID][$i] = array(
 						'headline:link' => site_url('wiki/' .$headline['uri']),
 						'headline:title' => $headline['pageName'],
@@ -735,7 +998,7 @@ class Template {
 				$template[$headlineID] = array();
 			}
 		}
-		
+
 		// get gallery
 		if (preg_match_all('/{gallery:([A-Za-z0-9_-]+)(:limit\(([0-9]+)\))?}/i', $body, $matches))
 		{
@@ -744,14 +1007,14 @@ class Template {
 
 			// filter through matches
 			for ($x = 0; $x < sizeof($matches[0]); $x++)
-			{	
+			{
 				// filter matches
-				$headlineID = preg_replace('/{|}/', '', $matches[0][0]);
+				$headlineID = preg_replace('/{|}/', '', $matches[0][$x]);
 				$limit = ($matches[3][$x]) ? $matches[3][$x] : 9;
 
 				// get latest posts
 				if ($gallery = $this->CI->images->get_images_by_folder_ref($matches[1][$x], $limit))
-				{	
+				{
 					// fill up template array
 					$i = 0;
 					foreach ($gallery as $galleryimage)
@@ -760,22 +1023,27 @@ class Template {
 						{
 							$imageHTML = display_image($imageData['src'], $imageData['imageName']);
 							$imageHTML = preg_replace('/src=("[^"]*")/i', 'src="'.site_url('/images/'.$imageData['imageRef'].strtolower($imageData['ext'])).'"', $imageHTML);
-							
-							$thumbTML = display_image($imageData['src'], $imageData['imageName']);
-							$thumbHTML = preg_replace('/src=("[^"]*")/i', 'src="'.site_url('/thumbs/'.$imageData['imageRef'].strtolower($imageData['ext'])).'"', $imageHTML);									
-							
+
+							console_debug(__FILE__.':'.__FUNCTION__.": imageHTML: ", $imageHTML);
+
+							$thumbHTML = display_image($imageData['src'], $imageData['imageName']);
+							$thumbHTML = preg_replace('/src=("[^"]*")/i', 'src="'.site_url('/thumbs/'.$imageData['imageRef'].strtolower($imageData['ext'])).'" class="gallery"', $imageHTML);
+
+							console_debug(__FILE__.':'.__FUNCTION__.": thumbHTML: ", $thumbHTML);
+
 							$template[$headlineID][$i] = array(
 								'galleryimage:link' => site_url('images/'.$imageData['imageRef'].$imageData['ext']),
 								'galleryimage:title' => $imageData['imageName'],
+								'galleryimage:description' => mkdn($imageData['description']),
 								'galleryimage:image' => $imageHTML,
 								'galleryimage:thumb' => $thumbHTML,
 								'galleryimage:filename' => $imageData['imageRef'].$imageData['ext'],
 								'galleryimage:date' => dateFmt($imageData['dateCreated'], ($this->CI->site->config['dateOrder'] == 'MD') ? 'M jS Y' : 'jS M Y'),
 								'galleryimage:author' => $this->CI->images->lookup_user($imageData['userID'], TRUE),
-								'galleryimage:author-id' => $imageData['userID'],					
+								'galleryimage:author-id' => $imageData['userID'],
 								'galleryimage:class' => $imageData['class']
 							);
-							
+
 							$i++;
 						}
 					}
@@ -787,17 +1055,155 @@ class Template {
 			}
 		}
 
+		// get filelist
+		if (preg_match_all('/{filelist:([A-Za-z0-9_-]+)(:limit\(([0-9]+)\))?}/i', $body, $matches))
+		{
+			// load model
+			$this->CI->load->model('files/files_model', 'files');
+
+			// filter through matches
+			for ($x = 0; $x < sizeof($matches[0]); $x++)
+			{
+				// filter matches
+				$headlineID = preg_replace('/{|}/', '', $matches[0][$x]);
+				$limit = ($matches[3][$x]) ? $matches[3][$x] : 9;
+
+				// get all files in the specified folder
+				if ($filelist = $this->CI->files->get_files_by_folder_ref($matches[1][$x], $limit))
+				{
+					// fill up template array
+					$i = 0;
+					foreach ($filelist as $filelink)
+					{
+						if ($fileData = $this->get_file($filelink['fileRef']))
+						{
+							$template[$headlineID][$i] = array(
+								'filelink:link' => site_url('files/'.$fileData['fileRef'].$fileData['extension']),
+								'filelink:title' => $fileData['fileRef'],
+								'filelink:description' => mkdn($fileData['description']),
+								'filelink:filename' => $fileData['fileRef'].$fileData['extension']    // ,
+								// 'filelink:date' => dateFmt($fileData['dateCreated'], ($this->CI->site->config['dateOrder'] == 'MD') ? 'M jS Y' : 'jS M Y'),
+								// 'filelink:author-id' => $fileData['userID'],
+								// 'filelink:size' => $fileData['filesize']
+							);
+							$i++;
+						}
+					}
+				}
+				else
+				{
+					$template[$headlineID] = array();
+				}
+			}
+		}
+
+		// get (community) user list
+		if (preg_match_all('/{community:userlist(:group(\(([A-Za-z0-9_-]+)\))?)?(:limit(\(([0-9]+)\))?)?}/i', $body, $matches))
+		{
+			// load blog model
+			$this->CI->load->model('community/users_model', 'users');
+
+			// filter through matches
+			for ($x = 0; $x < sizeof($matches[0]); $x++)
+			{
+				// filter matches
+				$userID = preg_replace('/{|}/', '', $matches[0][$x]);
+//				$limit = ($matches[6][$x]) ? $matches[6][$x] : $this->CI->site->config['headlines'];
+				$userlist = ($matches[3][$x]) ? $this->CI->users->get_users_by_group($matches[3][$x]) : $this->CI->blog->get_public_users();
+
+				// get users
+				if ($userlist)
+				{
+					// fill up template array
+					$i = 0;
+					foreach ($userlist as $user)
+					{
+						// populate loop
+						$template[$userID][$i] = array(
+							'user:id' => $user['userID'],
+							'user:avatar' => display_image($this->CI->users->get_avatar($user['avatar']), 'User Avatar', 80, 'class="avatar"', $this->CI->config->item('staticPath').'/images/noavatar.gif'),
+							'user:name' => $user['firstName'].' '.$user['lastName'],
+							'user:displayName' => $user['displayName'],
+							'user:email' => $user['email'],
+							'user:group' => ($user['groupName']) ? $user['groupName'] : '',
+							'user:link' => site_url('/users/profile/'.$user['userID']),
+							'user:bio' => $user['bio'], // added by Vizlogix to include staff titles, etc.
+							'user:signature' => $user['signature'], // added by Vizlogix to include full names on staff pages, etc.
+							'user:website' => $user['companyWebsite'] // added by Vizlogix
+						);
+
+						$i++;
+					}
+				}
+				else
+				{
+					$template[$userID] = array();
+				}
+			}
+		}
+
+		// get RSS feed (NOTE: this does not validate the URL)
+		if (preg_match_all('/\{rssfeed\:url\(([^)]*)\)\}/i', $body, $matches, PREG_PATTERN_ORDER))
+		{
+			// load RSS library
+			$this->CI->load->library('rssparser');
+
+			// filter through matches
+			for ($x = 0; $x < sizeof($matches[0]); $x++)
+			{
+				// filter matches
+				$headlineID = preg_replace('/{|}/', '', $matches[0][$x]);
+				$url = $matches[1][$x];
+//				$limit = ($matches[4][$x]) ? $matches[4][$x] : $this->CI->site->config['headlines'];
+				$limit = 5;
+
+				// get feed
+				if ($url)
+				{
+					$this->CI->rssparser->set_feed_url($url);	// get feed
+					$this->CI->rssparser->set_cache_life(0);	// set cache life time in minutes
+					$rss = $this->CI->rssparser->getFeed($limit);	// get items from the feed based on the limit
+
+					// populate loop
+					// fill up template array
+					$i = 0;
+					foreach ($rss as $item)
+					{
+						$template[$headlineID][$i] = array(
+							'feed:title' => $item['title'],
+							'feed:description' => $item['description'],
+							'feed:author' => $item['author'],
+							'feed:date' => $item['pubDate'],
+							'feed:link' => $item['link'],
+						);
+
+						$i++;
+					}
+				}
+				else
+				{
+					$template[$headlineID][0] = array(
+						'feed:title' => 'TITLE',
+						'feed:description' => 'description',
+						'feed:author' => 'author',
+						'feed:date' => 'pubDate',
+						'feed:link' => 'link',
+					);
+				}
+			}
+		}
+
 		// get shop gateway
 		if (preg_match('/{shop:(.+)}|{headlines:shop/i', $body))
 		{
 			// load messages model
 			$this->CI->load->model('shop/shop_model', 'shop');
-			
+
 			// shop globals
 			$template['shop:email'] = $this->CI->site->config['shopEmail'];
 			$template['shop:paypal'] = $this->CI->shop->paypal_url;
 			$template['shop:gateway'] = ($this->CI->site->config['shopGateway'] == 'sagepay' || $this->CI->site->config['shopGateway'] == 'authorize') ? site_url('/shop/checkout') : $this->CI->shop->gateway_url;
-			
+
 			// get shop headlines
 			if (preg_match_all('/{headlines:shop(:category\(([A-Za-z0-9_-]+)\))?(:limit\(([0-9]+)\))?}/i', $body, $matches))
 			{
@@ -805,10 +1211,10 @@ class Template {
 				$headlineID = preg_replace('/{|}/', '', $matches[0][0]);
 				$limit = ($matches[4][0]) ? $matches[4][0] : $this->CI->site->config['headlines'];
 				$catSafe = $matches[2][0];
-					
+
 				// get latest posts
 				if ($headlines = $this->CI->shop->get_latest_products($catSafe, $limit))
-				{	
+				{
 					// fill up template array
 					$i = 0;
 					foreach ($headlines as $headline)
@@ -816,19 +1222,19 @@ class Template {
 						// get body and excerpt
 						$headlineBody = (strlen($headline['description']) > 100) ? substr($headline['description'], 0, 100).'...' : $headline['description'];
 						$headlineExcerpt = nl2br($headline['excerpt']);
-	
+
 						// get images
 						if (!$headlineImage = $this->CI->uploads->load_image($headline['productID'], false, true))
 						{
 							$headlineImage['src'] = $this->CI->config->item('staticPath').'/images/nopicture.jpg';
-						}	
+						}
 
 						// get images
 						if (!$headlineThumb = $this->CI->uploads->load_image($headline['productID'], true, true))
 						{
 							$headlineThumb['src'] = $this->CI->config->item('staticPath').'/images/nopicture.jpg';
 						}
-						
+
 						// populate template
 						$template[$headlineID][$i] = array(
 							'headline:id' => $headline['productID'],
@@ -846,7 +1252,7 @@ class Template {
 							'headline:stock' => $headline['stock'],
 							'headline:class' => ($i % 2) ? ' alt ' : ''
 						);
-	
+
 						$i++;
 					}
 				}
@@ -861,11 +1267,11 @@ class Template {
 			{
 				// filter matches
 				$headlineID = preg_replace('/{|}/', '', $matches[0][0]);
-				$limit = ($matches[3][0]) ? $matches[3][0] : $this->CI->site->config['headlines'];				
-	
+				$limit = ($matches[3][0]) ? $matches[3][0] : $this->CI->site->config['headlines'];
+
 				// get latest posts
 				if ($headlines = $this->CI->shop->get_latest_featured_products($limit))
-				{	
+				{
 					// fill up template array
 					$i = 0;
 					foreach ($headlines as $headline)
@@ -873,19 +1279,19 @@ class Template {
 						// get body and excerpt
 						$headlineBody = (strlen($headline['description']) > 100) ? substr($headline['description'], 0, 100).'...' : $headline['description'];
 						$headlineExcerpt = nl2br($headline['excerpt']);
-												
+
 						// get images
 						if (!$headlineImage = $this->CI->uploads->load_image($headline['productID'], false, true))
 						{
 							$headlineImage['src'] = $this->CI->config->item('staticPath').'/images/nopicture.jpg';
 						}
-	
+
 						// get thumb
 						if (!$headlineThumb = $this->CI->uploads->load_image($headline['productID'], true, true))
 						{
 							$headlineThumb['src'] = $this->CI->config->item('staticPath').'/images/nopicture.jpg';
 						}
-							
+
 						$template[$headlineID][$i] = array(
 							'headline:id' => $headline['productID'],
 							'headline:link' => site_url('shop/'.$headline['productID'].'/'.strtolower(url_title($headline['productName']))),
@@ -902,7 +1308,7 @@ class Template {
 							'headline:stock' => $headline['stock'],
 							'headline:class' => ($i % 2) ? ' alt ' : ''
 						);
-	
+
 						$i++;
 					}
 				}
@@ -917,14 +1323,14 @@ class Template {
 			{
 				// get shopping cart
 				$cart = $this->CI->shop->load_cart();
-	
+
 				// get latest posts
 				if ($headlines = $cart['cart'])
-				{	
+				{
 					// fill up template array
 					$i = 0;
 					foreach ($headlines as $headline)
-					{					
+					{
 						$template['headlines:shop:cartitems'][$i] = array(
 							'headline:link' => site_url('shop/'.$headline['productID'].'/'.strtolower(url_title($headline['productName']))),
 							'headline:title' => $headline['productName'],
@@ -932,7 +1338,7 @@ class Template {
 							'headline:price' => currency_symbol().(number_format($headline['price'] * $headline['quantity'], 2)),
 							'headline:class' => ($i % 2) ? ' alt ' : ''
 						);
-	
+
 						$i++;
 					}
 					$template['headlines:shop:numitems'] = count($headlines);
@@ -945,18 +1351,18 @@ class Template {
 					$template['headlines:shop:cartitems'] = array();
 				}
 			}
-			
+
 			// get shop navigation
 			if (preg_match('/({shop:categories((.+)?)})+/i', $body))
 			{
 				$template['shop:categories'] = '';
-				
+
 				if ($categories = $this->CI->shop->get_category_parents())
 				{
 					$i = 1;
 					foreach($categories as $nav)
 					{
-						// get subnav
+						// get dropdown-menu
 						if ($children = $this->CI->shop->get_category_children($nav['catID']))
 						{
 							$template['shop:categories'] .= '<li class="expanded ';
@@ -968,8 +1374,8 @@ class Template {
 							{
 								$template['shop:categories'] .= 'last ';
 							}
-							$template['shop:categories'] .= '"><a href="/shop/'.$nav['catSafe'].'">'.htmlentities($nav['catName'], NULL, 'UTF-8').'</a><ul class="subnav">';
-							
+							$template['shop:categories'] .= '"><a href="'.site_url('/shop/'.$nav['catSafe']).'">'.htmlentities($nav['catName'], NULL, 'UTF-8').'</a><ul class="dropdown-menu">';
+
 							foreach($children as $child)
 							{
 								$template['shop:categories'] .= '<li class="';
@@ -977,10 +1383,10 @@ class Template {
 								{
 									$template['shop:categories'] .= 'active selected';
 								}
-								$template['shop:categories'] .= '"><a href="/shop/'.$nav['catSafe'].'/'.$child['catSafe'].'">'.htmlentities($child['catName'], NULL, 'UTF-8').'</a></li>';
+								$template['shop:categories'] .= '"><a href="'.site_url('/shop/'.$nav['catSafe'].'/'.$child['catSafe']).'">'.htmlentities($child['catName'], NULL, 'UTF-8').'</a></li>';
 							}
 							$template['shop:categories'] .= '</ul>';
-						}					
+						}
 						else
 						{
 							$template['shop:categories'] .= '<li class="';
@@ -996,10 +1402,10 @@ class Template {
 							{
 								$template['shop:categories'] .= 'last ';
 							}
-							$template['shop:categories'] .= '"><a href="/shop/'.$nav['catSafe'].'">'.htmlentities($nav['catName'], NULL, 'UTF-8').'</a>';
+							$template['shop:categories'] .= '"><a href="'.site_url('/shop/'.$nav['catSafe']).'">'.htmlentities($nav['catName'], NULL, 'UTF-8').'</a>';
 						}
-						
-						$template['shop:categories'] .= '</li>';					
+
+						$template['shop:categories'] .= '</li>';
 						$i++;
 					}
 				}
@@ -1012,13 +1418,13 @@ class Template {
 			// load messages model
 			$this->CI->load->model('community/messages_model', 'messages');
 
-			// get message count		
-			@$template['messages:unread'] = ($messageCount = $this->CI->messages->get_unread_message_count()) ? $messageCount : 0;		
+			// get message count
+			@$template['messages:unread'] = ($messageCount = $this->CI->messages->get_unread_message_count()) ? $messageCount : 0;
 		}
-		
+
 		return $template;
 	}
-	
+
 	function parse_images($body)
 	{
 		// parse for images
@@ -1031,7 +1437,11 @@ class Template {
 				if ($imageData = $this->get_image($value))
 				{
 					$imageHTML = display_image($imageData['src'], $imageData['imageName'], $imageData['maxsize'], 'id="'.$this->CI->core->encode($this->CI->session->userdata('lastPage').'|'.$imageData['imageID']).'" class="pic '.$imageData['class'].'"');
+
 					$imageHTML = preg_replace('/src=("[^"]*")/i', 'src="'.site_url('/images/'.$imageData['imageRef'].strtolower($imageData['ext'])).'"', $imageHTML);
+
+					// place formatted description text above image
+					$imageHTML = $this->parse_body($imageData['description']).$imageHTML;
 				}
 				elseif ($this->CI->session->userdata('session_admin'))
 				{
@@ -1039,7 +1449,7 @@ class Template {
 				}
 				$body = str_replace('{image:'.$value.'}', $imageHTML, $body);
 			}
-		}	
+		}
 
 		// parse for thumbs
 		preg_match_all('/thumb\:([a-z0-9\-_]+)/i', $body, $images);
@@ -1059,18 +1469,20 @@ class Template {
 				}
 				$body = str_replace('{thumb:'.$value.'}', $imageHTML, $body);
 			}
-		}	
-		
+		}
+
 		return $body;
 	}
 
 	function get_image($imageRef)
-	{	
+	{
+		console_debug(__FILE__.':'.__FUNCTION__.": uploadspath: ", $this->uploadsPath);
+
 		$this->CI->db->where('siteID', $this->siteID);
 		$this->CI->db->where('deleted', 0);
 		$this->CI->db->where('imageRef', $imageRef);
 		$query = $this->CI->db->get('images');
-		
+
 		// get data
 		if ($query->num_rows())
 		{
@@ -1081,20 +1493,26 @@ class Template {
 
 			$image = $row['filename'];
 			$ext = substr($image,strpos($image,'.'));
-	
+
 			$imagePath = $pathToUploads.'/'.$image;
 			$thumbPath = str_replace($ext, '', $imagePath).'_thumb'.$ext;
 
 			$row['ext'] = $ext;
 			$row['src'] = $imagePath;
-			$row['thumbnail'] = (file_exists('.'.$thumbPath)) ? $thumbPath : $imagePath;
-			
+
+			console_debug(__FILE__.':'.__FUNCTION__.": imagePath: ", $imagePath);
+			console_debug(__FILE__.':'.__FUNCTION__.": thumbPath: ", $thumbPath);
+
+			$row['thumbnail'] = (file_exists($_SERVER["DOCUMENT_ROOT"].$thumbPath)) ? $thumbPath : $imagePath;
+
+			console_debug(__FILE__.':'.__FUNCTION__.": thumbnail: ", $row['thumbnail']);
+
 			return $row;
 		}
 		else
 		{
 			return FALSE;
-		}		
+		}
 	}
 
 	function parse_files($body)
@@ -1106,11 +1524,11 @@ class Template {
 			foreach($files[1] as $file => $value)
 			{
 				$fileData = $this->get_file($value);
-					
-				$body = str_replace('{file:'.$value.'}', anchor('/files/'.$fileData['fileRef'].$fileData['extension'], 'Download', 'class="file '.str_replace('.', '', $fileData['extension']).'"'), $body);
+
+				$body = str_replace('{file:'.$value.'}', anchor('/files/'.$fileData['fileRef'].$fileData['extension'], $fileData['description'], 'class="file '.str_replace('.', '', $fileData['extension']).'"'), $body);
 			}
 		}
-		
+
 		return $body;
 	}
 
@@ -1118,12 +1536,12 @@ class Template {
 	{
 		// get data
 		if ($file = $this->CI->uploads->load_file($fileRef, TRUE))
-		{	
+		{
 			return $file;
 		}
 		else
 		{
 			return false;
-		}		
+		}
 	}
 }

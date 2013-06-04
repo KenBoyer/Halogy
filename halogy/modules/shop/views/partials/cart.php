@@ -20,11 +20,39 @@ if ($cart):
 <tr>
 	<td><a href="/shop/<?php echo $item['productID']; ?>/<?php echo strtolower(url_title($item['productName'])); ?>"><?php echo $item['productName']; ?><?php echo $variationHTML; ?></a></td>
 	<?php if ($this->uri->segment(2) == 'checkout'): ?>
-		<td><?php echo $item['quantity']; ?> <a href="/shop/cart/remove/<?php echo $key; ?>">[remove]</a></td>
+	<td>
+		<div class="control-group">
+			<div class="controls">
+				<div class="input-append">
+					<input style="margin:0px;" name="quantity[<?php echo $key; ?>]"  value="<?php echo $item['quantity']; ?>" size="3" type="text"><button class="btn btn-danger" type="button" onclick="if(confirm('Are you sure you want to remove this item?')){window.location='/shop/cart/remove/<?php echo $key; ?>';}"><i class="icon-remove icon-white"></i></button>
+				</div>
+			</div>
+		</div>
+	</td>
 	<?php else: ?>
-		<td><input name="quantity[<?php echo $key; ?>]" type="text" size="2" maxlength="2" value="<?php echo $item['quantity']; ?>" /> <a href="/shop/cart/remove/<?php echo $key; ?>">[remove]</a></td>
+	<td>
+		<div class="control-group">
+			<div class="controls">
+				<div class="input-append">
+					<input style="margin:0px;" name="quantity[<?php echo $key; ?>]"  value="<?php echo $item['quantity']; ?>" size="3" maxlength="2" type="text"><button class="btn btn-danger" type="button" onclick="if(confirm('Are you sure you want to remove this item?')){window.location='/shop/cart/remove/<?php echo $key; ?>';}"><i class="icon-remove icon-white"></i></button>
+				</div>
+			</div>
+		</div>
+	</td>
 	<?php endif; ?>
-	<td><?php echo currency_symbol(); ?><?php echo number_format(($item['price'] * $item['quantity']), 2); ?></td>
+	<td>
+	<?php
+	if ($item['price'] == 0)
+	{
+		echo "--";
+	}
+	else
+	{
+		echo currency_symbol();
+		echo number_format(($item['price'] * $item['quantity']), 2);
+	}
+	?>
+	</td>
 </tr>
 
 <?php endforeach; ?>

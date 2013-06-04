@@ -1,4 +1,6 @@
-<h1>Shop Reviews</h1>
+<div class="headingleft">	
+	<h1 class="headingleft">Product Reviews</h1>
+</div>
 
 <?php if ($reviews): ?>
 
@@ -22,8 +24,18 @@
 		<td><?php echo $review['fullName']; ?></td>
 		<td><?php echo $review['email']; ?></td>
 		<td><?php echo (strlen($review['review'] > 50)) ? substr($review['review'], 0, 50).'...' : $review['review']; ?></td>
-		<td><?php echo ($review['active']) ? '<span style="color:green;">Active</span>' : '<span style="color:orange;">Pending</span>'; ?></td>		
-		<td><?php echo (!$review['active']) ? anchor('/admin/shop/approve_review/'.$review['reviewID'], 'Approve') : ''; ?></td>
+		<td><?php echo ($review['active']) ? '<span style="color:green;">Active</span>' : '<span style="color:orange;">Pending</span>'; ?></td>
+		<td>
+		<?php
+			if (!$review['active'])
+			{
+				echo anchor('/admin/shop/approve_review/'.$review['reviewID'], 'Approve');
+			}
+			else
+			{
+				echo anchor('/admin/shop/deactivate_review/'.$review['reviewID'], 'Deactivate');
+			}
+		?>
 		<td>
 			<?php echo anchor('/admin/shop/delete_review/'.$review['reviewID'], 'Delete', 'onclick="return confirm(\'Are you sure you want to delete this?\')"'); ?>
 		</td>
@@ -33,7 +45,8 @@
 
 <?php echo $this->pagination->create_links(); ?>
 
-<p style="text-align: right;"><a href="#" class="button grey" id="totop">Back to top</a></p>
+<br class="clear" />
+<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>
 
 <?php endif; ?>
 

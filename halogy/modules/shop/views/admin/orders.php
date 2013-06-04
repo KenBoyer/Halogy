@@ -25,19 +25,24 @@ $(function(){
 });
 </script>
 
+<div class="headingleft">
 <h1 class="headingleft">Orders <?php if ($trackingStatus) echo '('.$statusArray[$trackingStatus].')'?></h1>
+</div>
 
 <div class="headingright">
 
 	<form method="post" action="<?php echo site_url('/admin/shop/orders'); ?>" class="default" id="search">
-		<input type="text" name="searchbox" id="searchbox" class="formelement inactive" title="Search Products..." />
-		<input type="image" src="<?php echo $this->config->item('staticPath'); ?>/images/btn_search.gif" id="searchbutton" />
+		<div class="input-append">
+			<input type="text" name="searchbox" id="searchbox" class="span2" title="Search Orders..." />
+			<button class="btn btn-primary" type="submit" id="searchbutton"><i class="icon-search"></i></button>
+		</div>
+<?php
+		// Vizlogix CSRF protection:
+		echo '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+?>
 	</form>
 
-	<label for="filter">
-		Filter
-	</label> 
-
+	<label for="filter">Filter:</label> 
 	<?php
 		foreach ($statusArray as $key => $status):
 			$options[$key] = $status;
@@ -46,7 +51,7 @@ $(function(){
 		echo form_dropdown('filter',$options,$trackingStatus,'id="filter"');
 	?>
 	
-	<a href="<?php echo site_url('/admin/shop/export_orders'); ?>" class="button blue">Export Orders as CSV</a>
+	<a href="<?php echo site_url('/admin/shop/export_orders'); ?>" class="btn btn-info">Export Orders as CSV</a>
 
 </div>
 
@@ -94,7 +99,8 @@ $(function(){
 
 <?php echo $this->pagination->create_links(); ?>
 
-<p style="text-align: right;"><a href="#" class="button grey" id="totop">Back to top</a></p>
+<br class="clear" />
+<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>
 
 <?php else: ?>
 

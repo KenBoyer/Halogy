@@ -8,7 +8,6 @@
 .ac_over { background-color: #0A246A; color: white; }
 </style>
 
-<script language="javascript" type="text/javascript" src="<?php echo $this->config->item('staticPath'); ?>/js/jquery.fieldreplace.js"></script>
 <script type="text/javascript">
 $(function(){
 	$('.toggle').click(function(event){ 
@@ -31,17 +30,7 @@ $(function(){
 			$('div#upload-zip:visible, div#upload-file:visible').slideToggle('400');
 		});
 	});
-	
-    $('#searchbox').fieldreplace();
-	function formatItem(row) {
-		if (row[0].length) return row[1]+'<br /><span class="email">(#'+row[0]+')</span>';
-		else return 'No results';
-	}
-	$('#searchbox').autocomplete("<?php echo site_url('/admin/files/ac_files'); ?>", { delay: "0", selectFirst: false, matchContains: true, formatItem: formatItem, minChars: 2 });
-	$('#searchbox').result(function(event, data, formatted){
-		$(this).parent('form').submit();
-	});
-	
+
 	$('select#folderID').change(function(){
 		var folderID = ($(this).val());
 		window.location.href = '<?php echo site_url('/admin/files/viewall'); ?>/'+folderID;
@@ -49,19 +38,20 @@ $(function(){
 });
 </script>
 
+<div class="headingleft">
 <h1 class="headingleft">Files</h1>
+</div>
 
 <div class="headingright">
 
-	<form method="post" action="<?php echo site_url('/admin/files/viewall'); ?>" class="default" id="search">
-		<input type="text" name="searchbox" id="searchbox" class="formelement inactive" title="Search Files..." />
-		<input type="image" src="<?php echo $this->config->item('staticPath'); ?>/images/btn_search.gif" id="searchbutton" />
+	<form method="post" action="<?php echo site_url('/admin/files/viewall'); ?>" class="search" id="search" style="display: none;">
+		<div class="input-append">
+			<input type="text" name="searchbox" id="searchbox" class="span2 inactive" title="Search Files..." />
+			<button class="btn btn-primary" type="submit" id="searchbutton"><i class="icon-search"></i></button>
+		</div>
 	</form>
 
-	<label for="folderID">
-		Folder
-	</label> 
-
+	<label for="folderID">Folder:</label> 
 	<?php
 		$options = '';
 		$options['me'] = 'My Files';
@@ -79,14 +69,14 @@ $(function(){
 
 	<?php if ($this->site->config['plan'] = 0 || $this->site->config['plan'] = 6 || (($this->site->config['plan'] > 0 && $this->site->config['plan'] < 6) && $quota < $this->site->plans['storage'])): ?>
 
-		<a href="#" class="button toggle blue">Upload File</a>
+		<a href="#" class="btn btn-info toggle">Upload File <i class="icon-upload"></i></a>
 
 	<?php endif; ?>
 	
 </div>
 
 <?php if ($errors = validation_errors()): ?>
-	<div class="error clear">
+	<div class="alert alert-error clear">
 		<?php echo $errors; ?>
 	</div>
 <?php endif; ?>
@@ -149,8 +139,8 @@ $(function(){
 <?php if ($files): ?>
 
 	<?php echo $this->pagination->create_links(); ?>
-	
-	<table class="images files clear">	
+
+	<table class="images files clear" style="border-collapse: separate;">	
 		<tr>
 		<?php
 			$numItems = sizeof($files);
@@ -164,22 +154,21 @@ $(function(){
 					echo '</tr><tr>'."\n";
 					$i = 0;
 				}
-				echo '<td align="center" valign="top" width="'.floor(( 1 / $itemsPerRow) * 100).'%">';
+				echo '<td align="center" valign="bottom" width="'.floor(( 1 / $itemsPerRow) * 100).'%">';
 
 				$extension = substr($file['filename'], strpos($file['filename'], '.')+1);
 				$filePath = '/files/'.$file['fileRef'].'.'.$extension;				
 
 		?>
-
-				<div class="buttons">
-					<?php echo anchor('/admin/files/edit/'.$file['fileID'].'/', '<img src="'.$this->config->item('staticPath').'/images/btn_edit.png" alt="Edit" />', 'class="edit"'); ?>
-					<?php echo anchor('/admin/files/delete/'.$file['fileID'], '<img src="'.$this->config->item('staticPath').'/images/btn_delete.png" alt="Delete" />', 'onclick="return confirm(\'Are you sure you want to delete this file?\')"'); ?>
-				</div>
-
 				<a href="<?php echo $filePath; ?>" title="<?php echo $file['fileRef']; ?>"><img src="<?php echo $this->config->item('staticPath'); ?>/fileicons/<?php echo $extension; ?>.png" alt="<?php echo $file['fileRef']; ?>" class="file" /></a>
 
 				<p><strong><?php echo $file['fileRef']; ?></strong></p>
-			
+
+				<div class="buttons">
+					<?php echo anchor('/admin/files/edit/'.$file['fileID'].'/', 'Edit <i class="icon-edit"></i>', 'class="btn btn-info edit"'); ?>
+					<?php echo anchor('/admin/files/delete/'.$file['fileID'], 'Delete <i class="icon-trash"></i>', array('onclick' => 'return confirm(\'Are you sure you want to delete this file?\')', 'class' => 'btn btn-danger')); ?>
+				</div>
+
 		<?php
 				echo '</td>'."\n";
 				$i++;
@@ -195,7 +184,7 @@ $(function(){
 	
 	<?php echo $this->pagination->create_links(); ?>
 
-	<p style="text-align: right;"><a href="#" class="button grey" id="totop">Back to top</a></p>
+	<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>
 
 <?php else: ?>
 

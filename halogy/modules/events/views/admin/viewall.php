@@ -1,8 +1,10 @@
+<div class="headingleft">
 <h1 class="headingleft">Events</h1>
+</div>
 
 <div class="headingright">
 	<?php if (in_array('events_edit', $this->permission->permissions)): ?>
-		<a href="<?php echo site_url('/admin/events/add_event'); ?>" class="button">Add Event</a>
+		<a href="<?php echo site_url('/admin/events/add_event'); ?>" class="btn btn-success">Add Event <i class="icon-plus-sign"></i></a>
 	<?php endif; ?>
 </div>
 
@@ -16,6 +18,7 @@
 		<th><?php echo order_link('/admin/events/viewall','location','Location'); ?></th>		
 		<th><?php echo order_link('/admin/events/viewall','eventDate','Event Start'); ?></th>
 		<th><?php echo order_link('/admin/events/viewall','eventEnd','Event End'); ?></th>
+		<th>Repeats</th>
 		<th>Active</th>
 		<th class="tiny">&nbsp;</th>
 		<th class="tiny">&nbsp;</th>
@@ -26,9 +29,10 @@
 		<td><?php echo $event['location']; ?></td>		
 		<td><?php echo dateFmt($event['eventDate'], '', FALSE); ?></td>
 		<td><?php echo dateFmt($event['eventEnd'], '', FALSE); ?></td>
+		<td><?php echo $event['time']; ?></td>
 		<td>
 			<?php
-				if (strtotime($event['eventDate']) < time()) echo 'No';
+				if (strtotime($event['eventEnd']) < time()) echo 'No';
 				else echo 'Yes';
 			?>
 		</td>
@@ -48,7 +52,8 @@
 
 <?php echo $this->pagination->create_links(); ?>
 
-<p style="text-align: right;"><a href="#" class="button grey" id="totop">Back to top</a></p>
+<br class="clear" />
+<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>
 
 <?php else: ?>
 

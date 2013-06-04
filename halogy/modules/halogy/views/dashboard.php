@@ -5,7 +5,87 @@
 <!--[if IE]>
 	<script language="javascript" type="text/javascript" src="<?php echo $this->config->item('staticPath'); ?>/js/excanvas.js"></script>
 <![endif]-->
-<script type="text/javascript" src="<?php echo $this->config->item('staticPath'); ?>/js/jquery.flot.init.js"></script>
+<script type="text/javascript">
+$(function(){
+	$.getJSON('<?php echo $this->config->item('base_url'); ?>admin/stats/'+days, function(data){
+		// helper for returning the weekends in a period
+		function weekendAreas(axes) {
+			var markings = [];
+			var d = new Date(axes.xaxis.min);
+			// go to the first Saturday
+			d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 1) % 7))
+			d.setUTCSeconds(0);
+			d.setUTCMinutes(0);
+			d.setUTCHours(0);
+			var i = d.getTime();
+			do {
+				// when we don't set yaxis the rectangle automatically
+				// extends to infinity upwards and downwards
+				markings.push({ xaxis: { from: i, to: i + 2 * 24 * 60 * 60 * 1000 } });
+				i += 7 * 24 * 60 * 60 * 1000;
+			} while (i < axes.xaxis.max);
+
+			return markings;
+		}
+
+		var d = [];
+		var s = [];
+		$.each(data.visits, function(i,item){
+			d.push([item[0],item[1]]);
+		});
+		$.each(data.signups, function(i,item){
+			s.push([item[0],item[1]]);
+		});
+
+		for (var i = 0; i < d.length; ++i)
+			d[i][0] += 60 * 60 * 1000;
+
+		for (var i = 0; i < s.length; ++i)
+			s[i][0] += 60 * 60 * 1000;				
+
+		var plot = $.plot($("#placeholder"),
+			[ { data: d, label: "Visitations"} , { data: s, label: "Signups" } ],
+			{ lines: { show: true, fill: true },
+			points: { show: true },
+			grid: { hoverable: true, clickable: false, markings: weekendAreas },
+			yaxis: { min: 0, tickDecimals: 0 },
+			xaxis: { mode: 'time' }
+		});
+
+		function showTooltip(x, y, contents) {
+			$('<div id="tooltip">' + contents + '</div>').css( {
+				position: 'absolute',
+				display: 'none',
+				top: y + 5,
+				left: x + 5,
+				border: '1px solid #fdd',
+				padding: '2px',
+				'background-color': '#fee',
+				opacity: 0.80
+			}).appendTo("body").fadeIn(200);
+		}
+		var previousPoint = null;
+		$("#placeholder").bind("plothover", function (event, pos, item) {
+		$("#x").text(pos.x.toFixed(2));
+		$("#y").text(pos.y.toFixed(2));
+
+		if (item) {
+				if (previousPoint != item.datapoint) {
+					previousPoint = item.datapoint;
+					$("#tooltip").remove();
+					var x = item.datapoint[0],
+					y = item.datapoint[1];
+					showTooltip(item.pageX, item.pageY,
+					y + " " + item.series.label);
+				}
+			} else {
+				$("#tooltip").remove();
+				previousPoint = null;
+			}
+		});		
+	});
+});
+</script>
 <script type="text/javascript">
 function refresh(){
 	$('div.loader').load('<?php echo site_url('/admin/activity_ajax'); ?>');
@@ -16,30 +96,34 @@ $(function(){
 });
 </script>
 
-<div id="tpl-2col">
+<div class="row-fluid" id="tpl-2col">
 	
-	<div class="col1">
+	<div class="span8" style="min-width:660px;">
 
+		<div class="headingleft">
 		<h1><strong><?php echo ($this->session->userdata('firstName')) ? ucfirst($this->session->userdata('firstName')) : $this->session->userdata('username'); ?>'s</strong> Dashboard</h1>
-		
+		</div>
+		<br class="clear" />
+
 		<?php if ($errors = validation_errors()): ?>
-			<div class="error">
+			<div class="alert alert-error">
 				<?php echo $errors; ?>
 			</div>
 		<?php endif; ?>
 
 		<?php if ($message): ?>
-			<div class="message">
+			<div class="alert">
 				<?php echo $message; ?>
 			</div>
 		<?php endif; ?>
 
-		<ul class="dashboardnav">
-			<li class="<?php echo ($days == 30) ? 'active' : ''; ?>"><a href="<?php echo site_url('/admin'); ?>">Last 30 Days</a></li>
-			<li class="<?php echo ($days == 60) ? 'active' : ''; ?>"><a href="<?php echo site_url('/admin/dashboard/60'); ?>">Last 60 Days</a></li>
-			<li class="<?php echo ($days == 90) ? 'active' : ''; ?>"><a href="<?php echo site_url('/admin/dashboard/90'); ?>">3 Months</a></li>
-			<li><a href="<?php echo site_url('/admin/tracking'); ?>">Most Recent Visits</a></li>
-		</ul>
+		<div class="dashboardnav btn-group">
+			<a href="<?php echo site_url('/admin/dashboard/90'); ?>" class="btn btn-small <?php echo ($days == 90) ? 'active' : ''; ?>">Last 90 days</a>
+			<a href="<?php echo site_url('/admin/dashboard/60'); ?>" class="btn btn-small <?php echo ($days == 60) ? 'active' : ''; ?>">Last 60 Days</a>
+			<a href="<?php echo site_url('/admin'); ?>" class="btn btn-small <?php echo ($days == 30) ? 'active' : ''; ?>">Last 30 Days</a>
+			<a href="<?php echo site_url('/admin/dashboard/7'); ?>" class="btn btn-small <?php echo ($days == 7) ? 'active' : ''; ?>">Last 7 Days</a>
+			<a href="<?php echo site_url('/admin/tracking'); ?>" class="btn btn-small">Most Recent Visits</a>
+		</div>
 
 		<div id="placeholder"></div>
 		
@@ -55,7 +139,7 @@ $(function(){
 			
 				<p>You can set up a new page or edit other pages on your website easily.</p>
 			
-				<p><a href="<?php echo site_url('/admin/pages'); ?>" class="button">Manage Pages</a></p>
+				<p><a href="<?php echo site_url('/admin/pages'); ?>" class="btn btn-success">Manage Pages <i class="icon-file-alt"></i></a></p>
 				
 			</div>
 
@@ -70,7 +154,7 @@ $(function(){
 			
 				<p>Gain full control over templates for pages and modules (such as the Blog).</p>
 	
-				<p><a href="<?php echo site_url('/admin/pages/templates'); ?>" class="button">Manage Templates</a></p>
+				<p><a href="<?php echo site_url('/admin/pages/templates'); ?>" class="btn btn-success">Manage Templates <i class="icon-file"></i></a></p>
 				
 			</div>
 			
@@ -84,7 +168,7 @@ $(function(){
 			
 				<p>Upload images to your website, either individually or with a ZIP file.</p>
 	
-				<p><a href="<?php echo site_url('/admin/images'); ?>" class="button">Manage Images</a></p>
+				<p><a href="<?php echo site_url('/admin/images'); ?>" class="btn btn-success">Manage Images <i class="icon-picture"></i></a></p>
 				
 			</div>
 			
@@ -98,7 +182,7 @@ $(function(){
 			
 				<p>See who's using your site or add administrators to help you run it.</p>
 	
-				<p><a href="<?php echo site_url('/admin/users'); ?>" class="button">Manage Users</a></p>
+				<p><a href="<?php echo site_url('/admin/users'); ?>" class="btn btn-success">Manage Users <i class="icon-user"></i></a></p>
 				
 			</div>
 
@@ -108,11 +192,11 @@ $(function(){
 
 			<div class="module">
 			
-				<h2><strong>Get Using the Blog</strong></h2>
+				<h2><strong>Get Busy Blogging</strong></h2>
 			
 				<p>Add posts to your blog and view comments made by others.</p>
 	
-				<p><a href="<?php echo site_url('/admin/blog'); ?>" class="button">Manage Blog</a></p>
+				<p><a href="<?php echo site_url('/admin/blog'); ?>" class="btn btn-success">Manage Blog <i class="icon-list"></i></a></p>
 				
 			</div>
 			
@@ -121,11 +205,11 @@ $(function(){
 		<?php if (@in_array('shop', $this->permission->permissions)): ?>
 			<div class="module last">
 			
-				<h2><strong>Build Your Shop</strong></h2>
+				<h2><strong>Build Your Online Store</strong></h2>
 			
-				<p>Set up categories, add products and sell online through the shop.</p>
+				<p>Set up categories, add products, and sell online through the store.</p>
 			
-				<p><a href="<?php echo site_url('/admin/shop'); ?>" class="button">Manage Shop</a></p>
+				<p><a href="<?php echo site_url('/admin/shop'); ?>" class="btn btn-success">Manage Store <i class="icon-shopping-cart"></i></a></p>
 				
 			</div>
 		<?php endif; ?>
@@ -146,7 +230,7 @@ $(function(){
 	
 	</div>
 	
-	<div class="col2">
+	<div class="span4">
 
 		<h3>Site Info</h3>
 		
@@ -240,15 +324,13 @@ $(function(){
 		<?php if ($popularPages): ?>
 			<ol>		
 				<?php foreach ($popularPages as $page): ?>
-					<li><?php echo anchor('/admin/pages/edit/'.$page['pageID'], $page['pageName']); ?></li>
+					<li><?php echo anchor(site_url('/admin/pages/edit/'.$page['pageID']), $page['pageName']); ?></li>
 				<?php endforeach; ?>
 			</ol>
 		<?php else: ?>
 			<p><small>We don't have this information yet.</small></p>
 		<?php endif; ?>
 
-		<br />
-		
 <?php if (@in_array('blog', $this->permission->sitePermissions)): ?>
 
 		<h3>Most popular blog posts</h3>
@@ -256,15 +338,13 @@ $(function(){
 		<?php if ($popularBlogPosts): ?>
 			<ol>		
 				<?php foreach ($popularBlogPosts as $post): ?>
-					<li><?php echo anchor('/admin/blog/edit_post/'.$post['postID'], $post['postTitle']); ?></li>
+					<li><?php echo anchor(site_url('/admin/blog/edit_post/'.$post['postID']), $post['postTitle']); ?></li>
 				<?php endforeach; ?>
 			</ol>
 		<?php else: ?>
 			<p><small>We don't have this information yet.</small></p>
 		<?php endif; ?>
 
-		<br />
-		
 <?php endif; ?>
 
 <?php if (@in_array('shop', $this->permission->sitePermissions)): ?>		
@@ -274,7 +354,7 @@ $(function(){
 		<?php if ($popularShopProducts): ?>
 			<ol>		
 				<?php foreach ($popularShopProducts as $product): ?>
-					<li><?php echo anchor('/admin/shop/edit_product/'.$product['productID'], $product['productName']); ?></li>
+					<li><?php echo anchor(site_url('/admin/shop/edit_product/'.$product['productID']), $product['productName']); ?></li>
 				<?php endforeach; ?>
 			</ol>
 		<?php else: ?>

@@ -8,26 +8,42 @@
 	});
 	</script>
 
-	<h1>Login</h1>
-	
+<div class="row-fluid">
+<div class="span4">
+
+	<div class="headingleft">
+		<h1>Login</h1>
+	</div>
+
+	<br class="clear" />
+
 	<?php if ($errors = validation_errors()): ?>
-		<div class="error">
+		<div class="alert alert-error">
 			<?php echo $errors; ?>
 		</div>
 	<?php endif; ?>
 	
 	<form action="" method="post" class="default">
-					
+
 		<label for="username">Username:</label>
-		<input type="text" id="username" name="username" class="formelement" />
+		<div class="input-prepend" style="display: block;">
+			<span class="add-on"><i class="icon-user"></i></span>
+			<input type="text" id="username" name="username" class="span2" style="width: 40%;" />
+		</div>
 
 		<br class="clear" />
-	
-		<label for="password">Password:</label>
-		<input type="password" id="password" name="password" class="formelement" />
 
-		<br class="clear" /><br />
-		<input type="submit" id="login" name="login" value="Login" class="button nolabel" />
+		<label for="password">Password:</label>
+		<div class="input-prepend" style="display: block;">
+			<span class="add-on"><i class="icon-key"></i></span>
+			<input type="password" id="password" name="password" class="span2" style="width: 40%;" />
+		</div>
+<?php
+		// Vizlogix CSRF protection:
+		echo '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+?>
+		<br class="clear" />
+		<button type="submit" id="login" name="login" class="btn btn-success">Login <i class="icon-signin"></i></button>
 	
 	</form>
 
@@ -42,3 +58,7 @@
 <?php
 	}
 ?>
+</div>
+<div class="span8">
+</div>
+</div>

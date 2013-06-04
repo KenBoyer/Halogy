@@ -39,22 +39,25 @@ $(function(){
 
 <form method="post" action="<?php echo site_url($this->uri->uri_string()); ?>" class="default">
 
-<h1 class="headingleft">Edit Blog Post <small>(<a href="<?php echo site_url('/admin/blog'); ?>">Back to Blog Posts</a>)</small></h1>
+<div class="headingleft">
+<h1 class="headingleft">Edit Blog Post</h1>
+<a href="<?php echo site_url('/admin/blog'); ?>" class="btn">Back to Blog Posts <i class="icon-arrow-up"></i></a>
+</div>
 
 <div class="headingright">
-	<input type="submit" name="view" value="View Post" class="button blue" />
-	<input type="submit" value="Save Changes" class="button" />
+	<input type="submit" name="view" value="View Post" class="btn btn-info" />
+	<input type="submit" value="Save Changes" class="btn btn-success" />
 </div>
 
 <div class="clear"></div>
 
 <?php if ($errors = validation_errors()): ?>
-	<div class="error">
+	<div class="alert alert-error">
 		<?php echo $errors; ?>
 	</div>
 <?php endif; ?>
 <?php if (isset($message)): ?>
-	<div class="message">
+	<div class="alert">
 		<?php echo $message; ?>
 	</div>
 <?php endif; ?>
@@ -65,7 +68,7 @@ $(function(){
 <?php echo @form_input('postTitle', set_value('postTitle', $data['postTitle']), 'id="postTitle" class="formelement"'); ?>
 <br class="clear" />
 
-<label>Categories: <small>[<a href="<?php echo site_url('/admin/blog/categories'); ?>" onclick="return confirm('You will lose any unsaved changes.\n\nContinue anyway?')">update</a>]</small></label>
+<label>Categories:</label>
 <div class="categories">
 	<?php if ($categories): ?>
 	<?php foreach($categories as $category): ?>
@@ -79,19 +82,37 @@ $(function(){
 		</div>
 	<?php endif; ?>
 </div>
+<a href="<?php echo site_url('/admin/blog/categories'); ?>" onclick="return confirm('You will lose any unsaved changes.\n\nContinue anyway?')" class="btn">Edit Categories <i class="icon-edit"></i></a>
 <br class="clear" />
 
-<div class="buttons">
-	<a href="#" class="boldbutton"><img src="<?php echo $this->config->item('staticPath'); ?>/images/btn_bold.png" alt="Bold" title="Bold" /></a>
-	<a href="#" class="italicbutton"><img src="<?php echo $this->config->item('staticPath'); ?>/images/btn_italic.png" alt="Italic" title="Italic" /></a>
-	<a href="#" class="h1button"><img src="<?php echo $this->config->item('staticPath'); ?>/images/btn_h1.png" alt="Heading 1" title="Heading 1"/></a>
-	<a href="#" class="h2button"><img src="<?php echo $this->config->item('staticPath'); ?>/images/btn_h2.png" alt="Heading 2" title="Heading 2" /></a>
-	<a href="#" class="h3button"><img src="<?php echo $this->config->item('staticPath'); ?>/images/btn_h3.png" alt="Heading 3" title="Heading 3" /></a>	
-	<a href="#" class="urlbutton"><img src="<?php echo $this->config->item('staticPath'); ?>/images/btn_url.png" alt="Insert Link" title="Insert Link" /></a>
-	<a href="<?php echo site_url('/admin/images/browser'); ?>" class="halogycms_imagebutton"><img src="<?php echo $this->config->item('staticPath'); ?>/images/btn_image.png" alt="Insert Image" title="Insert Image" /></a>
-	<a href="<?php echo site_url('/admin/files/browser'); ?>" class="halogycms_filebutton"><img src="<?php echo $this->config->item('staticPath'); ?>/images/btn_file.png" alt="Insert File" title="Insert File" /></a>
-	<a href="#" class="previewbutton"><img src="<?php echo $this->config->item('staticPath'); ?>/images/btn_save.png" alt="Preview" title="Preview" /></a>	
+<label for="excerpt">Excerpt:</label>
+<?php echo @form_textarea('excerpt', set_value('excerpt', $data['excerpt']), 'id="excerpt" class="formelement code short"'); ?>
+<br class="clear" /><br />
+
+<label for="buttons">Formatting:</label>
+<div class="buttons" id="buttons">
+	<a href="#" class="btn boldbutton" title="Bold"><i class="icon-bold"></i></a>
+	<a href="#" class="btn italicbutton" title="Italic"><i class="icon-italic"></i></a>
+	<a href="#" class="btn btn-small h1button" title="Heading 1">h1</a>
+	<a href="#" class="btn btn-small h2button" title="Heading 2">h2</a>
+	<a href="#" class="btn btn-small h3button" title="Heading 3">h3</a>
+	<a href="#" class="btn urlbutton"><i class="icon-link" title="Insert URL Link"></i></a>
+	<a href="<?php echo site_url('/admin/images/browser'); ?>" class="btn halogycms_imagebutton" title="Insert Image"><i class="icon-picture"></i></a>
+	<a href="<?php echo site_url('/admin/files/browser'); ?>" class="btn halogycms_filebutton" title="Insert File"><i class="icon-file-alt"></i></a>
+	<a href="#" class="btn previewbutton" title="Update Preview"><i class="icon-eye-open"></i></a>
 </div>
+<span class="tip">
+<p>Select desired text, then click button to format or insert.</p>
+<p>Additional formatting options:</p>
+<ul>
+<li>+ before list elements</li>
+<li>> before block quotes</li>
+<li>4 space indentation to format code listings</li>
+<li>3 hyphens on a line by themselves to make a horizontal rule</li>
+<li>` (backtick quote) to span code within text</li>
+</ul>
+</span>
+<br class="clear" /><br />
 
 <div class="autosave">
 	<label for="body">Body:</label>
@@ -100,15 +121,16 @@ $(function(){
 </div>
 <br class="clear" /><br />
 
-<label for="excerpt">Excerpt:</label>
-<?php echo @form_textarea('excerpt', set_value('excerpt', $data['excerpt']), 'id="excerpt" class="formelement code short"'); ?>
-<br class="clear" /><br />
-
 <h2 class="underline">Publishing and Options</h2>
 
-<label for="tags">Tags: <br /></label>
+<label for="uri">Blog post URI:</label>
+<?php echo @form_input('uri', set_value('uri', $data['uri']), 'id="uri" class="formelement"'); ?>
+<span class="tip">If your blog post is on an external blog, enter the link to the post here.</span>
+<br class="clear" />
+
+<label for="tags">Tags:</label>
 <?php echo @form_input('tags', set_value('tags', $data['tags']), 'id="tags" class="formelement"'); ?>
-<span class="tip">Separate tags with a comma (e.g. &ldquo;places, hobbies, favourite work&rdquo;)</span>
+<span class="tip">Separate tags with a comma (e.g. &ldquo;places, hobbies, favorite work&rdquo;)</span>
 <br class="clear" />
 
 <label for="published">Publish:</label>
@@ -133,10 +155,12 @@ $(function(){
 
 <label for="publishDate">Publish Date:</label>
 <?php echo @form_input('publishDate', date('d M Y', strtotime($data['dateCreated'])), 'id="publishDate" class="formelement datebox" readonly="readonly"'); ?>
+
 <br class="clear" />
 
-<br />
-	
-<p class="clear" style="text-align: right;"><a href="#" class="button grey" id="totop">Back to top</a></p>
-	
+<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>
+<?php
+	// Vizlogix CSRF protection:
+	echo '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+?>
 </form>

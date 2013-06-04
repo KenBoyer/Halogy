@@ -54,6 +54,30 @@ class Files_model extends CI_Model {
 		}
 	}
 
+	function get_files_by_folder_ref($ref, $limit = '')
+	{
+		$this->db->where(array('files.siteID' => $this->siteID, 'files.deleted' => 0));
+
+//		$this->db->where('folderSafe', $ref);
+
+		$this->db->select('files.*, folderName');
+		$this->db->join('file_folders', 'file_folders.folderID = files.folderID');
+
+		// TBD: we may want to make this ordered by date
+		$this->db->order_by('fileRef', 'asc');
+		
+		$query = $this->db->get('files', $limit);
+		
+		if ($query->num_rows())
+		{
+			return $query->result_array();
+		}
+		else
+		{
+			return false;
+		}
+	}
+
 	function get_folders($folderID = '')
 	{
 		// default where

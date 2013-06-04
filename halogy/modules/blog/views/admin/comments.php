@@ -1,4 +1,6 @@
-<h1>Blog comments</h1>
+<div class="headingleft">
+<h1 class="headingleft">Blog Comments</h1>
+</div>
 
 <?php if ($comments): ?>
 
@@ -22,8 +24,19 @@
 		<td><?php echo $comment['fullName']; ?></td>
 		<td><?php echo $comment['email']; ?></td>
 		<td><small><?php echo (strlen($comment['comment'] > 50)) ? htmlentities(substr($comment['comment'], 0, 50)).'...' : htmlentities($comment['comment']); ?></small></td>						
-		<td><?php echo ($comment['active']) ? '<span style="color:green;">Active</span>' : '<span style="color:orange;">Pending</span>'; ?></td>		
-		<td><?php echo (!$comment['active']) ? anchor('/admin/blog/approve_comment/'.$comment['commentID'], 'Approve') : ''; ?></td>
+		<td><?php echo ($comment['active']) ? '<span style="color:green"><strong>Active</strong></span>' : '<span style="color:orange;"><strong>Pending</strong></span>'; ?></td>		
+		<td>
+		<?php
+			if (!$comment['active'])
+			{
+				echo anchor('/admin/blog/approve_comment/'.$comment['commentID'], 'Approve');
+			}
+			else
+			{
+				echo anchor('/admin/blog/deactivate_comment/'.$comment['commentID'], 'Deactivate');
+			}
+		?>
+		</td>
 		<td>
 			<?php echo anchor('/admin/blog/delete_comment/'.$comment['commentID'], 'Delete', 'onclick="return confirm(\'Are you sure you want to delete this?\')"'); ?>
 		</td>
@@ -33,7 +46,8 @@
 
 <?php echo $this->pagination->create_links(); ?>
 
-<p style="text-align: right;"><a href="#" class="button grey" id="totop">Back to top</a></p>
+<br class="clear" />
+<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>
 
 <?php else: ?>
 

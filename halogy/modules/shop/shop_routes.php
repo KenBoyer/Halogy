@@ -12,6 +12,7 @@ $route['shop/search/page/(:num)'] = 'shop/search/page/$1';
 $route['shop/cart'] = 'shop/cart';
 $route['shop/cart/(:any)'] = 'shop/cart/$1';
 $route['shop/cart/(:any)/(:any)'] = 'shop/cart/$1/$2';
+$route['shop/contact'] = 'shop/contact';
 $route['shop/checkout'] = 'shop/checkout';
 $route['shop/create_account'] = 'shop/create_account';
 $route['shop/create_account/(:any)'] = 'shop/create_account/$1';

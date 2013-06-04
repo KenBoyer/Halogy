@@ -114,7 +114,15 @@ class Admin extends MX_Controller {
 			// set date
 			$this->core->set['dateCreated'] = date("Y-m-d H:i:s");
 			$this->core->set['userID'] = $this->session->userdata('userID');
-			$this->core->set['uri'] = url_title(strtolower($this->input->post('postTitle')));
+			if ($this->input->post('uri'))
+			{
+				// TBD: Check the URI for proper format
+				$this->core->set['uri'] = $this->input->post('uri');
+			}
+			else
+			{
+				$this->core->set['uri'] = url_title(strtolower($this->input->post('postTitle')));
+			}
 			$this->core->set['tags'] = $tags;
 			
 			// update
@@ -187,7 +195,17 @@ class Admin extends MX_Controller {
 
 			// set stuff
 			$this->core->set['dateModified'] = date("Y-m-d H:i:s");
-			$this->core->set['uri'] = url_title(strtolower($this->input->post('postTitle')));
+
+			// if a complete, valid, presumably external URI has been entered, save it
+			// otherwise, build and save a local uri from the page title
+			if (filter_var($this->input->post('uri'), FILTER_VALIDATE_URL))
+			{
+				$this->core->set['uri'] = $this->input->post('uri');
+			}
+			else
+			{
+				$this->core->set['uri'] = url_title(strtolower($this->input->post('postTitle')));
+			}
 			$this->core->set['tags'] = $tags;
 			
 			// update
@@ -205,7 +223,14 @@ class Admin extends MX_Controller {
 				// view page
 				if ($this->input->post('view'))
 				{
-					redirect('/blog/'.dateFmt($output['data']['dateCreated'], 'Y/m').'/'.url_title(strtolower($this->input->post('postTitle'))));
+					if (filter_var($this->input->post('uri'), FILTER_VALIDATE_URL))
+					{
+						redirect($this->input->post('uri'));
+					}
+					else
+					{
+						redirect('/blog/'.dateFmt($output['data']['dateCreated'], 'Y/m').'/'.url_title(strtolower($this->input->post('postTitle'))));
+					}
 				}
 				else
 				{																	
@@ -270,6 +295,14 @@ class Admin extends MX_Controller {
 	function approve_comment($commentID)
 	{
 		if ($this->blog->approve_comment($commentID))
+		{
+			redirect('/admin/blog/comments');
+		}
+	}
+
+	function deactivate_comment($commentID)
+	{
+		if ($this->blog->deactivate_comment($commentID))
 		{
 			redirect('/admin/blog/comments');
 		}

@@ -6,9 +6,13 @@
 .ac_loading { background: white url('<?php echo $this->config->item('staticPath'); ?>/images/loader.gif') right center no-repeat; }
 .ac_odd { background-color: #eee; }
 .ac_over { background-color: #0A246A; color: white; }
+
+div#gallery p {
+margin: 10px 0 10px;
+font-size: 1.6em;
+}
 </style>
 
-<script language="javascript" type="text/javascript" src="<?php echo $this->config->item('staticPath'); ?>/js/jquery.fieldreplace.js"></script>
 <script type="text/javascript">
 $(function(){
 	$('.toggle-image').click(function(event){ 
@@ -32,39 +36,32 @@ $(function(){
 		});
 	});
 	
-    $('#searchbox').fieldreplace();
 	function formatItem(row) {
 		if (row[0].length) return row[1]+'<br /><span class="email">(#'+row[0]+')</span>';
 		else return 'No results';
 	}
-	$('#searchbox').autocomplete("<?php echo site_url('/admin/images/ac_images'); ?>", { delay: "0", selectFirst: false, matchContains: true, formatItem: formatItem, minChars: 2 });
-	$('#searchbox').result(function(event, data, formatted){
-		$(this).parent('form').submit();
-	});
 
 	$('select#folderID').change(function(){
 		var folderID = ($(this).val());
 		window.location.href = '<?php echo site_url('/admin/images/viewall'); ?>/'+folderID;
 	});
-
-	$('a.lightbox').lightBox({imageLoading:'<?php echo $this->config->item('staticPath'); ?>/images/loading.gif',imageBtnClose: '<?php echo $this->config->item('staticPath'); ?>/images/lightbox_close.gif',imageBtnNext:'<?php echo $this->config->item('staticPath'); ?>/image/lightbox_btn_next.gif',imageBtnPrev:'<?php echo $this->config->item('staticPath'); ?>/image/lightbox_btn_prev.gif'});
-
 });
 </script>
 
+<div class="headingleft">
 <h1 class="headingleft">Images</h1>
+</div>
 
 <div class="headingright">
 
-	<form method="post" action="<?php echo site_url('/admin/images/viewall'); ?>" class="default" id="search">
-		<input type="text" name="searchbox" id="searchbox" class="formelement inactive" title="Search Images..." />
-		<input type="image" src="<?php echo $this->config->item('staticPath'); ?>/images/btn_search.gif" id="searchbutton" />
+	<form method="post" action="<?php echo site_url('/admin/images/viewall'); ?>" class="search" id="search" style="display: none;">
+		<div class="input-append">
+			<input type="text" name="searchbox" id="searchbox" class="span2 inactive" title="Search Images..." />
+			<button class="btn btn-primary" type="submit" id="searchbutton"><i class="icon-search"></i></button>
+		</div>
 	</form>
 
-	<label for="folderID">
-		Folder
-	</label> 
-
+	<label for="folderID">Folder:</label> 
 	<?php
 		$options = '';
 		$options['me'] = 'My Images';
@@ -82,15 +79,15 @@ $(function(){
 
 	<?php if ($this->site->config['plan'] = 0 || $this->site->config['plan'] = 6 || (($this->site->config['plan'] > 0 && $this->site->config['plan'] < 6) && $quota < $this->site->plans['storage'])): ?>
 
-		<a href="#" class="button blue toggle-zip">Upload Zip</a>
-		<a href="#" class="button toggle-image blue">Upload Image</a>
+		<a href="#" class="btn btn-info toggle-zip">Upload Zip <i class="icon-upload"></i></a>
+		<a href="#" class="btn btn-info toggle-image">Upload Image <i class="icon-upload"></i></a>
 
 	<?php endif; ?>
 
 </div>
 
 <?php if ($errors = validation_errors()): ?>
-	<div class="error clear">
+	<div class="alert alert-error clear">
 		<?php echo $errors; ?>
 	</div>
 <?php endif; ?>
@@ -127,14 +124,9 @@ $(function(){
 			<?php echo @form_upload('image', '', 'size="16" id="image"'); ?>
 		</div>
 		<br class="clear" />
-		
-		<label for="imageName">Description (alt tag):</label>
-		<?php echo @form_input('imageName', $images['imageName'], 'class="formelement" id="imageName"'); ?>
-		<br class="clear" />
 
-		<label for="imageFolderID">Folder: <small>[<a href="<?php echo site_url('/admin/images/folders'); ?>" onclick="return confirm('You will lose any unsaved changes.\n\nContinue anyway?')">update</a>]</small></label>
+		<label for="imageFolderID">Folder:</label>
 		<?php
-			$options = '';		
 			$options[0] = 'No Folder';
 			if ($folders):
 				foreach ($folders as $folderID):
@@ -144,11 +136,22 @@ $(function(){
 				
 			echo @form_dropdown('folderID',$options,set_value('folderID', $data['folderID']),'id="imageFolderID" class="formelement"');
 		?>	
-		<br class="clear" /><br />	
-
-		<input type="submit" value="Save Changes" class="button nolabel" id="submit" />
-		<a href="<?php echo site_url('/admin/images'); ?>" class="button cancel grey">Cancel</a>		
+		<br class="clear" />
 		
+		<label for="imageName">Name:</label>
+		<?php echo @form_input('imageName', $data['imageName'], 'class="formelement" id="imageName"'); ?>
+		<br class="clear" />
+
+		<label for="imageDesc">Description:</label>
+		<?php echo @form_textarea('description', set_value('description', $data['description']), 'id="body" class="formelement code"'); ?>
+		<br class="clear" />
+
+<?php
+		// Vizlogix CSRF protection:
+		echo '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+?>
+		<button type="submit" class="btn btn-success" id="submit">Upload Image <i class="icon-upload"></i></button>
+		<a href="<?php echo $this->session->userdata('lastPage'); ?>" class="btn cancel">Cancel <i class="icon-remove-sign"></i></a>
 	</form>
 </div>
 
@@ -173,7 +176,10 @@ $(function(){
 			echo @form_dropdown('folderID',$options,set_value('folderID', $data['folderID']),'id="zipFolderID" class="formelement"');
 		?>
 		<br class="clear" /><br />		
-
+<?php
+		// Vizlogix CSRF protection:
+		echo '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+?>
 		<input type="submit" value="Upload Zip" name="upload_zip" class="button nolabel" />
 		<a href="<?php echo site_url('/admin/images'); ?>" class="button cancel grey">Cancel</a>
 			
@@ -184,9 +190,30 @@ $(function(){
 
 <?php if ($images): ?>
 
+	<!-- https://github.com/blueimp/Bootstrap-Image-Gallery -->
+	<!-- modal-gallery is the modal dialog used for the image gallery -->
+	<div id="modal-gallery" class="modal modal-gallery hide fade" tabindex="-1">
+		<div class="modal-header">
+			<a class="close" data-dismiss="modal">&times;</a>
+			<h3 class="modal-title"></h3>
+		</div>
+		<div class="modal-body"><div class="modal-image"></div></div>
+		<div class="modal-footer">
+			<a class="btn btn-primary modal-next">Next <i class="icon-arrow-right icon-white"></i></a>
+			<a class="btn btn-info modal-prev"><i class="icon-arrow-left icon-white"></i> Previous</a>
+			<a class="btn btn-success modal-play modal-slideshow" data-slideshow="5000"><i class="icon-play icon-white"></i> Slideshow</a>
+			<a class="btn modal-download" target="_blank"><i class="icon-download"></i> Download</a>
+		</div>
+	</div>
+
+	<div id="gallery" data-toggle="modal-gallery" data-target="#modal-gallery" data-slideshow="3000">
+
+	<script src="<?php echo $this->config->item('staticPath'); ?>/js/load-image.min.js"></script>
+	<script src="<?php echo $this->config->item('staticPath'); ?>/js/bootstrap-image-gallery.min.js"></script>
+
 	<?php echo $this->pagination->create_links(); ?>
-	
-	<table class="images clear">	
+
+	<table class="images clear" style="border-collapse: separate;">	
 		<tr>
 		<?php
 			$numItems = sizeof($images);
@@ -200,22 +227,24 @@ $(function(){
 					echo '</tr><tr>'."\n";
 					$i = 0;
 				}
-				echo '<td valign="top" align="center" width="'.floor(( 1 / $itemsPerRow) * 100).'%">';
+				echo '<td valign="bottom" align="center" width="'.floor(( 1 / $itemsPerRow) * 100).'%">';
 
 				$imageData = $this->uploads->load_image($image['imageRef']);
 				$imagePath = $imageData['src'];
 				$imageData = $this->uploads->load_image($image['imageRef'], true);				
 				$imageThumbPath = $imageData['src'];
 		?>
-				<div class="buttons">
-					<?php echo anchor('/admin/images/edit/'.$image['imageID'].'/'.$this->core->encode($this->uri->uri_string()), '<img src="'.$this->config->item('staticPath').'/images/btn_edit.png" alt="Edit" />', 'class="edit"'); ?>				
-					<?php echo anchor('/admin/images/delete/'.$image['imageID'].'/'.$this->core->encode($this->uri->uri_string()), '<img src="'.$this->config->item('staticPath').'/images/btn_delete.png" alt="Delete" />', 'onclick="return confirm(\'Are you sure you want to delete this image?\')"'); ?>
-				</div>					
-
-				<a href="<?php echo $imagePath; ?>" title="<?php echo $image['imageName']; ?>" class="lightbox"><?php echo ($thumb = display_image($imageThumbPath, $image['imageName'], 100, 'class="pic"')) ? $thumb : display_image($imagePath, $image['imageName'], 100, 'class="pic"'); ?></a>
+				<a data-gallery="gallery" href="<?php echo $imagePath; ?>" title="<?php echo $image['imageName']; ?>">
+				<?php echo ($thumb = display_image($imageThumbPath, $image['imageName'], 100, 'title="pic"')) ? $thumb : display_image($imagePath, $image['imageName'], 100, 'title="pic"'); ?>
+				</a>
 
 				<p><strong><?php echo $image['imageRef']; ?></strong></p>
-				
+
+				<div class="buttons">
+					<?php echo anchor('/admin/images/edit/'.$image['imageID'].'/'.$this->core->encode($this->uri->uri_string()),  'Edit <i class="icon-edit"></i>', 'class="btn btn-info edit"'); ?>
+					<?php echo anchor('/admin/images/delete/'.$image['imageID'].'/'.$this->core->encode($this->uri->uri_string()),  'Delete <i class="icon-trash"></i>', array('onclick' => 'return confirm(\'Are you sure you want to delete this image?\')', 'class' => 'btn btn-danger')); ?>
+				</div>
+
 		<?php
 				echo '</td>'."\n";
 				$i++;
@@ -231,7 +260,8 @@ $(function(){
 	
 	<?php echo $this->pagination->create_links(); ?>
 
-	<p style="text-align: right;"><a href="#" class="button grey" id="totop">Back to top</a></p>
+	<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>
+	</div>
 
 <?php else: ?>
 

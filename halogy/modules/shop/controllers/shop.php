@@ -19,7 +19,7 @@
 class Shop extends MX_Controller {
 
 	// set defaults
-	var $includes_path = '/includes/admin';		// path to includes for header and footer								
+	var $includes_path = '/includes/admin';		// path to includes for header and footer
 	var $permissions = array();
 	var $sitePermissions = array();
 	var $partials = array();
@@ -50,18 +50,18 @@ class Shop extends MX_Controller {
 		if (defined('SITEID'))
 		{
 			$this->siteID = SITEID;
-		}		
+		}
 
 		// load libs
 		$this->load->library('auth');
 		$this->load->library('tags');
-		
+
 		// load models for this controller
 		$this->load->model('shop_model', 'shop');
 
 		// load modules
 		$this->load->module('pages');
-		
+
 		// load partials
 		if ($products = $this->shop->get_products('', '', TRUE))
 		{
@@ -69,14 +69,14 @@ class Shop extends MX_Controller {
 			$this->partials['shop:featured'] = $this->_populate_products($products);
 		}
 
-		// get latest products		
+		// get latest products
 		if ($latestProducts = $this->shop->get_latest_products('', $this->site->config['headlines']))
 		{
 			// load content
 			$this->partials['shop:latest'] = $this->_populate_products($latestProducts);
 		}
 
-		// get popular products		
+		// get popular products
 		if ($popularProducts = $this->shop->get_popular_products($this->site->config['headlines']))
 		{
 			// load content
@@ -89,7 +89,7 @@ class Shop extends MX_Controller {
 			// load content
 			$this->partials['shop:mostviewed'] = $this->_populate_products($mostViewedProducts);
 		}
-		
+
 		// get tags
 		if ($popularTags = $this->tags->get_popular_tags('shop_products'))
 		{
@@ -125,7 +125,7 @@ class Shop extends MX_Controller {
 			$this->partials['rowpad:mostviewed'] .= '<td width="'.floor((1 / $this->shop->siteVars['shopItemsPerRow']) * 100).'%">&nbsp;</td>';
 		}
 	}
-	
+
 	function index()
 	{
 		redirect('/shop/featured');
@@ -134,7 +134,7 @@ class Shop extends MX_Controller {
 	function featured()
 	{
 		// get partials
-		$output = $this->partials;				
+		$output = $this->partials;
 
 		// set pagination and breadcrumb
 		$output['pagination'] = ($pagination = $this->pagination->create_links()) ? $pagination : '';
@@ -143,7 +143,7 @@ class Shop extends MX_Controller {
 		$output['page:title'] = 'Featured Products'.(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
 		$output['page:heading'] = 'Featured Products';
 
-		// display with cms layer	
+		// display with cms layer
 		$this->pages->view('shop_featured', $output, TRUE);
 	}
 
@@ -161,11 +161,11 @@ class Shop extends MX_Controller {
 		{
 			$category = $this->shop->get_category_by_reference($cat, $parent);
 		}
-		
+
 		// get products
 		if ($category)
 		{
-			// set catID 
+			// set catID
 			$catID = $category['catID'];
 
 			// get paging
@@ -174,46 +174,46 @@ class Shop extends MX_Controller {
 				$this->session->set_userdata('shopPaging', $this->input->post('shopPaging'));
 			}
 			$limit = ($this->session->userdata('shopPaging')) ? $this->session->userdata('shopPaging') : $this->shop->siteVars['shopItemsPerPage'];
-			
+
 			// get products
 			if ($products = $this->shop->get_products($catID, NULL, FALSE, $limit))
 			{
 				// load content
 				$output['shop:products'] = $this->_populate_products($products);
 			}
-			
+
 			// populate template
 			$output['rowpad'] = '';
 			for ($x = 0; $x < ($this->shop->siteVars['shopItemsPerRow'] - sizeof($products)); $x++)
 			{
 				$output['rowpad'] .= '<td width="'.floor((1 / $this->shop->siteVars['shopItemsPerRow']) * 100).'%">&nbsp;</td>';
 			}
-			$output['shop:paging'] = $limit;			
+			$output['shop:paging'] = $limit;
 			$output['shop:total-products'] = ($products) ? $this->pagination->total_rows : 0;
-			
+
 			// populate categories
 			$output['category:id'] = $category['catID'];
 			$output['category:title'] = $category['catName'];
 			$output['category:description'] = $this->template->parse_body($category['description']);
-			$output['category:link'] = ($category['parentID']) ? '/shop/'.$category['parentSafe'].'/'.$category['catSafe'] : '/shop/'.$category['catSafe'];
+			$output['category:link'] = ($category['parentID']) ? site_url('/shop/'.$category['parentSafe'].'/'.$category['catSafe']) : site_url('/shop/'.$category['catSafe']);
 			$output['category:parent:id'] = ($category['parentID']) ? $category['parentID'] : '';
 			$output['category:parent:title'] = ($category['parentID']) ? $category['parentName'] : '';
-			$output['category:parent:link'] = ($category['parentID']) ? '/shop/'.$category['parentSafe'] : '';
-	
+			$output['category:parent:link'] = ($category['parentID']) ? site_url('/shop/'.$category['parentSafe']) : '';
+
 			// set pagination and breadcrumb
 			$output['pagination'] = ($pagination = $this->pagination->create_links()) ? $pagination : '';
-			
+
 			// set page title as category
 			$output['page:title'] = (($category['parentName']) ? $category['parentName'].' - ' : '').$category['catName'].(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
 			$output['page:heading'] = (($category['parentName']) ? anchor('/shop/'.$category['parentSafe'], $category['parentName']).' &gt; ' : '').$category['catName'];
-			
+
 			// set meta description
 			if ($category['description'])
 			{
-				$output['page:description'] = $category['description'];
+				$output['page:description'] = $category['catName'];
 			}
 
-			// display with cms layer	
+			// display with cms layer
 			$this->pages->view('shop_browse', $output, TRUE);
 		}
 		else
@@ -221,12 +221,12 @@ class Shop extends MX_Controller {
 			show_404();
 		}
 	}
-	
+
 	function tag($tag = '')
 	{
 		// get partials
 		$output = $this->partials;
-		
+
 		// get paging
 		if ($this->input->post('shopPaging'))
 		{
@@ -246,8 +246,8 @@ class Shop extends MX_Controller {
 		for ($x = 0; $x < ($this->shop->siteVars['shopItemsPerRow'] - sizeof($products)); $x++)
 		{
 			$output['rowpad'] .= '<td width="'.floor((1 / $this->shop->siteVars['shopItemsPerRow']) * 100).'%">&nbsp;</td>';
-		}			
-		$output['shop:paging'] = $limit;			
+		}
+		$output['shop:paging'] = $limit;
 		$output['shop:total-products'] = ($products) ? $this->pagination->total_rows : 0;
 
 		// set pagination and breadcrumb
@@ -257,10 +257,10 @@ class Shop extends MX_Controller {
 		$output['page:title'] = ucwords(str_replace('-', ' ', $tag)).(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
 		$output['page:heading'] = ucwords(str_replace('-', ' ', $tag));
 
-		// display with cms layer	
+		// display with cms layer
 		$this->pages->view('shop_browse', $output, TRUE);
-		
-		
+
+
 		// get partials
 		$output = $this->partials;
 	}
@@ -269,13 +269,13 @@ class Shop extends MX_Controller {
 	{
 		// get partials
 		$output = $this->partials;
-		
+
 		// set search session var
 		if ($this->input->post('query'))
 		{
 			$this->session->set_userdata('shopSearch', $this->input->post('query'));
 		}
-		
+
 		// get search
 		$search = $this->session->userdata('shopSearch');
 
@@ -298,10 +298,10 @@ class Shop extends MX_Controller {
 		for ($x = 0; $x < ($this->shop->siteVars['shopItemsPerRow'] - sizeof($products)); $x++)
 		{
 			$output['rowpad'] .= '<td width="'.floor((1 / $this->shop->siteVars['shopItemsPerRow']) * 100).'%">&nbsp;</td>';
-		}			
-		$output['shop:paging'] = $limit;			
+		}
+		$output['shop:paging'] = $limit;
 		$output['shop:total-products'] = ($products) ? $this->pagination->total_rows : 0;
-	
+
 		// populate categories
 		$output['category:title'] = 'Search for "'.$search.'"';
 
@@ -312,15 +312,15 @@ class Shop extends MX_Controller {
 		$output['page:title'] = 'Search the Shop'.(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
 		$output['page:heading'] = 'Search for "'.$search.'"';
 
-		// display with cms layer	
-		$this->pages->view('shop_browse', $output, TRUE);	
+		// display with cms layer
+		$this->pages->view('shop_browse', $output, TRUE);
 	}
 
 	function viewproduct($productID)
 	{
 		// get partials
 		$output = $this->partials;
-		
+
 		// load data
 		if (!$product = $this->shop->get_product($productID))
 		{
@@ -328,7 +328,7 @@ class Shop extends MX_Controller {
 		}
 
 		// add a hit
-		$this->shop->add_view($productID);		
+		$this->shop->add_view($productID);
 
 		// get data
 		$image = $this->uploads->load_image($productID, false, true);
@@ -342,7 +342,7 @@ class Shop extends MX_Controller {
 		{
 			// just get the first element
 			$categories = array_reverse($categories);
-			
+
 			// filter through getting last element
 			foreach($categories as $catID)
 			{
@@ -351,36 +351,36 @@ class Shop extends MX_Controller {
 				$output['category:id'] = $category['catID'];
 				$output['category:title'] = $category['catName'];
 				$output['category:description'] = $this->template->parse_body($category['description']);
-				$output['category:link'] = ($category['parentID']) ? '/shop/'.$category['parentSafe'].'/'.$category['catSafe'] : '/shop/'.$category['catSafe'];
+				$output['category:link'] = ($category['parentID']) ? site_url('/shop/'.$category['parentSafe'].'/'.$category['catSafe']) : site_url('/shop/'.$category['catSafe']);
 				$output['category:parent:id'] = ($category['parentID']) ? $category['parentID'] : '';
 				$output['category:parent:title'] = ($category['parentID']) ? $category['parentName'] : '';
-				$output['category:parent:link'] = ($category['parentID']) ? '/shop/'.$category['parentSafe'] : '';
+				$output['category:parent:link'] = ($category['parentID']) ? site_url('/shop/'.$category['parentSafe']) : '';
 			}
 		}
-						
+
 		// get similar products
 		if ($similar = $this->shop->get_similar_products($productID, @$category['catID'], $this->site->config['headlines']))
 		{
 			// fill up template array
 			$i = 0;
 			foreach ($similar as $similarProduct)
-			{	
+			{
 				// get body and excerpt
 				$similarProductBody = (strlen($this->_strip_markdown($similarProduct['description'])) > 100) ? substr($this->_strip_markdown($similarProduct['description']), 0, 100).'...' : nl2br($this->_strip_markdown($similarProduct['description']));
 				$similarProductExcerpt = nl2br($this->_strip_markdown($similarProduct['excerpt']));
-				
+
 				// get images
 				if (!$similarProductImage = $this->uploads->load_image($similarProduct['productID'], false, true))
 				{
 					$similarProductImage['src'] = $this->config->item('staticPath').'/images/nopicture.jpg';
-				}	
+				}
 
 				// get images
 				if (!$similarProductThumb = $this->uploads->load_image($similarProduct['productID'], true, true))
 				{
 					$similarProductThumb['src'] = $this->config->item('staticPath').'/images/nopicture.jpg';
 				}
-				
+
 				// populate template
 				$output['product:similar'][$i]['similar:id'] = $similarProduct['productID'];
 				$output['product:similar'][$i]['similar:link'] = site_url('shop/'.$similarProduct['productID'].'/'.strtolower(url_title($similarProduct['productName'])));
@@ -403,41 +403,52 @@ class Shop extends MX_Controller {
 		{
 			$output['product:similar'] = array();
 		}
-		
+
 		// get varations data
 		$data['variation1'] = $this->shop->get_variations($productID, 1);
 		$data['variation2'] = $this->shop->get_variations($productID, 2);
-		$data['variation3'] = $this->shop->get_variations($productID, 3);		
+		$data['variation3'] = $this->shop->get_variations($productID, 3);
 
 		// populate template
 		$output['product:id'] = $product['productID'];
-		$output['product:link'] = '/shop/'.$product['productID'].'/'.strtolower(url_title($product['productName']));
+		$output['product:link'] = site_url('/shop/'.$product['productID'].'/'.strtolower(url_title($product['productName'])));
 		$output['product:title'] = $product['productName'];
-		$output['product:subtitle'] = $product['subtitle'];
+		// if the subtitle field contains a valid URL, then create an "extlink" field instead of a "subtitle" field:
+		if (filter_var($product['subtitle'], FILTER_VALIDATE_URL))
+		{
+			$output['product:extlink'] = $product['subtitle'];
+		}
+		else
+		{
+			$output['product:subtitle'] = $product['subtitle'];
+		}
 		$output['product:body'] = $this->template->parse_body($product['description']);
 		$output['product:price'] = currency_symbol().number_format($product['price'],2);
 		$output['product:excerpt'] = $this->template->parse_body($product['excerpt']);
 		$output['product:stock'] = $product['stock'];
 		$output['product:category'] = (isset($category) && $category) ? $category['catName'] : '';
-		
+
 		// get tags
 		if ($product['tags'])
 		{
 			$tags = explode(',', $product['tags']);
-			
+
 			$i = 0;
 			foreach ($tags as $tag)
 			{
 				$output['product:tags'][$i]['tag:link'] = site_url('shop/tag/'.$this->tags->make_safe_tag($tag));
 				$output['product:tags'][$i]['tag'] = $tag;
-				
+
 				$i++;
 			}
-		}	
-		
+		}
+
 		$output['form:name'] = set_value('fullName', $this->session->userdata('firstName').' '.$this->session->userdata('lastName'));
 		$output['form:email'] = set_value('email', $this->session->userdata('email'));
 		$output['form:review'] = $this->input->post('review');
+
+		// Vizlogix CSRF protection:
+		$output['form:csrf'] = '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
 
 		// get reviews
 		if ($reviews = $this->shop->get_reviews($product['productID']))
@@ -453,7 +464,7 @@ class Shop extends MX_Controller {
 				$output['product:reviews'][$i]['review:date'] = dateFmt($review['dateCreated'], ($this->site->config['dateOrder'] == 'MD') ? 'M jS Y' : 'jS M Y');
 				$output['product:reviews'][$i]['review:body'] = nl2br(strip_tags($review['review']));
 				$output['product:reviews'][$i]['review:rating'] = $review['rating'];
-				
+
 				$i++;
 			}
 		}
@@ -472,7 +483,12 @@ class Shop extends MX_Controller {
 		{
 			$output['product:status'] = '<span class="preorder">Available for pre-order</span>';
 		}
-		
+		if ($product['status'] == 'D')
+		{
+			$output['product:status'] = '<span class="preorder">Display only</span>';
+			$output['product:stock'] = 0;
+		}
+
 		// set message
 		if ($message = $this->session->flashdata('success'))
 		{
@@ -481,7 +497,7 @@ class Shop extends MX_Controller {
 
 		// set title
 		$output['page:title'] = $product['productName'].(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
-		
+
 		// set meta description
 		if ($product['excerpt'])
 		{
@@ -489,33 +505,33 @@ class Shop extends MX_Controller {
 		}
 
 		// load partials
-		$output['product:variations'] = @$this->parser->parse('partials/variations', $data, TRUE);		
+		$output['product:variations'] = @$this->parser->parse('partials/variations', $data, TRUE);
 
 		// output product ID for CMS button
 		$output['productID'] = $productID;
 
-		// display with cms layer	
+		// display with cms layer
 		$this->pages->view('shop_product', $output, TRUE);
 	}
 
 	function cart($quantity = '', $id = '')
-	{	
+	{
 		// get partials
 		$output = $this->partials;
-		
+
 		// handle upsell
 		if ($this->input->post('upsellID'))
 		{
 			$upsell = $this->shop->get_upsell($this->input->post('upsellID'));
-			
+
 			// remove products
 			if ($upsell['remove'])
 			{
 				foreach((array)$this->session->userdata('cart') as $key => $quantity)
 				{
 					$cartProduct = $this->shop->unpack_item($key, $quantity);
-					$key = $this->core->encode($key);					
-					
+					$key = $this->core->encode($key);
+
 					foreach(explode(',', $upsell['productIDs']) as $removeProductID)
 					{
 						if ($cartProduct['productID'] == $removeProductID)
@@ -525,17 +541,17 @@ class Shop extends MX_Controller {
 					}
 				}
 			}
-			
+
 			// add to cart
 			$this->shop->add_to_cart($upsell['productID'], 1);
 		}
-		
+
 		// cart functions (whats posted)
 		else
-		{	
+		{
 			if ($quantity == 'add' && $this->input->post('productID'))
 			{
-				$this->shop->add_to_cart($this->input->post('productID'), $this->input->post('quantity'));	
+				$this->shop->add_to_cart($this->input->post('productID'), $this->input->post('quantity'));
 			}
 			if ($quantity == 'remove')
 			{
@@ -544,7 +560,7 @@ class Shop extends MX_Controller {
 			if ($quantity == 'update')
 			{
 				foreach((array)$this->session->userdata('cart') as $key => $quantity)
-				{				
+				{
 					$key = $this->core->encode($key);
 					$updateItem = $this->input->post('quantity');
 					$this->shop->update_cart($key, $updateItem[$key]);
@@ -566,7 +582,7 @@ class Shop extends MX_Controller {
 		if ($donation = $this->input->post('donation'))
 		{
 			$this->session->set_userdata('cart_donation', $donation);
-		}	
+		}
 
 		// get shipping bands and modifiers
 		$shippingBand = $this->input->post('shippingBand');
@@ -589,13 +605,13 @@ class Shop extends MX_Controller {
 		{
 			$this->session->set_userdata('shippingBand', 1);
 		}
-		
+
 		// set shipping band notes
 		if ($this->session->userdata('shippingBand') > 1 || $this->session->userdata('shippingModifier'))
 		{
 			$shippingBand = $this->shop->get_band_by_multiplier($this->session->userdata('shippingBand'));
 			$shippingNotes = 'Shipping method: '.$shippingBand['bandName'];
-			
+
 			if ($this->session->userdata('shippingModifier'))
 			{
 				$shippingModifier = $this->shop->get_modifier_by_multiplier($this->session->userdata('shippingModifier'));
@@ -608,16 +624,27 @@ class Shop extends MX_Controller {
 		{
 			$this->session->unset_userdata('shippingNotes');
 		}
-		
+
 		// redirects
 		if ($this->input->post('checkout'))
 		{
 			redirect('/shop/checkout');
 		}
 
+		if ($this->input->post('contact'))
+		{
+			$name = $this->input->post('name');
+			$email = $this->input->post('email');
+			$phone = $this->input->post('phone');
+			$this->session->set_userdata('name', $name);
+			$this->session->set_userdata('email', $email);
+			$this->session->set_userdata('phone', $phone);
+			redirect('/shop/contact');
+		}
+
 		// load cart
 		$data = $this->shop->load_cart();
-		
+
 		// populate template
 		$output['cart:discounts'] = ($data['discounts'] > 0) ? currency_symbol().number_format(@$data['discounts'], 2) : '';
 		$output['cart:subtotal'] = currency_symbol().number_format(@$data['subtotal'], 2);
@@ -627,31 +654,34 @@ class Shop extends MX_Controller {
 
 		// set totals to session
 		$this->session->set_userdata('cart_postage', @$data['postage']);
-		$this->session->set_userdata('cart_total', @$data['subtotal']);			
+		$this->session->set_userdata('cart_total', @$data['subtotal']);
 
 		// get shipping bands
 		$data['shippingBand'] = ($this->input->post('shippingBand')) ? $this->input->post('shippingBand') : $this->session->userdata('shippingBand');
 
-		// get shipping modifiers		
+		// get shipping modifiers
 		if ($data['bands'] = $this->shop->get_bands())
 		{
 			// multiplier
 			$multiplier = ($this->session->userdata('shippingBand')) ? $this->session->userdata('shippingBand') : 1;
-			
+
 			$data['shippingModifier'] = $this->session->userdata('shippingModifier');
 			$data['modifiers'] = $this->shop->get_modifiers($multiplier);
 		}
-		
+
 		// load content
 		$output['cart:items'] = @$this->parser->parse('partials/cart', $data, TRUE);
 		$output['cart:bands'] = @$this->parser->parse('partials/bands', $data, TRUE);
 		$output['cart:modifiers'] = @$this->parser->parse('partials/modifiers', $data, TRUE);
 		$output['form:discount-code'] = $this->session->userdata('discountCode');
-		$output['form:donation'] = ($this->session->userdata('cart_donation')) ? number_format($this->session->userdata('cart_donation'), 2, '.', '') : '';	
-		
+		$output['form:donation'] = ($this->session->userdata('cart_donation')) ? number_format($this->session->userdata('cart_donation'), 2, '.', '') : '';
+
+		// Vizlogix CSRF protection:
+		$output['form:csrf'] = '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+
 		// set default upsell vars
 		$upsell = '';
-		
+
 		// get upsell
 		if ($this->shop->get_product_ids_in_cart() && $upsells = $this->shop->get_upsells())
 		{
@@ -659,7 +689,7 @@ class Shop extends MX_Controller {
 			foreach($upsells as $row)
 			{
 				$upsellArray = array();
-				
+
 				// get upsell based on total value
 				if ($row['type'] == 'V')
 				{
@@ -669,7 +699,7 @@ class Shop extends MX_Controller {
 						$upsell['upsellID'] = $row['upsellID'];
 					}
 				}
-				
+
 				// get upsell based on the number of products
 				elseif ($row['type'] == 'N')
 				{
@@ -679,7 +709,7 @@ class Shop extends MX_Controller {
 						$upsell['upsellID'] = $row['upsellID'];
 					}
 				}
-				
+
 				// get upsell based on the products in cart
 				elseif ($row['type'] == 'P')
 				{
@@ -702,8 +732,8 @@ class Shop extends MX_Controller {
 
 		// load upsell
 		$output['upsell:id'] = ($upsell) ? $upsell['upsellID'] : '';
-		$output['upsell:product-id'] = ($upsell) ? $upsell['productID'] : '';		
-		$output['upsell:link'] = ($upsell) ? '/shop/'.$upsell['productID'].'/'.strtolower(url_title($upsell['productName'])) : '';
+		$output['upsell:product-id'] = ($upsell) ? $upsell['productID'] : '';
+		$output['upsell:link'] = ($upsell) ? site_url('/shop/'.$upsell['productID'].'/'.strtolower(url_title($upsell['productName']))) : '';
 		$output['upsell:title'] = ($upsell) ? $upsell['productName'] : '';
 		$output['upsell:subtitle'] = ($upsell) ? $upsell['subtitle'] : '';
 		$output['upsell:body'] = ($upsell) ? $this->template->parse_body($upsell['description']) : '';
@@ -714,10 +744,10 @@ class Shop extends MX_Controller {
 		$output['upsell:image-path'] = ($image) ? $image['src'] : $this->config->item('staticPath').'/images/nopicture.jpg';
 		$image = ($upsell) ? $this->uploads->load_image($upsell['productID'], true, true) : '';
 		$output['upsell:thumb-path'] = ($image) ? $image['src'] : $this->config->item('staticPath').'/images/nopicture.jpg';
-		
+
 		// get user data
 		$user = $this->shop->get_user();
-		
+
 		// get user data
 		$output['user:email'] = @$user['email'];
 		$output['user:name'] = @trim($user['firstName'].' '.$user['lastName']);
@@ -732,7 +762,7 @@ class Shop extends MX_Controller {
 		$output['user:country'] = @lookup_country($user['country']);
 		$output['user:country-code'] = @$user['country'];
 		$output['user:phone'] = @$user['phone'];
-		
+
 		// get user data
 		$output['user:billing-address1'] = @$user['billingAddress1'];
 		$output['user:billing-address2'] = @$user['billingAddress2'];
@@ -741,15 +771,15 @@ class Shop extends MX_Controller {
 		$output['user:billing-state'] = @lookup_state($user['billingState']);
 		$output['user:billing-postcode'] = @$user['billingPostcode'];
 		$output['user:billing-country'] = @lookup_country($user['billingCountry']);
-		$output['user:billing-country-code'] = @$user['billingCountry'];			
-		
+		$output['user:billing-country-code'] = @$user['billingCountry'];
+
 		// load errors
 		$output['errors'] = (validation_errors()) ? validation_errors() : FALSE;
 
 		// set page title
 		$output['page:title'] = 'Shopping Cart'.(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
 
-		// display with cms layer	
+		// display with cms layer
 		$this->pages->view('shop_cart', $output, TRUE);
 	}
 
@@ -757,7 +787,7 @@ class Shop extends MX_Controller {
 	{
 		// get partials
 		$output = $this->partials;
-		
+
 		// if the gateway is sagepay or authorize then we need to post first and then redirect
 		if (count($_POST))
 		{
@@ -811,8 +841,8 @@ class Shop extends MX_Controller {
 		if (!$this->session->userdata('session_user'))
 		{
 			redirect('/shop/login/'.$this->core->encode($this->uri->uri_string()));
-		}		
-		
+		}
+
 		// get user data
 		$user = $this->shop->get_user();
 
@@ -827,19 +857,19 @@ class Shop extends MX_Controller {
 		{
 			$this->form_validation->set_error('No State appears to be set for delivery address. Please make sure you update your delivery address.');
 		}
-		
+
 		// check a zipcode is set up
 		if (@$user['country'] == 'US' && !@$user['postcode'])
 		{
 			$this->form_validation->set_error('No Zipcode appears to be set for delivery address. Please make sure you update your delivery address.');
 		}
-		
+
 		// check a state is set up
 		if (@$user['billingCountry'] == 'US' && !@$user['billingState'])
 		{
 			$this->form_validation->set_error('No State appears to be set for billing address. Please make sure you update your billing address.');
 		}
-		
+
 		// check a zipcode is set up
 		if (@$user['billingCountry'] == 'US' && !@$user['billingPostcode'])
 		{
@@ -851,12 +881,12 @@ class Shop extends MX_Controller {
 		{
 			$this->form_validation->set_error('You haven\'t yet set your country. Please make sure you update your shipping address.');
 		}
-		
+
 		if ($data = $this->shop->load_cart())
 		{
 			// get transaction data
 			$transaction = $this->shop->insert_transaction();
-			
+
 			// populate template
 			$output['cart:discounts'] = ($data['discounts'] > 0) ? currency_symbol().number_format(@$data['discounts'], 2) : '';
 			$output['cart:subtotal'] = currency_symbol().number_format($data['subtotal'], 2);
@@ -864,15 +894,15 @@ class Shop extends MX_Controller {
 			$output['cart:tax'] = ($data['tax'] > 0) ? currency_symbol().number_format($data['tax'], 2) : '';
 			$output['cart:total'] = currency_symbol().number_format(($data['subtotal'] + $data['postage'] + $data['tax']), 2);
 			$output['cart:amount'] = number_format(($data['subtotal'] + $data['postage'] + $data['tax']), 2);
-			
+
 			// output transaction data
 			$output['transaction:id'] = $transaction['transactionID'];
 			$output['transaction:order-id'] = $transaction['orderID'];
 			$output['transaction:subtotal'] = $data['subtotal'];
 			$output['transaction:postage'] = $data['postage'];
 			$output['transaction:amount'] = ($data['subtotal'] + $data['postage'] + $data['tax']);
-			$output['transaction:currency'] = $this->site->config['currency'];			
-		
+			$output['transaction:currency'] = $this->site->config['currency'];
+
 			// get transaction data (for partial)
 			$data['transaction'] = $transaction;
 			$data['user'] = $user;
@@ -894,7 +924,7 @@ class Shop extends MX_Controller {
 			$output['user:country'] = @lookup_country($user['country']);
 			$output['user:country-code'] = @$user['country'];
 			$output['user:phone'] = @$user['phone'];
-			
+
 			// get user data
 			$output['user:billing-address1'] = @$user['billingAddress1'];
 			$output['user:billing-address2'] = @$user['billingAddress2'];
@@ -903,7 +933,7 @@ class Shop extends MX_Controller {
 			$output['user:billing-state'] = @lookup_state($user['billingState']);
 			$output['user:billing-postcode'] = @$user['billingPostcode'];
 			$output['user:billing-country'] = @lookup_country($user['billingCountry']);
-			$output['user:billing-country-code'] = @$user['billingCountry'];			
+			$output['user:billing-country-code'] = @$user['billingCountry'];
 
 			// check there is stock for all items in cart
 			if ($this->site->config['shopStockControl'])
@@ -922,7 +952,7 @@ class Shop extends MX_Controller {
 						}
 					}
 				}
-				
+
 				// get ordered products and check item hasn't gone out of stock
 				$itemOrders = $this->shop->get_item_orders($transaction['transactionID']);
 				foreach ($itemOrders as $order)
@@ -966,33 +996,36 @@ class Shop extends MX_Controller {
 		}
 
 		// load errors
-		$output['errors'] = (validation_errors()) ? validation_errors() : FALSE;		
+		$output['errors'] = (validation_errors()) ? validation_errors() : FALSE;
 
 		// load content
 		$output['cart:items'] = @$this->parser->parse('partials/cart', $data, TRUE);
 		$output['shop:checkout'] = @$this->parser->parse('partials/checkout', $data, TRUE);
-		
+
+		// Vizlogix CSRF protection:
+		$output['form:csrf'] = '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+
 		// post to the same page if paypal pro
 		if ($this->site->config['shopGateway'] == 'paypalpro') $output['shop:gateway'] = site_url($this->uri->uri_string());
 
 		// set page title
 		$output['page:title'] = 'Checkout'.(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
-		
-		// display with cms layer	
-		@$this->pages->view('shop_checkout', $output, TRUE);		
+
+		// display with cms layer
+		@$this->pages->view('shop_checkout', $output, TRUE);
 	}
 
 	function create_account($redirect = '')
 	{
 		// get partials
 		$output = $this->partials;
-		
+
 		// set default redirect
 		if (!$redirect)
 		{
 			$redirect = $this->core->encode('/shop/checkout');
 		}
-		
+
 		// required
 		$this->core->required = array(
 			'email' => array('label' => 'Email address', 'rules' => 'required|valid_email|unique[users.email]|trim'),
@@ -1006,7 +1039,7 @@ class Shop extends MX_Controller {
 			'city' => array('label' => 'City / State', 'rules' => 'required|trim|ucfirst'),
 			'postcode' => array('label' => 'ZIP/Postcode', 'rules' => 'required|trim|strtoupper'),
 			'phone' => array('label' => 'Phone', 'rules' => 'required|trim')
-		);	
+		);
 
 		// security check
 		if ($this->input->post('username')) $this->core->set['username'] = '';
@@ -1015,14 +1048,14 @@ class Shop extends MX_Controller {
 		if ($this->input->post('userID')) $this->core->set['userID'] = '';
 		if ($this->input->post('resellerID')) $this->core->set['resellerID'] = '';
 		if ($this->input->post('kudos')) $this->core->set['kudos'] = '';
-		if ($this->input->post('posts')) $this->core->set['posts'] = '';		
+		if ($this->input->post('posts')) $this->core->set['posts'] = '';
 
 		// set folder (making sure it's not an admin folder)
 		$permissionGroupsArray = $this->permission->get_groups('admin');
 		foreach((array)$permissionGroupsArray as $group)
 		{
 			$permissionGroups[$group['groupID']] = $group['groupName'];
-		}				
+		}
 		if ($this->input->post('groupID') > 0 && !@in_array($this->input->post('groupID'), $permissionGroups))
 		{
 			$this->core->set['groupID'] = $this->input->post('groupID');
@@ -1042,7 +1075,7 @@ class Shop extends MX_Controller {
 			{
 				// load lib
 				$this->load->module('emailer');
-				
+
 				// check they are allowing subscription
 				if ($this->input->post('subscription') != 'P' && $this->input->post('subscription') != 'N')
 				{
@@ -1050,7 +1083,7 @@ class Shop extends MX_Controller {
 					$this->emailer->subscribe();
 				}
 			}
-			
+
 			// set header and footer
 			$emailHeader = str_replace('{name}', trim($this->input->post('firstName').' '.$this->input->post('lastName')), $this->site->config['emailHeader']);
 			$emailHeader = str_replace('{first-name}', $this->input->post('firstName'), $emailHeader);
@@ -1063,16 +1096,16 @@ class Shop extends MX_Controller {
 			$emailAccount = str_replace('{name}', trim($this->input->post('firstName').' '.$this->input->post('lastName')), $this->site->config['emailAccount']);
 			$emailAccount = str_replace('{first-name}', $this->input->post('firstName'), $emailAccount);
 			$emailAccount = str_replace('{last-name}', $this->input->post('lastName'), $emailAccount);
-			$emailAccount = str_replace('{email}', $this->input->post('email'), $emailAccount);			
-		
+			$emailAccount = str_replace('{email}', $this->input->post('email'), $emailAccount);
+
 			// send email
 			$this->load->library('email');
 			$this->email->from($this->site->config['siteEmail'], $this->site->config['siteName']);
-			$this->email->to($this->input->post('email'));			
+			$this->email->to($this->input->post('email'));
 			$this->email->subject('New account set up on '.$this->site->config['siteName']);
 			$this->email->message($emailHeader."\n\n".$emailAccount."\n\n----------------------------------\nYour email: ".$this->input->post('email')."\nYour password: ".$this->input->post('password')."\n----------------------------------\n\n".$emailFooter);
 			$this->email->send();
-			
+
 			// set login username
 			$username = array('field' => 'email', 'label' => 'Email address', 'value' => $this->input->post('email'));
 
@@ -1085,13 +1118,13 @@ class Shop extends MX_Controller {
 
 		// load errors
 		$output['errors'] = (validation_errors()) ? validation_errors() : FALSE;
-		
+
 		// populate template
 		$output['form:email'] = ($this->session->flashdata('email')) ? $this->session->flashdata('email') : set_value('email', $this->input->post('email'));
 		$output['form:displayName'] = set_value('displayName', $this->input->post('displayName'));
 		$output['form:firstName'] = set_value('firstName', $this->input->post('firstName'));
 		$output['form:lastName'] = set_value('lastName', $this->input->post('lastName'));
-		$output['form:phone'] = set_value('phone', $this->input->post('phone'));		
+		$output['form:phone'] = set_value('phone', $this->input->post('phone'));
 		$output['form:address1'] = set_value('address1', $this->input->post('address1'));
 		$output['form:address2'] = set_value('address2', $this->input->post('address2'));
 		$output['form:address3'] = set_value('address3', $this->input->post('address3'));
@@ -1107,18 +1140,21 @@ class Shop extends MX_Controller {
 		$output['form:billingPostcode'] = set_value('billingPostcode', $this->input->post('billingPostcode'));
 		$output['select:billingCountry'] = @display_countries('billingCountry', (($this->input->post('billingCountry')) ? $this->input->post('billingCountry') : $this->site->config['siteCountry']), 'id="billingCountry" class="formelement"');
 
+		// Vizlogix CSRF protection:
+		$output['form:csrf'] = '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+
 		// set page title
 		$output['page:title'] = 'Create Account'.(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
 
-		// display with cms layer	
-		@$this->pages->view('shop_create_account', $output, TRUE);			
+		// display with cms layer
+		@$this->pages->view('shop_create_account', $output, TRUE);
 	}
 
 	function account($redirect = '')
 	{
 		// get partials
 		$output = $this->partials;
-		
+
 		// check user is logged in, if not send them away from this controller
 		if (!$this->session->userdata('session_user'))
 		{
@@ -1126,7 +1162,7 @@ class Shop extends MX_Controller {
 		}
 
 		// set object ID
-		$objectID = array('userID' => $this->session->userdata('userID'));		
+		$objectID = array('userID' => $this->session->userdata('userID'));
 
 		// required
 		$this->core->required = array(
@@ -1139,8 +1175,8 @@ class Shop extends MX_Controller {
 			'address3' => array('label' => 'Address3', 'rules' => 'trim|ucfirst'),
 			'city' => array('label' => 'City / State', 'rules' => 'required|trim|ucfirst'),
 			'postcode' => array('label' => 'ZIP/Postcode', 'rules' => 'required|trim|strtoupper'),
-			'phone' => array('label' => 'Phone', 'rules' => 'required|trim')			
-		);	
+			'phone' => array('label' => 'Phone', 'rules' => 'required|trim')
+		);
 
 		// get values
 		$data = $this->core->get_values('users', $objectID);
@@ -1156,19 +1192,19 @@ class Shop extends MX_Controller {
 		if ($this->input->post('resellerID')) $this->core->set['resellerID'] = $data['resellerID'];
 		if ($this->input->post('kudos')) $this->core->set['kudos'] = $data['kudos'];
 		if ($this->input->post('posts')) $this->core->set['posts'] = $data['posts'];
-		
+
 		// update
 		if (count($_POST) && $this->core->update('users', $objectID))
 		{
 			// get updated row session
 			$user = $this->shop->get_user();
-			
+
 			// remove the password field
 			unset($user['password']);
-	
+
 			// set session data
 			$this->session->set_userdata($user);
-			
+
 			if ($redirect)
 			{
 				redirect('/shop/'.$redirect);
@@ -1189,24 +1225,27 @@ class Shop extends MX_Controller {
 		$output['form:address2'] = set_value('address2', $data['address2']);
 		$output['form:address3'] = set_value('address3', $data['address3']);
 		$output['form:city'] = set_value('city', $data['city']);
-		$output['select:state'] = @display_states('state',$data['state'], 'id="state" class="formelement"');		
+		$output['select:state'] = @display_states('state',$data['state'], 'id="state" class="formelement"');
 		$output['form:postcode'] = set_value('postcode', $data['postcode']);
 		$output['select:country'] = @display_countries('country', set_value('country', $data['country']), 'id="country" class="formelement"');
 		$output['form:billingAddress1'] = set_value('billingAddress1', $data['billingAddress1']);
 		$output['form:billingAddress2'] = set_value('billingAddress2', $data['billingAddress2']);
 		$output['form:billingAddress3'] = set_value('billingAddress3', $data['billingAddress3']);
 		$output['form:billingCity'] = set_value('billingCity', $data['billingCity']);
-		$output['select:billingState'] = @display_states('billingState', $data['billingState'], 'id="billingState" class="formelement"');		
+		$output['select:billingState'] = @display_states('billingState', $data['billingState'], 'id="billingState" class="formelement"');
 		$output['form:billingPostcode'] = set_value('billingPostcode', $data['billingPostcode']);
-		$output['select:billingCountry'] = @display_countries('billingCountry', set_value('billingCountry', $data['billingCountry']), 'id="billingCountry" class="formelement"');		
+		$output['select:billingCountry'] = @display_countries('billingCountry', set_value('billingCountry', $data['billingCountry']), 'id="billingCountry" class="formelement"');
+
+		// Vizlogix CSRF protection:
+		$output['form:csrf'] = '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
 
 		// load errors
-		$output['errors'] = (validation_errors()) ? validation_errors() : FALSE;		
+		$output['errors'] = (validation_errors()) ? validation_errors() : FALSE;
 
 		// set page title
 		$output['page:title'] = 'My Account'.(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
 
-		// display with cms layer	
+		// display with cms layer
 		$this->pages->view('shop_account', $output, TRUE);
 	}
 
@@ -1214,7 +1253,7 @@ class Shop extends MX_Controller {
 	{
 		// get partials
 		$output = $this->partials;
-		
+
 		// check user is logged in, if not send them away from this controller
 		if (!$this->session->userdata('session_user'))
 		{
@@ -1233,7 +1272,7 @@ class Shop extends MX_Controller {
 					'payment:link' => site_url('/shop/invoice/subscription/'.$payment['paymentID'])
 				);
 			}
-		}			
+		}
 
 		// set pagination and breadcrumb
 		$output['pagination'] = ($pagination = $this->pagination->create_links()) ? $pagination : '';
@@ -1241,7 +1280,7 @@ class Shop extends MX_Controller {
 		// set page title
 		$output['page:title'] = 'My Subscriptions'.(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
 
-		// display with cms layer	
+		// display with cms layer
 		$this->pages->view('shop_subscriptions', $output, TRUE);
 	}
 
@@ -1249,7 +1288,7 @@ class Shop extends MX_Controller {
 	{
 		// get partials
 		$output = $this->partials;
-		
+
 		// check user is logged in, if not send them away from this controller
 		if (!$this->session->userdata('session_user'))
 		{
@@ -1268,7 +1307,7 @@ class Shop extends MX_Controller {
 					'order:link' => site_url('/shop/view_order/'.$order['transactionID'])
 				);
 			}
-		}			
+		}
 
 		// set pagination and breadcrumb
 		$output['pagination'] = ($pagination = $this->pagination->create_links()) ? $pagination : '';
@@ -1276,7 +1315,7 @@ class Shop extends MX_Controller {
 		// set page title
 		$output['page:title'] = 'My Orders'.(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
 
-		// display with cms layer	
+		// display with cms layer
 		$this->pages->view('shop_orders', $output, TRUE);
 	}
 
@@ -1284,7 +1323,7 @@ class Shop extends MX_Controller {
 	{
 		// get partials
 		$output = $this->partials;
-		
+
 		// check user is logged in, if not send them away from this controller
 		if (!$this->session->userdata('session_user'))
 		{
@@ -1307,17 +1346,17 @@ class Shop extends MX_Controller {
 				{
 					$file = $this->shop->get_file($item['fileID']);
 				}
-				
+
 				$output['items'][] = array(
 					'item:id' => $item['productID'],
 					'item:title' => $item['productName'],
 					'item:link' => site_url('/shop/'.$item['productID'].'/'.strtolower(url_title($item['productName']))),
-					'item:details' => (($item['fileID']) ? 
+					'item:details' => (($item['fileID']) ?
 						'('.anchor('/files/'.$this->core->encode($file['fileRef'].'|'.$transactionID), 'Download').')' :
 						(($item['variation1']) ? ' ('.$this->site->config['shopVariation1'].': '.$item['variation1'].')' : '').
 						(($item['variation2']) ? ' ('.$this->site->config['shopVariation2'].': '.$item['variation2'].')' : '').
 						(($item['variation3']) ? ' ('.$this->site->config['shopVariation3'].': '.$item['variation3'].')' : '')
-					),				
+					),
 					'item:quantity' => $item['quantity'],
 					'item:amount' => currency_symbol().number_format(($item['price'] * $item['quantity']), 2)
 				);
@@ -1349,12 +1388,12 @@ class Shop extends MX_Controller {
 		$output['order:postcode'] = ($order['postcode']) ? $order['postcode'] : '';
 		$output['order:phone'] = ($order['phone']) ? $order['phone'] : 'N/A';
 		$output['order:email'] = ($order['email']) ? $order['email'] : 'N/A';
-		$output['order:discounts'] = ($order['discounts'] > 0) ? currency_symbol().number_format($order['discounts'], 2) : '';		
+		$output['order:discounts'] = ($order['discounts'] > 0) ? currency_symbol().number_format($order['discounts'], 2) : '';
 		$output['order:subtotal'] = currency_symbol().number_format($order['amount'] - $order['postage'] - $order['tax'], 2);
 		$output['order:postage'] = currency_symbol().number_format($order['postage'], 2);
 		$output['order:tax'] = ($order['tax'] > 0) ? currency_symbol().number_format($order['tax'], 2) : '';
 		$output['order:total'] = currency_symbol().number_format($order['amount'], 2);
-		$output['order:status'] = $order['trackingStatus'];		
+		$output['order:status'] = $order['trackingStatus'];
 		$output['order:notes'] = ($order['notes']) ? nl2br($order['notes']) : FALSE;
 
 		// set pagination and breadcrumb
@@ -1363,7 +1402,7 @@ class Shop extends MX_Controller {
 		// set page title
 		$output['page:title'] = 'View Order'.(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
 
-		// display with cms layer	
+		// display with cms layer
 		$this->pages->view('shop_view_order', $output, TRUE);
 	}
 
@@ -1371,7 +1410,7 @@ class Shop extends MX_Controller {
 	{
 		// get partials
 		$output = $this->partials;
-		
+
 		$sessionName = 'session_user';
 		$redirect = ($redirect) ? $redirect: $this->core->encode('/shop/cart');
 
@@ -1379,9 +1418,9 @@ class Shop extends MX_Controller {
 		{
 			// login
 			if ($this->input->post('password'))
-			{	
+			{
 				$username = array('field' => 'email', 'label' => 'Email address', 'value' => $this->input->post('email'));
-			
+
 				// set admin session name, if given
 				if (!$this->auth->login($username, $this->input->post('password'), $sessionName, $this->core->decode($redirect)))
 				{
@@ -1391,7 +1430,7 @@ class Shop extends MX_Controller {
 
 			// look up email
 			if ($email = $this->input->post('email'))
-			{				
+			{
 				// if registered show login form
 				if ($this->shop->lookup_user_by_email($email))
 				{
@@ -1414,7 +1453,7 @@ class Shop extends MX_Controller {
 		}
 
 		// load errors
-		$output['errors'] = (validation_errors()) ? validation_errors() : FALSE;		
+		$output['errors'] = (validation_errors()) ? validation_errors() : FALSE;
 
 		// set page title
 		$output['page:title'] = 'Login to Shop'.(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
@@ -1433,7 +1472,7 @@ class Shop extends MX_Controller {
 	}
 
 	function logout()
-	{		
+	{
 		$this->auth->logout();
 	}
 
@@ -1443,7 +1482,7 @@ class Shop extends MX_Controller {
 		$output = $this->partials;
 
 		// load email lib
-		$this->load->library('email');	
+		$this->load->library('email');
 
 		// get image errors if there are any
 		if (count($_POST))
@@ -1464,14 +1503,14 @@ class Shop extends MX_Controller {
 				$emailFooter = str_replace('{first-name}', $user['firstName'], $emailFooter);
 				$emailFooter = str_replace('{last-name}', $user['lastName'], $emailFooter);
 				$emailFooter = str_replace('{email}', $user['email'], $emailFooter);
-				
-				// send email			
+
+				// send email
 				$this->email->from($this->site->config['siteEmail'], $this->site->config['siteName']);
-				$this->email->to($user['email']);			
+				$this->email->to($user['email']);
 				$this->email->subject('Password reset request on '.$this->site->config['siteName']);
 				$this->email->message($emailHeader."\n\nA password reset request has been submitted on ".$this->site->config['siteName'].". If you did not request to have your password reset please ignore this email.\n\nIf you did want to reset your password please click on the link below.\n\n".site_url('shop/reset/'.$key)."\n\n".$emailFooter);
 				$this->email->send();
-				
+
 				$output['message'] = 'Thank you. An email was sent out with instructions on how to reset your password.';
 			}
 			else
@@ -1482,8 +1521,8 @@ class Shop extends MX_Controller {
 
 		// set title
 		$output['page:title'] = 'Forgotten Password'.(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
-		$output['page:heading'] = 'Forgotten Password';	
-		
+		$output['page:heading'] = 'Forgotten Password';
+
 		// display with cms layer
 		$this->pages->view('shop_forgotten', $output, 'shop');
 	}
@@ -1494,7 +1533,7 @@ class Shop extends MX_Controller {
 		$output = $this->partials;
 
 		// load email lib
-		$this->load->library('email');	
+		$this->load->library('email');
 
 		// required
 		$this->core->required = array(
@@ -1510,11 +1549,11 @@ class Shop extends MX_Controller {
 		else
 		{
 			// set object ID
-			$objectID = array('userID' => $user['userID']);		
-	
+			$objectID = array('userID' => $user['userID']);
+
 			// get values
 			$data = $this->core->get_values('users', $objectID);
-	
+
 			if (count($_POST))
 			{
 				// unset key
@@ -1529,7 +1568,7 @@ class Shop extends MX_Controller {
 				if ($this->input->post('kudos')) $this->core->set['kudos'] = $data['kudos'];
 				if ($this->input->post('posts')) $this->core->set['posts'] = $data['posts'];
 
-				// update			
+				// update
 				if ($this->core->update('users', $objectID))
 				{
 					// set header and footer
@@ -1541,36 +1580,36 @@ class Shop extends MX_Controller {
 					$emailFooter = str_replace('{first-name}', $user['firstName'], $emailFooter);
 					$emailFooter = str_replace('{last-name}', $user['lastName'], $emailFooter);
 					$emailFooter = str_replace('{email}', $user['email'], $emailFooter);
-										
-					// send email			
+
+					// send email
 					$this->email->from($this->site->config['siteEmail'], $this->site->config['siteName']);
-					$this->email->to($user['email']);			
+					$this->email->to($user['email']);
 					$this->email->subject('Your password was reset on '.$this->site->config['siteName']);
 					$this->email->message($emailHeader."\n\nYour password for ".$this->site->config['siteName']." has been reset, please keep this information safe.\n\nYour new password is: ".$this->input->post('password')."\n\n".$emailFooter);
 					$this->email->send();
-					
+
 					$output['message'] = 'Thank you. Your password was reset.';
 				}
 			}
 
 			// load errors
-			$output['errors'] = (validation_errors()) ? validation_errors() : FALSE;			
+			$output['errors'] = (validation_errors()) ? validation_errors() : FALSE;
 		}
-	
-	
+
+
 		// set title
 		$output['page:title'] = 'Reset Password'.(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
 		$output['page:heading'] = 'Reset Password';
-		
+
 		// display with cms layer
-		$this->pages->view('shop_reset', $output, 'shop');		
+		$this->pages->view('shop_reset', $output, 'shop');
 	}
 
 	function recommend($productID)
 	{
 		// get partials
 		$output = $this->partials;
-		
+
 		// make sure toUserID is set
 		if (!$product = $this->shop->get_product($productID))
 		{
@@ -1586,10 +1625,10 @@ class Shop extends MX_Controller {
 		);
 
 		// get values
-		$output = $this->core->get_values();	
-		
+		$output = $this->core->get_values();
+
 		if (count($_POST))
-		{	
+		{
 			if ($this->core->check_errors())
 			{
 				// set header and footer
@@ -1597,30 +1636,33 @@ class Shop extends MX_Controller {
 				$emailHeader = str_replace('{email}', $this->input->post('email'), $emailHeader);
 				$emailFooter = str_replace('{name}', $this->input->post('toName'), $this->site->config['emailFooter']);
 				$emailFooter = str_replace('{email}', $this->input->post('toEmail'), $emailFooter);
-									
+
 				// send email
 				$this->load->library('email');
 				$this->email->from($this->site->config['siteEmail'], $this->site->config['siteName']);
-				$this->email->to($this->input->post('toEmail'));			
+				$this->email->to($this->input->post('toEmail'));
 				$this->email->subject('A Friend Has Recommended a Product on '.$this->site->config['siteName']);
 				$this->email->message($emailHeader."\n\nA friend thinks that you might be interested in a product on ".$this->site->config['siteName'].".\n\nYou can view the product by clicking on the link below:\n\n".site_url('shop/'.$productID.'/'.strtolower(url_title($product['productName']))).(($this->input->post('messages')) ? "They sent you a message as well:\n\n".$this->input->post('message') : '')."\n\n".$emailFooter);
 				$this->email->send();
 
 				// set success message
 				$this->session->set_flashdata('success', 'Thank you, your recommendation has been sent.');
-	
+
 				// redirect
 				redirect('shop/'.$productID.'/'.strtolower(url_title($product['productName'])));
 			}
 		}
 
 		// populate template
-		$output['product:id'] = $product['productID'];		
+		$output['product:id'] = $product['productID'];
 		$output['form:name'] = $this->input->post('fullName');
-		$output['form:email'] = $this->input->post('email');		
+		$output['form:email'] = $this->input->post('email');
 		$output['form:to-name'] = $this->input->post('toName');
-		$output['form:to-email'] = $this->input->post('toEmail');		
-		$output['form:message'] = $this->input->post('message');	
+		$output['form:to-email'] = $this->input->post('toEmail');
+		$output['form:message'] = $this->input->post('message');
+
+		// Vizlogix CSRF protection:
+		$output['form:csrf'] = '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
 
 		// set title
 		$output['page:title'] = 'Recommend Product'.(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
@@ -1631,21 +1673,52 @@ class Shop extends MX_Controller {
 		// load content into a popup
 		if ($this->core->is_ajax())
 		{
-			// display with cms layer	
+			// display with cms layer
 			$this->pages->view('shop_recommend_popup', $output, TRUE);
 		}
 		else
 		{
-			// display with cms layer	
+			// display with cms layer
 			$this->pages->view('shop_recommend', $output, TRUE);
 		}
 	}
-	
+
+	// process a contact form for a shop inquiry
+	function contact()
+	{
+		// load cart
+		$data = $this->shop->load_cart();
+		$data['discountCode'] = $this->session->userdata('discountCode');
+		$data['name'] = $this->session->userdata('name');
+		$data['email'] = $this->session->userdata('email');
+		$data['phone'] = $this->session->userdata('phone');
+
+		// load cart content
+		$cart = @$this->parser->parse('partials/inquiry', $data, TRUE);
+
+		// send email
+		$this->load->library('email');
+
+		$this->email->set_mailtype('html');
+		$this->email->from($this->site->config['siteEmail'], $this->site->config['siteName']);
+		$this->email->to($this->site->config['siteEmail']);
+		$this->email->subject('Someone has sent an inquiry');
+		$this->email->message($cart);
+
+		$this->email->send();
+
+		// set success message
+		$this->session->set_flashdata('success', 'Thank you. Your inquiry has been sent.');
+
+		// redirect
+		redirect('/thanks');
+	}
+
 	function review($productID)
 	{
 		// get partials
 		$output = $this->partials;
-		
+
 		// make sure toUserID is set
 		if (!$product = $this->shop->get_product($productID))
 		{
@@ -1660,8 +1733,8 @@ class Shop extends MX_Controller {
 		);
 
 		// get values
-		$output = $this->core->get_values();	
-		
+		$output = $this->core->get_values();
+
 		// add review
 		if (count($_POST))
 		{
@@ -1669,7 +1742,7 @@ class Shop extends MX_Controller {
 			$this->core->set['dateCreated'] = date("Y-m-d H:i:s");
 			$this->core->set['productID'] = $productID;
 			$this->core->set['active'] = 0;
-			
+
 			// update
 			if ($this->core->update('shop_reviews'))
 			{
@@ -1681,7 +1754,7 @@ class Shop extends MX_Controller {
 				{
 					$user['email'] = $this->site->config['siteEmail'];
 				}
-				
+
 				if ($user['notifications'])
 				{
 					// set header and footer
@@ -1693,11 +1766,11 @@ class Shop extends MX_Controller {
 					$emailFooter = str_replace('{first-name}', $user['firstName'], $emailFooter);
 					$emailFooter = str_replace('{last-name}', $user['lastName'], $emailFooter);
 					$emailFooter = str_replace('{email}', $user['email'], $emailFooter);
-					
+
 					// send email
-					$this->load->library('email');						
+					$this->load->library('email');
 					$this->email->from($this->site->config['siteEmail'], $this->site->config['siteName']);
-					$this->email->to($user['email']);			
+					$this->email->to($user['email']);
 					$this->email->subject('New Product Review on '.$this->site->config['siteName']);
 					$this->email->message($emailHeader."\n\nSomeone has just reviewed your product titled \"".$product['productName']."\".\n\nYou can view and approve this review by clicking on the following URL:\n\n".site_url('/admin/shop/reviews')."\n\nThey said:\n\"".$this->input->post('review')."\"\n\n".$emailFooter);
 					$this->email->send();
@@ -1705,17 +1778,20 @@ class Shop extends MX_Controller {
 
 				// set success message
 				$this->session->set_flashdata('success', 'Thank you, your review has been submitted and is pending approval.');
-			
+
 				// redirect
 				redirect('/shop/'.$productID.'/'.strtolower(url_title($product['productName'])));
 			}
 		}
 
 		// populate template
-		$output['product:id'] = $product['productID'];		
+		$output['product:id'] = $product['productID'];
 		$output['form:name'] = $this->input->post('fullName');
-		$output['form:email'] = $this->input->post('email');		
-		$output['form:review'] = $this->input->post('review');	
+		$output['form:email'] = $this->input->post('email');
+		$output['form:review'] = $this->input->post('review');
+
+		// Vizlogix CSRF protection:
+		$output['form:csrf'] = '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
 
 		// set title
 		$output['page:title'] = 'Review Product'.(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
@@ -1726,21 +1802,21 @@ class Shop extends MX_Controller {
 		// load content into a popup
 		if ($this->core->is_ajax())
 		{
-			// display with cms layer	
+			// display with cms layer
 			$this->pages->view('shop_review_popup', $output, TRUE);
 		}
 		else
 		{
-			// display with cms layer	
+			// display with cms layer
 			$this->pages->view('shop_review', $output, TRUE);
 		}
 	}
-	
+
 	function cancel()
 	{
 		// get partials
 		$output = $this->partials;
-		
+
 		// cancel transaction and empty cart
 		$this->session->unset_userdata('cart');
 		$this->session->unset_userdata('cart_ids');
@@ -1750,28 +1826,28 @@ class Shop extends MX_Controller {
 		// set page title
 		$output['page:title'] = 'Cancelled'.(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
 
-		// display with cms layer	
+		// display with cms layer
 		$this->pages->view('shop_cancel', $output, TRUE);
 	}
-	
+
 	function success($paypalstuff = '')
 	{
 		// get partials
 		$output = $this->partials;
-		
+
 		// empty cart
 		$this->session->unset_userdata('cart');
 		$this->session->unset_userdata('cart_ids');
 		$this->session->unset_userdata('postage');
-		$this->session->unset_userdata('total');		
-		
+		$this->session->unset_userdata('total');
+
 		// show success page
 		$output['ipn'] = $_POST;
 
 		// set page title
 		$output['page:title'] = 'Thank You'.(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
-	
-		// display with cms layer	
+
+		// display with cms layer
 		$this->pages->view('shop_success', $output, TRUE);
 	}
 
@@ -1779,11 +1855,11 @@ class Shop extends MX_Controller {
 	{
 		// get partials
 		$output = $this->partials;
-				
+
 		// set page title
 		$output['page:title'] = 'Donation'.(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
-	
-		// display with cms layer	
+
+		// display with cms layer
 		$this->pages->view('shop_donation', $output, TRUE);
 	}
 
@@ -1791,7 +1867,7 @@ class Shop extends MX_Controller {
 	{
 		// get partials
 		$output = $this->partials;
-		
+
 		// check url
 		if ($type == 'subscription')
 		{
@@ -1801,13 +1877,13 @@ class Shop extends MX_Controller {
 				{
 					// load libs etc
 					$this->load->plugin('pdf');
-							
+
 					// populate data
 					$data['ref'] = 'I-'.date('Y', strtotime($data['dateCreated'])).$id;
-			
+
 					// get invoice template
 					$html = $this->load->view('invoice', $data, TRUE);
-			
+
 					// create pdf
 					create_pdf($html, 'I-'.date('Y').$id);
 				}
@@ -1826,7 +1902,7 @@ class Shop extends MX_Controller {
 			show_404();
 		}
 	}
-	
+
 	function ipn()
 	{
 		// handle Paypal IPN post
@@ -1883,8 +1959,8 @@ class Shop extends MX_Controller {
 					{
 						// send donation email
 						$this->_donation();
-					}					
-				}	
+					}
+				}
 				elseif ($this->shop->validate_subscription())
 				{
 					// HALOGY ADD SITE
@@ -1892,7 +1968,7 @@ class Shop extends MX_Controller {
 					{
 						$this->_halogy_premium();
 					}
-	
+
 					// add subscription
 					$this->shop->add_subscriber();
 				}
@@ -1917,7 +1993,7 @@ class Shop extends MX_Controller {
 						$this->output->set_output("Status=OK\nRedirectURL=".site_url('/shop/success')."\nStatusDetail=Successful\n");
 					}
 					elseif (substr($this->shop->response_data['orderID'], 0, 3) == 'DON')
-					{	
+					{
 						$this->output->set_output("Status=OK\nRedirectURL=".site_url('/shop/donation')."\nStatusDetail=Successful\n");
 					}
 				}
@@ -1940,7 +2016,7 @@ class Shop extends MX_Controller {
 
 		// get order details
 		$orderRow = $this->shop->get_order_by_order_id($orderID);
-		$transactionID = $orderRow['transactionID'];		
+		$transactionID = $orderRow['transactionID'];
 
 		// get ordered products
 		$itemOrders = $this->shop->get_item_orders($transactionID);
@@ -1958,7 +2034,7 @@ class Shop extends MX_Controller {
 		$emailOrder = str_replace('{first-name}', $orderRow['firstName'], $emailOrder);
 		$emailOrder = str_replace('{last-name}', $orderRow['lastName'], $emailOrder);
 		$emailOrder = str_replace('{email}', $orderRow['email'], $emailOrder);
-		
+
 		// construct email to customer
 		$userBody = $emailHeader."\n\n";
 		$userBody .= $emailOrder."\n\n";
@@ -1968,7 +2044,7 @@ class Shop extends MX_Controller {
 		$adminBody = "Dear administrator,\n\n";
 		$adminBody .= "An order (#".$orderID.") has been placed on ".$this->site->config['siteName'].".\n\n";
 		$adminBody .= "------------------------------------------\n";
-	
+
 		// grab order and make body
 		$orderBody = "Your order:\n\n";
 		$orderBody .= "Reference ID #: ".$orderID."\n\n";
@@ -1976,21 +2052,21 @@ class Shop extends MX_Controller {
 		// go through each order
 		$downloadBody = '';
 		foreach ($itemOrders as $order)
-		{	
+		{
 			// if stock control is enabled then minus the amount of stock
 			if ($this->site->config['shopStockControl'])
 			{
 				$this->shop->minus_stock($order['productID'], $order['quantity']);
 			}
-		
+
 			$variationHTML = '';
-			
+
 			// get variation 1
 			if ($order['variation1']) $variationHTML .= ' ('.$this->site->config['shopVariation1'].': '.$order['variation1'].')';
-			
+
 			// get variations 2
 			if ($order['variation2']) $variationHTML .= ' ('.$this->site->config['shopVariation2'].': '.$order['variation2'].')';
-		
+
 			// get variations 3
 			if ($order['variation3']) $variationHTML .= ' ('.$this->site->config['shopVariation3'].': '.$order['variation3'].')';
 
@@ -2000,7 +2076,7 @@ class Shop extends MX_Controller {
 				$file = $this->shop->get_file($order['fileID']);
 				$downloadBody .= $order['productName']."\n".site_url('/files/'.$this->core->encode($file['fileRef'].'|'.$transactionID))."\n\n";
 			}
-		
+
 			$orderBody .= $order['quantity'] . "x | #" . $order['catalogueID'] . " | " . $order['productName'] . $variationHTML . " ";
 			$orderBody .= "| ".currency_symbol(FALSE). number_format(($order['price'] * $order['quantity']),2)."\n";
 		}
@@ -2020,13 +2096,13 @@ class Shop extends MX_Controller {
 		// show subtotals
 		$orderBody .= "\nSub total: ".currency_symbol(FALSE).number_format(($orderRow['amount'] - $orderRow['postage'] - $orderRow['tax']),2);
 		$orderBody .= "\nShipping: ".currency_symbol(FALSE).number_format($orderRow['postage'],2);
-		
+
 		// show tax if exists
 		if ($orderRow['tax'] > 0)
 		{
 			$orderBody .= "\nTax: ".currency_symbol(FALSE).number_format($orderRow['tax'],2);
 		}
-		
+
 		// show totals
 		$orderBody .= "\nTotal: ".currency_symbol(FALSE).number_format($orderRow['amount'],2)."\n\n";
 		$orderBody .= "------------------------------------------\n\n";
@@ -2038,7 +2114,7 @@ class Shop extends MX_Controller {
 			$orderBody .= $downloadBody;
 			$orderBody .= "------------------------------------------\n\n";
 		}
-		
+
 		$dispatchBody = "Shipping Address:\n\n";
 		$dispatchBody .= ($orderRow['firstName'] && $orderRow['lastName']) ? $orderRow['firstName']." ".$orderRow['lastName']."\n" : '';
 		$dispatchBody .= ($orderRow['address1']) ? $orderRow['address1']."\n" : '';
@@ -2069,7 +2145,7 @@ class Shop extends MX_Controller {
 
 		// add notes
 		$notesBody = ($orderRow['notes']) ? "Notes:\n\n".$orderRow['notes']."\n\n------------------------------------------\n\n" : '';
-			
+
 		$footerBody = $emailFooter;
 
 		$this->shop->update_order($transactionID);
@@ -2080,7 +2156,7 @@ class Shop extends MX_Controller {
 		$this->email->to($orderRow['email']);
 		$this->email->subject('Thank you for your order (#'.$orderID.')');
 		$this->email->message($userBody.$orderBody.$dispatchBody.$notesBody.$footerBody);
-		$this->email->from($this->site->config['siteEmail'], $this->site->config['siteName']);			
+		$this->email->from($this->site->config['siteEmail'], $this->site->config['siteName']);
 		$this->email->send();
 
 		$this->email->clear();
@@ -2088,7 +2164,7 @@ class Shop extends MX_Controller {
 		$this->email->to($this->site->config['siteEmail']);
 		$this->email->subject('Someone has placed an order (#'.$orderID.')');
 		$this->email->message($adminBody.$orderBody.$dispatchBody.$notesBody.$footerBody);
-		$this->email->from($this->site->config['siteEmail'], $this->site->config['siteName']);			
+		$this->email->from($this->site->config['siteEmail'], $this->site->config['siteName']);
 		$this->email->send();
 
 		return TRUE;
@@ -2097,7 +2173,7 @@ class Shop extends MX_Controller {
 	function _donation()
 	{
 		$orderID = $this->shop->response_data['orderID'];
-		
+
 		// set header and footer
 		$emailHeader = str_replace('{name}', $this->shop->response_data['fullName'], $this->site->config['emailHeader']);
 		$emailHeader = str_replace('{first-name}', $this->shop->response_data['firstName'], $emailHeader);
@@ -2111,7 +2187,7 @@ class Shop extends MX_Controller {
 		$emailDonation = str_replace('{first-name}', $this->shop->response_data['firstName'], $emailDonation);
 		$emailDonation = str_replace('{last-name}', $this->shop->response_data['lastName'], $emailDonation);
 		$emailDonation = str_replace('{email}', $this->shop->response_data['email'], $emailDonation);
-		
+
 		// construct email to customer
 		$userBody = $emailHeader."\n\n";
 		$userBody .= $emailDonation."\n\n";
@@ -2127,7 +2203,7 @@ class Shop extends MX_Controller {
 		//$this->email->to($this->shop->response_data['email']);
 		//$this->email->subject('Thank you for your donation');
 		//$this->email->message($userBody.$footerBody);
-		//$this->email->from($this->site->config['siteEmail'], $this->site->config['siteName']);			
+		//$this->email->from($this->site->config['siteEmail'], $this->site->config['siteName']);
 		//$this->email->send();
 
 		//$this->email->clear();
@@ -2135,7 +2211,7 @@ class Shop extends MX_Controller {
 		$this->email->to($this->site->config['siteEmail']);
 		$this->email->subject('Someone has made a donation (#'.$orderID.')');
 		$this->email->message($adminBody.$footerBody);
-		$this->email->from($this->site->config['siteEmail'], $this->site->config['siteName']);			
+		$this->email->from($this->site->config['siteEmail'], $this->site->config['siteName']);
 		$this->email->send();
 
 		return TRUE;
@@ -2160,7 +2236,7 @@ class Shop extends MX_Controller {
 		$emailSubscription = str_replace('{first-name}', $this->shop->response_data['firstName'], $emailSubscription);
 		$emailSubscription = str_replace('{last-name}', $this->shop->response_data['lastName'], $emailSubscription);
 		$emailSubscription = str_replace('{email}', $this->shop->response_data['email'], $emailSubscription);
-		
+
 		// construct email to customer
 		$userBody = $emailHeader."\n\n";
 		$userBody .= $emailSubscription."\n\n";
@@ -2168,11 +2244,11 @@ class Shop extends MX_Controller {
 		// construct email to admin
 		$adminBody = "Dear administrator,\n\n";
 		$adminBody .= "A subscription has been created on ".$this->site->config['siteName'].".\n\n";
-	
+
 		// grab order and make body
 		$orderBody = "Your subscription reference ID #: ".$orderID."\n\n";
 
-		// get footer			
+		// get footer
 		$footerBody = $emailFooter;
 
 		// get subscriptionID
@@ -2193,7 +2269,7 @@ class Shop extends MX_Controller {
 		$this->email->to($email);
 		$this->email->subject('New subscription set up on '.$this->site->config['siteName']);
 		$this->email->message($userBody.$orderBody.$footerBody);
-		$this->email->from($this->site->config['siteEmail'], $this->site->config['siteName']);			
+		$this->email->from($this->site->config['siteEmail'], $this->site->config['siteName']);
 		$this->email->send();
 
 		$this->email->clear();
@@ -2201,7 +2277,7 @@ class Shop extends MX_Controller {
 		$this->email->to($this->site->config['siteEmail']);
 		$this->email->subject('New subscription set up on '.$this->site->config['siteName']);
 		$this->email->message($adminBody.$orderBody.$footerBody);
-		$this->email->from($this->site->config['siteEmail'], $this->site->config['siteName']);			
+		$this->email->from($this->site->config['siteEmail'], $this->site->config['siteName']);
 		$this->email->send();
 
 		return TRUE;
@@ -2215,13 +2291,13 @@ class Shop extends MX_Controller {
 			$i = 0;
 			$x = 0;
 			$t = 0;
-						
+
 			foreach ($products as $product)
 			{
 				// get body and excerpt
 				$productBody = (strlen($this->_strip_markdown($product['description'])) > 100) ? substr($this->_strip_markdown($product['description']), 0, 100).'...' : nl2br($this->_strip_markdown($product['description']));
 				$productExcerpt = nl2br($this->_strip_markdown($product['excerpt']));
-				
+
 				// get images
 				if (!$image = $this->uploads->load_image($product['productID'], false, true))
 				{
@@ -2231,22 +2307,22 @@ class Shop extends MX_Controller {
 				{
 					$thumb['src'] = $this->config->item('staticPath').'/images/nopicture.jpg';
 				}
-				
+
 				// populate template array
 				$data[$x] = array(
 					'product:id' => $product['productID'],
-					'product:link' => '/shop/'.$product['productID'].'/'.strtolower(url_title($product['productName'])),
+					'product:link' => site_url('/shop/'.$product['productID'].'/'.strtolower(url_title($product['productName']))),
 					'product:title' => $product['productName'],
 					'product:subtitle' => $product['subtitle'],
 					'product:body' => $productBody,
 					'product:excerpt' => $productExcerpt,
-					'product:image-path' =>	$image['src'],				
+					'product:image-path' =>	$image['src'],
 					'product:thumb-path' => $thumb['src'],
 					'product:cell-width' => floor(( 1 / $itemsPerRow) * 100),
 					'product:price' => currency_symbol().number_format($product['price'],2),
 					'product:stock' => $product['stock']
 				);
-				
+
 				// get tags
 				if ($product['tags'])
 				{
@@ -2257,11 +2333,16 @@ class Shop extends MX_Controller {
 					{
 						$data[$x]['product:tags'][$t]['tag:link'] = site_url('shop/tag/'.$this->tags->make_safe_tag($tag));
 						$data[$x]['product:tags'][$t]['tag'] = $tag;
-						
+
 						$t++;
 					}
-				}				
-				
+				}
+				else
+				{
+					$data[$x]['product:tags'][0]['tag:link'] = '';
+					$data[$x]['product:tags'][0]['tag'] = '';
+				}
+
 				if (($i % $itemsPerRow) == 0 && $i > 1)
 				{
 					$data[$x]['product:rowpad'] = '</tr><tr>'."\n";
@@ -2283,10 +2364,10 @@ class Shop extends MX_Controller {
 			return FALSE;
 		}
 	}
-	
+
 	function _strip_markdown($string)
 	{
 		return preg_replace('/([*\-#]+)/i', '', preg_replace('/{(.*)}/i', '', $string));
 	}
-		
+
 }

@@ -98,8 +98,12 @@ class Admin extends MX_Controller {
 			$this->core->set['dateCreated'] = date("Y-m-d H:i:s");
 			$this->core->set['tags'] = trim(strtolower($this->input->post('tags')));
 			$this->core->set['userID'] = $this->session->userdata('userID');
-			$this->core->set['eventDate'] = date("Y-m-d H:i:s", strtotime($this->input->post('eventDate').' 12AM'));
-			$this->core->set['eventEnd'] = ($this->input->post('eventEnd')) ? date("Y-m-d H:i:s", strtotime($this->input->post('eventEnd').' 11.59PM')) : '';
+//			echo $this->input->post('eventDate');
+			$eventDate = DateTime::createFromFormat('d M Y g:i a', $this->input->post('eventDate'));
+//			echo $eventDate->format('Y-m-d H:i').':00';
+			$this->core->set['eventDate'] = date("Y-m-d H:i:s", strtotime($eventDate->format('Y-m-d H:i').':00'));
+			$eventEnd = DateTime::createFromFormat('d M Y g:i a', $this->input->post('eventEnd'));
+			$this->core->set['eventEnd'] = ($this->input->post('eventEnd')) ? date("Y-m-d H:i:s", strtotime($eventEnd->format('Y-m-d H:i').':00')) : '';
 			
 			// update
 			if ($this->core->update('events'))
@@ -146,11 +150,21 @@ class Admin extends MX_Controller {
 		if (count($_POST))
 		{
 			// set date
-			$this->core->set['dateCreated'] = date("Y-m-d H:i:s");
+			$this->core->set['dateModified'] = date("Y-m-d H:i:s");
 			$this->core->set['tags'] = trim(strtolower($this->input->post('tags')));
-			$this->core->set['eventDate'] = date("Y-m-d H:i:s", strtotime($this->input->post('eventDate').' 12AM'));
-			$this->core->set['eventEnd'] = ($this->input->post('eventEnd')) ? date("Y-m-d H:i:s", strtotime($this->input->post('eventEnd').' 11.59PM')) : '';
-			
+//			echo $this->input->post('eventDate');
+			$eventDate = DateTime::createFromFormat('d M Y g:i a', $this->input->post('eventDate'));
+//			echo $eventDate->format('Y-m-d H:i').':00';
+			if (is_object($eventDate))
+			{
+				$this->core->set['eventDate'] = date("Y-m-d H:i:s", strtotime($eventDate->format('Y-m-d H:i').':00'));
+			}
+			$eventEnd = DateTime::createFromFormat('d M Y g:i a', $this->input->post('eventEnd'));
+			if (is_object($eventEnd))
+			{
+				$this->core->set['eventEnd'] = ($this->input->post('eventEnd')) ? date("Y-m-d H:i:s", strtotime($eventEnd->format('Y-m-d H:i').':00')) : '';
+			}
+
 			// update
 			if ($this->core->update('events', $objectID))
 			{		

@@ -7,14 +7,13 @@ $(function(){
 });
 </script>
 
+<div class="headingleft">
 <h1 class="headingleft">Tickets <small><?php if ($status) echo '('.$status.')'?></small></h1>
+</div>
 
 <div class="headingright">
 
-	<label for="filter">
-		Filter
-	</label> 
-
+	<label for="filter">Filter:</label> 
 	<?php
 		$options[''] = 'View All';
 		$options['open'] = 'Open';
@@ -33,7 +32,7 @@ $(function(){
 		echo form_dropdown('filter', $options, $this->uri->segment(4), 'id="filter"');
 	?>
 
-	<a href="<?php echo site_url('/admin/webforms/viewall'); ?>" class="button blue">Web Forms</a>
+	<a href="<?php echo site_url('/admin/webforms/viewall'); ?>" class="btn btn-info">Web Forms</a>
 
 </div>
 <div class="clear"></div>
@@ -82,7 +81,7 @@ $(function(){
 
 <?php echo $this->pagination->create_links(); ?>
 
-<p style="text-align: right;"><a href="#" class="button grey" id="totop">Back to top</a></p>
+<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>
 
 <?php else: ?>
 

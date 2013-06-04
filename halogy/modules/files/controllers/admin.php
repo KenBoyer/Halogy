@@ -386,4 +386,15 @@ class Admin extends MX_Controller {
 		$this->output->set_output($output);
 	}
 
+	function preview()
+	{
+		// get parsed body
+		$html = $this->template->parse_body($this->input->post('body'));
+
+		// filter for scripts
+		$html = preg_replace('/<script(.*)<\/script>/is', '<em>This block contained scripts, please refresh page.</em>', $html);
+
+		// output
+		$this->output->set_output($html);
+	}
 }

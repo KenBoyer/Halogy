@@ -78,8 +78,10 @@ class Blog extends MX_Controller {
 		{
 			foreach($latest as $post)
 			{
+				$specifier = dateFmt($post['dateCreated'], 'Y/m');
+				$link = $this->build_url('blog', $specifier, $post['uri']);
 				$this->partials['blog:latest'][] = array(
-					'latest:link' => site_url('blog/'.dateFmt($post['dateCreated'], 'Y/m').'/'.$post['uri']),
+					'latest:link' => $link,
 					'latest:title' => $post['postTitle'],
 					'latest:date' => dateFmt($post['dateCreated'], ($this->site->config['dateOrder'] == 'MD') ? 'M jS Y' : 'jS M Y'),
 				);
@@ -221,13 +223,13 @@ class Blog extends MX_Controller {
 							$this->email->from($this->site->config['siteEmail'], $this->site->config['siteName']);
 							$this->email->to($user['email']);			
 							$this->email->subject('New Blog Comment on '.$this->site->config['siteName']);
-							$this->email->message($emailHeader."\n\nSomeone has just commented on your blog post titled \"".$post['postTitle']."\".\n\nYou can either approve or delete this comment by clicking on the following URL:\n\n".site_url('/admin/blog/comments')."\n\nThey said:\n\"".$this->input->post('comment')."\"\n\n".$emailFooter);
+							$this->email->message($emailHeader."\n\nSomeone has just commented on your blog post titled \"".$post['postTitle']."\".\n\nYou can either approve or delete this comment by clicking on the following URL:\n\n".site_url('/admin/blog/comments')."\n\nThey wrote:\n\"".$this->input->post('comment')."\"\n\n".$emailFooter);
 							$this->email->send();
 						}
 	
 						// output message
-						$output['message'] = 'Thank you, your comment has been posted and is awaiting moderation.';
-	
+						$output['message'] = 'Thank you. Your comment has been posted and is awaiting moderation.';
+
 						// disable form
 						$post['allowComments'] = 0;
 					}
@@ -246,10 +248,20 @@ class Blog extends MX_Controller {
 			// get author details
 			$author = $this->blog->lookup_user($post['userID']);
 
+			// get subscriptions
+			$subscriptions = $this->blog->get_subscriptions($post['postID']);
+
+			// build the post link
+			$specifier = dateFmt($post['dateCreated'], 'Y/m');
+			$link = $this->build_url('blog', $specifier, $post['uri']);
+
 			// populate template
 			$output['post:title'] = $post['postTitle'];
-			$output['post:link'] = site_url('blog/'.dateFmt($post['dateCreated'], 'Y/m').'/'.$post['uri']);
+			$output['post:id'] = $post['postID'];
+			$output['post:link'] = $link;
 			$output['post:date'] = dateFmt($post['dateCreated'], ($this->site->config['dateOrder'] == 'MD') ? 'M jS Y' : 'jS M Y');
+			$output['post:fulldate'] = dateFmt($post['dateCreated'], ($this->site->config['dateOrder'] == 'MD') ? 'l, F jS, Y' : 'l, jS F Y');
+			$output['post:time'] = dateFmt($post['dateCreated'], 'g:i a');
 			$output['post:day'] = dateFmt($post['dateCreated'], 'd');
 			$output['post:month'] = dateFmt($post['dateCreated'], 'M');
 			$output['post:year'] = dateFmt($post['dateCreated'], 'y');
@@ -262,10 +274,16 @@ class Blog extends MX_Controller {
 			$output['post:author-gravatar'] = 'http://www.gravatar.com/avatar.php?gravatar_id='.md5(trim($author['email'])).'&default='.urlencode(site_url('/static/uploads/avatars/noavatar.gif'));
 			$output['post:author-bio'] = $author['bio'];
 			$output['post:allow-comments'] = ($post['allowComments']) ? TRUE : FALSE;
+			$output['post:subscribed'] = (@in_array($this->session->userdata('userID'), $subscriptions)) ? TRUE : FALSE;
+			$output['post:subscription'] = site_url('blog/subscribe/'.dateFmt($post['dateCreated'], 'Y/m').'/'.$post['uri']);
+			$output['post:edit'] = ($author['userID'] == $this->session->userdata('userID')) ? anchor('/admin/blog/edit_post/'.$post['postID'], '<i class="icon-edit"></i> Edit Post', 'class="btn btn-mini"') : '';
 			$output['form:name'] = set_value('fullName', $this->session->userdata('firstName').' '.$this->session->userdata('lastName'));
 			$output['form:email'] = set_value('email', $this->session->userdata('email'));
 			$output['form:website'] = $this->input->post('website');
 			$output['form:comment'] = $this->input->post('comment');
+
+			// Vizlogix CSRF protection:
+			$output['form:csrf'] = '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
 
 			// get cats
 			if ($cats = $this->blog->get_cats_for_post($post['postID']))
@@ -306,6 +324,7 @@ class Blog extends MX_Controller {
 					$output['post:comments'][$i]['comment:gravatar'] = 'http://www.gravatar.com/avatar.php?gravatar_id='.md5(trim($comment['email'])).'&default='.urlencode(site_url('/static/uploads/avatars/noavatar.gif'));
 					$output['post:comments'][$i]['comment:author'] = (!empty($comment['website'])) ? anchor(prep_url($comment['website']), $comment['fullName']) : $comment['fullName'];
 					$output['post:comments'][$i]['comment:date'] = dateFmt($comment['dateCreated'], ($this->site->config['dateOrder'] == 'MD') ? 'M jS Y' : 'jS M Y');
+					$output['post:comments'][$i]['comment:fulldate'] = dateFmt($comment['dateCreated'], ($this->site->config['dateOrder'] == 'MD') ? 'l, F jS, Y' : 'l, jS F Y');
 					$output['post:comments'][$i]['comment:body'] = nl2br(auto_link(strip_tags($comment['comment'])));
 					
 					$i++;
@@ -451,7 +470,7 @@ class Blog extends MX_Controller {
 		$output = $this->partials;	
 
 		// set tags
-		$query = ($query) ? $query : $this->input->post('query');
+		$query = ($query) ? $query : strip_tags($this->input->post('query', TRUE));
 
 		// get result from tags
 		$objectIDs = $this->tags->search('blog_posts', $query);
@@ -562,16 +581,21 @@ class Blog extends MX_Controller {
 			foreach($posts as $post)
 			{
 				// get author details
-				$author = $this->blog->lookup_user($post['userID']);				
-				
+				$author = $this->blog->lookup_user($post['userID']);
+
+				$specifier = dateFmt($post['dateCreated'], 'Y/m');
+				$link = $this->build_url('blog', $specifier, $post['uri']);
+
 				// populate template array
 				$data[$x] = array(
-					'post:link' => site_url('blog/'.dateFmt($post['dateCreated'], 'Y/m').'/'.$post['uri']),
+					'post:link' => $link,
 					'post:title' => $post['postTitle'],
 					'post:date' => dateFmt($post['dateCreated'], ($this->site->config['dateOrder'] == 'MD') ? 'M jS Y' : 'jS M Y'),
+					'post:fulldate' => dateFmt($post['dateCreated'], ($this->site->config['dateOrder'] == 'MD') ? 'l, F jS, Y' : 'l, jS F Y'),
+					'post:time' => dateFmt($post['dateCreated'], 'g:i a'),
 					'post:day' => dateFmt($post['dateCreated'], 'd'),
 					'post:month' => dateFmt($post['dateCreated'], 'M'),
-					'post:year' => dateFmt($post['dateCreated'], 'y'),										
+					'post:year' => dateFmt($post['dateCreated'], 'y'),
 					'post:body' => $this->template->parse_body($post['body'], TRUE, site_url('blog/'.dateFmt($post['dateCreated'], 'Y/m').'/'.$post['uri'])),
 					'post:excerpt' => $this->template->parse_body($post['excerpt'], TRUE, site_url('blog/'.dateFmt($post['dateCreated'], 'Y/m').'/'.$post['uri'])),
 					'post:author' => (($author['displayName']) ? $author['displayName'] : $author['firstName'].' '.$author['lastName']),
@@ -620,5 +644,56 @@ class Blog extends MX_Controller {
 			return FALSE;
 		}
     }
-    
+
+	function subscribe($postID = '')
+	{
+		// check user is logged in, if not send them away from this controller
+		if (!$this->session->userdata('session_user'))
+		{
+			redirect('/users/login/'.$this->core->encode($this->uri->uri_string()));
+		}
+
+		// get post based on uri
+		// $year = $this->uri->segment(2);
+		// $month = $this->uri->segment(3);
+		// $uri = $this->uri->segment(4);
+
+//		if ($post = $this->blog->get_post($year, $month, $uri))
+		// get blog info and redirect if blog post ID isn't set
+		if (!$postID)
+		{
+			redirect('/blog');
+		}
+
+		// get subs for this topic
+		$subs = $this->blog->get_subscriptions($postID);
+
+		// check this user against subs
+		if (@!in_array($this->session->userdata('userID'), $subs))
+		{
+			// add subscription
+			$this->blog->add_subscription($postID, $this->session->userdata('userID'));
+		}
+		else
+		{
+			// remove subscription
+			$this->blog->remove_subscription($postID, $this->session->userdata('userID'));
+		}
+
+//		redirect('/blog/viewtopic/'.$postID);
+	}
+
+	function build_url($module, $specifier, $url)
+	{
+		if (filter_var($url, FILTER_VALIDATE_URL))
+		{
+			// it's already a complete url
+			return $url;
+		}
+		else
+		{
+			// build it from module, specifier, segment
+			return site_url($module.'/'.$specifier.'/'.$url);
+		}
+	}
 }

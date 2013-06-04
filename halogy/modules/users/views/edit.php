@@ -14,17 +14,8 @@ function hideAddress(){
 	}
 }
 $(function(){
-	$('a.showtab').click(function(event){
-		event.preventDefault();
-		var div = $(this).attr('href'); 
-		$('div.tab').hide();
-		$(div).show();
-	});
-	$('ul.innernav a').click(function(event){
-		event.preventDefault();
-		$(this).parent().siblings('li').removeClass('selected'); 
-		$(this).parent().addClass('selected');
-	});
+	$('#user-tabs a:first').tab('show');
+
 	$('div.tab:not(#tab1)').hide();	
 	$('input#sameAddress').click(function(){
 		$('div#billing').toggle(200);
@@ -40,41 +31,47 @@ $(function(){
 });
 </script>
 
-<form method="post" action="<?php echo site_url($this->uri->uri_string()); ?>" class="default">
+<form method="post" action="<?php echo site_url($this->uri->uri_string()); ?>" enctype="multipart/form-data" class="default">
 
-	<h1 class="headingleft">Edit User <small>(<a href="<?php echo site_url('/admin/users'); ?>">Back to Users</a>)</small></h1>
+	<div class="headingleft">
+	<h1 class="headingleft">Edit User</h1>
+	<a href="<?php echo site_url('/admin/users'); ?>" class="btn">Back to Users <i class="icon-arrow-up"></i></a>
+	</div>
 
 	<div class="headingright">
-		<input type="submit" value="Save Changes" class="button" />
+		<input type="submit" value="Save Changes" class="btn btn-success" />
 	</div>
 	
 	<div class="clear"></div>
 	
 	<?php if ($errors = validation_errors()): ?>
-		<div class="error">
+		<div class="alert alert-error">
 			<?php echo $errors; ?>
 		</div>
 	<?php endif; ?>
 	<?php if (isset($message)): ?>
-		<div class="message clear">
+		<div class="alert">
 			<?php echo $message; ?>
 		</div>
 	<?php endif; ?>
 
-<ul class="innernav clear">
-	<li class="selected"><a href="#tab1" class="showtab">Details</a></li>
+	<div class="clear"></div>
+
+<ul class="nav nav-tabs" id="user-tabs">
+	<li class="active"><a href="#tab1" data-toggle="tab" class="showtab">Details</a></li>
 	<?php if (@in_array('shop', $this->permission->sitePermissions) || @in_array('community', $this->permission->sitePermissions)): ?>	
-		<li><a href="#tab2" class="showtab">Address</a></li>
+		<li><a href="#tab2" data-toggle="tab" class="showtab">Address</a></li>
 		<?php if (@in_array('community', $this->permission->sitePermissions)): ?>
-			<li><a href="#tab3" class="showtab">Community</a></li>
-			<li><a href="#tab4" class="showtab">Company</a></li>
+			<li><a href="#tab3" data-toggle="tab" class="showtab">Community</a></li>
+			<li><a href="#tab4" data-toggle="tab" class="showtab">Organization</a></li>
 		<?php endif; ?>
 	<?php endif; ?>
 </ul>
 
 <br class="clear" />
 
-<div id="tab1" class="tab">
+<div class="tab-content">
+<div id="tab1" class="tab-pane active">
 
 	<h2>User Details</h2>
 
@@ -142,7 +139,7 @@ $(function(){
 
 </div>
 
-<div id="tab2" class="tab">
+<div id="tab2" class="tab-pane">
 
 <?php if (@in_array('shop', $this->permission->sitePermissions) || @in_array('community', $this->permission->sitePermissions)): ?>	
 	<h2>Delivery Address</h2>
@@ -221,7 +218,7 @@ $(function(){
 
 </div>
 
-<div id="tab3" class="tab">
+<div id="tab3" class="tab-pane">
 
 <?php if (@in_array('community', $this->permission->permissions)): ?>
 
@@ -233,6 +230,24 @@ $(function(){
 
 	<label for="bio">Bio:</label>
 	<?php echo @form_textarea('bio',set_value('bio', $data['bio']), 'id="bio" class="formelement small"'); ?>
+	<br class="clear" />
+
+	<label for="image">Photo:</label>
+	<div class="uploadfile">
+		<?php if (isset($imagePath)):?>
+			<img src="<?php echo $imagePath; ?>" alt="Photo" />
+		<?php endif; ?>
+		<?php echo @form_upload('image',$this->validation->image, 'size="16" id="image" class="hide"'); ?>
+		<div class="input-append">
+		   <input id="image-repl" class="input-medium" type="text"
+			<?php if (isset($imagePath)):?>
+			value="<?php echo $imagePath; ?>"
+			<?php endif; ?>
+			/>
+		   <a class="btn" onclick="$('input[id=image]').click();">Browse</a>
+		</div>
+	</div>
+	<span class="tip">Please use GIF or JPG under 200kb.</span><br class="clear" />
 	<br class="clear" />
 
 	<label for="notifications">Notifications:</label>
@@ -265,26 +280,31 @@ $(function(){
 
 <?php if (@in_array('community', $this->permission->sitePermissions)): ?>	
 
-<div id="tab4" class="tab">
+<div id="tab4" class="tab-pane">
 
-	<h2>Company</h2>
+	<h2>Organization</h2>
 
-	<label for="companyName">Company Name:</label>
+	<label for="companyName">Name:</label>
 	<?php echo @form_input('companyName',set_value('companyName', $data['companyName']), 'id="companyName" class="formelement"'); ?>
 	<br class="clear" />
 
-	<label for="companyDescription">Company Description:</label>
+	<label for="companyDescription">Description:</label>
 	<?php echo @form_textarea('companyDescription',set_value('companyDescription', $data['companyDescription']), 'id="companyDescription" class="formelement small"'); ?>
 	<br class="clear" />
 
-	<label for="companyWebsite">Company Website:</label>
+	<label for="companyWebsite">Website:</label>
 	<?php echo @form_input('companyWebsite',set_value('companyWebsite', $data['companyWebsite']), 'id="companyWebsite" class="formelement"'); ?>
 	<br class="clear" />
 	
 </div>
+</div>
 
 <?php endif; ?>
 
-<p class="clear" style="text-align: right;"><a href="#" class="button grey" id="totop">Back to top</a></p>
-	
+<br class="clear" />
+<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>
+<?php
+	// Vizlogix CSRF protection:
+	echo '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+?>
 </form>

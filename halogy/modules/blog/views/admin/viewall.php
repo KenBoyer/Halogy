@@ -1,8 +1,10 @@
+<div class="headingleft">
 <h1 class="headingleft">Blog Posts</h1>
+</div>
 
 <div class="headingright">
 	<?php if (in_array('blog_edit', $this->permission->permissions)): ?>
-		<a href="<?php echo site_url('/admin/blog/add_post'); ?>" class="button">Add Post</a>
+		<a href="<?php echo site_url('/admin/blog/add_post'); ?>" class="btn btn-success">Add Post <i class="icon-plus-sign"></i></a>
 	<?php endif; ?>
 </div>
 
@@ -44,7 +46,8 @@
 
 <?php echo $this->pagination->create_links(); ?>
 
-<p style="text-align: right;"><a href="#" class="button grey" id="totop">Back to top</a></p>
+<br class="clear" />
+<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>
 
 <?php else: ?>
 

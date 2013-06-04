@@ -14,17 +14,8 @@ function hideAddress(){
 	}
 }
 $(function(){
-	$('a.showtab').click(function(event){
-		event.preventDefault();
-		var div = $(this).attr('href'); 
-		$('div.tab').hide();
-		$(div).show();
-	});
-	$('ul.innernav a').click(function(event){
-		event.preventDefault();
-		$(this).parent().siblings('li').removeClass('selected'); 
-		$(this).parent().addClass('selected');
-	});
+	$('#user-tabs a:first').tab('show');
+
 	$('div.tab:not(#tab1)').hide();	
 	$('input#sameAddress').click(function(){
 		$('div#billing').toggle(200);
@@ -42,39 +33,45 @@ $(function(){
 
 <form method="post" action="<?php echo site_url($this->uri->uri_string()); ?>" class="default">
 
-	<h1 class="headingleft">Add User <small>(<a href="<?php echo site_url('/admin/users'); ?>">Back to Users</a>)</small></h1>
+	<div class="headingleft">
+	<h1 class="headingleft">Add User</h1>
+	<a href="<?php echo site_url('/admin/users'); ?>" class="btn">Back to Users <i class="icon-arrow-up"></i></a>
+	</div>
 
 	<div class="headingright">
-		<input type="submit" value="Save Changes" class="button" />
+		<input type="submit" value="Save Changes" class="btn btn-success" />
 	</div>
 	
 	<div class="clear"></div>
 	
 	<?php if ($errors = validation_errors()): ?>
-		<div class="error">
+		<div class="alert alert-error">
 			<?php echo $errors; ?>
 		</div>
 	<?php endif; ?>
 	<?php if (isset($message)): ?>
-		<div class="message clear">
+		<div class="alert">
 			<?php echo $message; ?>
 		</div>
 	<?php endif; ?>
 
-<ul class="innernav clear">
-	<li class="selected"><a href="#tab1" class="showtab">Details</a></li>
+	<div class="clear"></div>
+
+<ul class="nav nav-tabs" id="user-tabs">
+	<li class="selected"><a href="#tab1" data-toggle="tab" class="showtab">Details</a></li>
 	<?php if (@in_array('shop', $this->permission->sitePermissions) || @in_array('community', $this->permission->sitePermissions)): ?>	
-		<li><a href="#tab2" class="showtab">Address</a></li>
+		<li><a href="#tab2" data-toggle="tab" class="showtab">Address</a></li>
 		<?php if (@in_array('community', $this->permission->sitePermissions)): ?>
-			<li><a href="#tab3" class="showtab">Community</a></li>
-			<li><a href="#tab4" class="showtab">Company</a></li>
+			<li><a href="#tab3" data-toggle="tab" class="showtab">Community</a></li>
+			<li><a href="#tab4" data-toggle="tab" class="showtab">Company</a></li>
 		<?php endif; ?>
 	<?php endif; ?>
 </ul>
 
 <br class="clear" />
 
-<div id="tab1" class="tab">
+<div class="tab-content">
+<div id="tab1" class="tab-pane active">
 
 	<h2>User Details</h2>
 
@@ -142,7 +139,7 @@ $(function(){
 
 </div>
 
-<div id="tab2" class="tab">
+<div id="tab2" class="tab-pane">
 
 <?php if (@in_array('shop', $this->permission->sitePermissions) || @in_array('community', $this->permission->sitePermissions)): ?>	
 	<h2>Delivery Address</h2>
@@ -221,7 +218,7 @@ $(function(){
 
 </div>
 
-<div id="tab3" class="tab">
+<div id="tab3" class="tab-pane">
 
 <?php if (@in_array('community', $this->permission->permissions)): ?>
 
@@ -265,7 +262,7 @@ $(function(){
 
 <?php if (@in_array('community', $this->permission->sitePermissions)): ?>	
 
-<div id="tab4" class="tab">
+<div id="tab4" class="tab-pane">
 
 	<h2>Company</h2>
 
@@ -282,9 +279,14 @@ $(function(){
 	<br class="clear" />
 	
 </div>
+</div>
 
 <?php endif; ?>
 
-<p class="clear" style="text-align: right;"><a href="#" class="button grey" id="totop">Back to top</a></p>
-	
+<br class="clear" />
+<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>
+<?php
+	// Vizlogix CSRF protection:
+	echo '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+?>
 </form>

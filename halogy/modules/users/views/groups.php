@@ -1,13 +1,15 @@
-<h1 class="headingleft">User Groups</h1>
+<div class="headingleft">
+	<h1 class="headingleft">User Groups</h1>
+</div>
 
 <div class="headingright">
 
 	<?php if (in_array('users', $this->permission->permissions)): ?>
-		<a href="<?php echo site_url('/admin/users'); ?>" class="button blue">Users</a>
+		<a href="<?php echo site_url('/admin/users'); ?>" class="btn btn-info">Users</a>
 	<?php endif; ?>
 
 	<?php if (in_array('users_groups', $this->permission->permissions)): ?>
-		<a href="<?php echo site_url('/admin/users/add_group'); ?>" class="button">Add Group</a>
+		<a href="<?php echo site_url('/admin/users/add_group'); ?>" class="btn btn-success">Add Group <i class="icon-plus-sign"></i></a>
 	<?php endif; ?>
 </div>
 
@@ -27,7 +29,7 @@
 		<td class="tiny">
 			<?php echo anchor('/admin/users/edit_group/'.$group['groupID'], 'Edit'); ?>
 		</td>
-		<td class="tiny"
+		<td class="tiny">
 			<?php echo anchor('/admin/users/delete_group/'.$group['groupID'], 'Delete', 'onclick="return confirm(\'Are you sure you want to delete this?\')"'); ?>
 		</td>
 	</tr>
@@ -36,7 +38,8 @@
 
 <?php echo $this->pagination->create_links(); ?>
 
-<p style="text-align: right;"><a href="#" class="button grey" id="totop">Back to top</a></p>
+<br class="clear" />
+<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>
 
 <?php else: ?>
 

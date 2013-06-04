@@ -16,8 +16,8 @@
 <?php
 	$image = $this->uploads->load_image($data['imageRef']);
 	$thumb = $this->uploads->load_image($data['imageRef'], true);
-	$imagePath = $image['src'];
-	$imageThumbPath = $thumb['src'];
+	$imagePath = site_url($image['src']);
+	$imageThumbPath = site_url($thumb['src']);
 ?>	
 <?php echo ($thumb = display_image($imageThumbPath, $data['imageName'], 100, 'class="pic" ')) ? $thumb : display_image($imagePath, $data['imageName'], 100, 'class="pic"'); ?>
 
@@ -40,10 +40,17 @@
 	?>	
 	<br class="clear" />
 	
-	<label for="imageName">Description:</label>
+	<label for="imageName">Name:</label>
 	<?php echo @form_input('imageName', $data['imageName'], 'class="formelement" id="imageName"'); ?>
 	<br class="clear" />
 
+	<label for="imageDesc">Description:</label>
+	<?php echo @form_textarea('description', set_value('description', $data['description']), 'id="body" class="formelement code"'); ?>
+	<br class="clear" />
+
+	<?php
+	// TBD: Should this be readonly? Why would anyone change it?
+	?>
 	<label for="imageRef">Reference:</label>
 	<?php echo @form_input('imageRef', $data['imageRef'], 'class="formelement" id="imageRef"'); ?>
 	<br class="clear" />
@@ -69,7 +76,10 @@
 	<label for="maxsize">Max Size (px):</label>
 	<?php echo @form_input('maxsize', set_value('maxsize', (($data['maxsize']) ? $data['maxsize'] : '')), 'class="formelement" id="maxsize"'); ?>
 	<br class="clear" /><br />	
-
+<?php
+	// Vizlogix CSRF protection:
+	echo '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+?>
 	<input type="submit" value="Save Changes" class="button nolabel" id="submit" />
 	<br class="clear" />
 	

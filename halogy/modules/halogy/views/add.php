@@ -1,17 +1,9 @@
 <script type="text/javascript">
-$(function(){	
-	$('a.showtab').click(function(event){
-		event.preventDefault();
-		var div = $(this).attr('href'); 
-		$('div.tab').hide();
-		$(div).show();
-	});
-	$('ul.innernav a').click(function(event){
-		event.preventDefault();
-		$(this).parent().siblings('li').removeClass('selected'); 
-		$(this).parent().addClass('selected');
-	});
-	$('div.tab:not(#tab1)').hide();
+$(function(){
+	$('.helpbutton').popover({placement: 'right', html: 'true'});
+
+	$('#site-tabs a:first').tab('show');
+
 	$('div.permissions input[type="checkbox"]').each(function(){
 		if ($(this).attr('checked')) {
 			$(this).parent('div').prev('div').children('input[type="checkbox"]').attr('checked', true);
@@ -40,27 +32,27 @@ $(function(){
 	$('#adminEmail').change(function(){
 		$('#username').val($(this).val());
 	});
-	$('#siteDomain').change(function(){
-		var domainVal = $(this).val();
-		var tld = '';
-		domainVal = domainVal.replace(/^(http)s?:\/+((w+)\.)?|^www\.|\/|\/(.+)/ig, '');
-		if (tld = domainVal.match(/\.[a-z]{2,3}\.[a-z]{2}$/i)){
-			domainVal = domainVal.replace(/\.[a-z]{2,3}\.[a-z]{2}$/i, '');
-			domainVal = domainVal.replace(/^(.+)\./ig, '');
-			domainVal = domainVal+tld;
-		}
-		else if (tld = domainVal.match(/\.[a-z]{2,4}$/i)){
-			domainVal = domainVal.replace(/\.[a-z]{2,4}$/i, '');
-			domainVal = domainVal.replace(/(.+)\./ig, '');
-			domainVal = domainVal+tld;
-		}
-		$(this).val(domainVal);
-		$('#siteURL').val('http://www.'+domainVal);
-		$('#siteEmail').val('info@'+domainVal);
-	});
+	// $('#siteDomain').change(function(){
+		// var domainVal = $(this).val();
+		// var tld = '';
+		// domainVal = domainVal.replace(/^(http)s?:\/+((w+)\.)?|^www\.|\/|\/(.+)/ig, '');
+		// if (tld = domainVal.match(/\.[a-z]{2,3}\.[a-z]{2}$/i)){
+			// domainVal = domainVal.replace(/\.[a-z]{2,3}\.[a-z]{2}$/i, '');
+			// domainVal = domainVal.replace(/^(.+)\./ig, '');
+			// domainVal = domainVal+tld;
+		// }
+		// else if (tld = domainVal.match(/\.[a-z]{2,4}$/i)){
+			// domainVal = domainVal.replace(/\.[a-z]{2,4}$/i, '');
+			// domainVal = domainVal.replace(/(.+)\./ig, '');
+			// domainVal = domainVal+tld;
+		// }
+		// $(this).val(domainVal);
+		// $('#siteURL').val('http://www.'+domainVal);
+		// $('#siteEmail').val('info@'+domainVal);
+	// });
 	$('form').submit(function(){
 		$('div.permissions input').each(function(){
-			if($(this).attr('checked') == true){
+			if($(this).attr('checked') != true){
 				$(this).closest('form').submit();
 			};
 		});
@@ -80,29 +72,34 @@ $(function(){
 
 <form method="post" action="<?php echo site_url($this->uri->uri_string()); ?>" class="default">
 
-<h1 class="headingleft">Add Site <small>(<a href="<?php echo site_url('/halogy/sites'); ?>">Back to Sites</a>)</small></h1>
-
-<div class="headingright">
-	<input type="submit" value="Add Site" class="button" />
+<div class="headingleft">
+	<h1 class="headingleft">Add Site</h1>
+	<a href="<?php echo site_url('/halogy/sites'); ?>" class="btn">Back to Sites <i class="icon-arrow-up"></i></a>
 </div>
 
+<div class="headingright">
+	<input type="submit" value="Save Changes" class="btn btn-success" />
+</div>
+
+<div class="clear"></div>
+
 <?php if ($errors = validation_errors()): ?>
-	<div class="error clear">
+	<div class="alert alert-error">
 		<?php echo $errors; ?>
 	</div>
 <?php endif; ?>
 
 <div class="clear"></div>
 
-<ul class="innernav clear">
-	<li class="selected"><a href="#tab1" class="showtab">Details</a></li>
-	<li><a href="#tab2" class="showtab">Administrator</a></li>	
-	<li><a href="#tab3" class="showtab">Permissions</a></li>
+<ul class="nav nav-tabs" id="site-tabs">
+	<li class="selected"><a href="#tab1" data-toggle="tab" class="showtab">Details</a></li>
+	<li><a href="#tab2" data-toggle="tab" class="showtab">Administrator</a></li>	
+	<li><a href="#tab3" data-toggle="tab" class="showtab">Permissions</a></li>
 </ul>
 
 <br class="clear" />
-
-<div id="tab1" class="tab">
+<div class="tab-content">
+<div id="tab1" class="tab-pane active">
 
 	<h2>Domains</h2>
 
@@ -130,11 +127,12 @@ $(function(){
 
 	<label for="siteTel">Telephone:</label>
 	<?php echo @form_input('siteTel', set_value('siteTel', $data['siteTel']), 'id="siteTel" class="formelement"'); ?>
+	<span class="tip">The site contact telephone number</span><br class="clear" />
 	<br class="clear" />
 
 </div>
 
-<div id="tab2" class="tab">
+<div id="tab2" class="tab-pane">
 
 	<h2>Administrator Details</h2>
 
@@ -165,7 +163,7 @@ $(function(){
 
 </div>
 
-<div id="tab3" class="tab">
+<div id="tab3" class="tab-pane">
 
 	<h2>Permissions</h2>
 
@@ -196,7 +194,13 @@ $(function(){
 	<?php endif; ?>
 	
 </div>
+</div>
 
-<p class="clear" style="text-align: right;"><a href="#" class="button grey" id="totop">Back to top</a></p>
-	
+<?php
+	// Vizlogix CSRF protection:
+	echo '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+?>
 </form>
+
+<br class="clear" />
+<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>

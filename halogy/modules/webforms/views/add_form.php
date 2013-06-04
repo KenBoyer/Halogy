@@ -7,6 +7,8 @@ function showGroup(){
 	}
 }
 $(function(){
+	$('.helpbutton').popover({placement: 'right', html: 'true'});
+
 	$('select#account').change(function(){
 		showGroup();
 	});
@@ -15,22 +17,25 @@ $(function(){
 </script>
 
 <form name="form" method="post" action="<?php echo site_url($this->uri->uri_string()); ?>" class="default">
-	
-	<h1 class="headingleft">Add Web Form <small>(<a href="<?php echo site_url('/admin/webforms/viewall'); ?>">Back to Web Forms</a>)</small></h1>
-	
-	<div class="headingright">
-		<input type="submit" value="Save Changes" class="button" />
+
+	<div class="headingleft">
+	<h1 class="headingleft">Add Web Form</h1>
+	<a href="<?php echo site_url('/admin/webforms/viewall'); ?>" class="btn">Back to Web Forms <i class="icon-arrow-up"></i></a>
 	</div>
-	
+
+	<div class="headingright">
+		<button type="submit" class="btn btn-success">Save Changes <i class="icon-save"></i></button>	
+	</div>
+
 	<div class="clear"></div>
 	
 	<?php if ($errors = validation_errors()): ?>
-		<div class="error">
+		<div class="alert alert-error">
 			<?php echo $errors; ?>
 		</div>
 	<?php endif; ?>
 	<?php if (isset($message)): ?>
-		<div class="message">
+		<div class="alert">
 			<?php echo $message; ?>
 		</div>
 	<?php endif; ?>
@@ -42,13 +47,16 @@ $(function(){
 	<label for="fieldSet">Type of Form:</label>
 	<?php 
 		$values = array(
-			1 => 'Enquiry Form',
-			2 => 'Newsletter',
+			3 => 'Contact Form',
+			2 => 'Newsletter Form',
+			1 => 'Inquiry Form',
 			0 => 'Custom'
 		);
 		echo @form_dropdown('fieldSet',$values,set_value('fieldSet', $data['fieldSet']), 'id="fieldSet" class="formelement"'); 
 	?>
-	<span class="tip">Automatically populate your form with fields based on the type, or select 'Custom' to not populate with fields.</span>
+	<span class="help">
+	<a href="javascript:void(0)" class="btn helpbutton" data-toggle="popover" data-original-title="Type Help" data-content="Automatically populate your form with fields based on the type, or select 'Custom' to not populate with fields."><i class="icon-question-sign" title="Type Help"></i></a>
+	</span>
 	<br class="clear" />
 	
 	<label for="fileTypes">Allow Files?</label>
@@ -62,7 +70,9 @@ $(function(){
 		);
 		echo @form_dropdown('fileTypes',$values,set_value('fileTypes', $data['fileTypes']), 'id="fileTypes" class="formelement"'); 
 	?>
-	<span class="tip">You can allow users to upload files such as images and documents if you wish. Form must have the correct enctype.</span>
+	<span class="help">
+	<a href="javascript:void(0)" class="btn helpbutton" data-toggle="popover" data-original-title="File Help" data-content="You can allow users to upload files such as images and documents if you wish. Form must have the correct enctype."><i class="icon-question-sign" title="File Help"></i></a>
+	</span>
 	<br class="clear" />
 
 	<br />
@@ -77,7 +87,9 @@ $(function(){
 		);
 		echo @form_dropdown('account',$values,set_value('account', $data['account']), 'id="account" class="formelement"'); 
 	?>
-	<span class="tip">Optionally create user account.</span>
+	<span class="help">
+	<a href="javascript:void(0)" class="btn helpbutton" data-toggle="popover" data-original-title="Help" data-content="Optionally create user account."><i class="icon-question-sign" title="Help"></i></a>
+	</span>
 	<br class="clear" />
 
 	<div class="showGroup">
@@ -101,20 +113,30 @@ $(function(){
 
 	<label for="outcomeEmails">Emails to CC:</label>
 	<?php echo @form_input('outcomeEmails', set_value('outcomeEmails', $data['outcomeEmails']), 'id="outcomeEmails" class="formelement"'); ?>
-	<span class="tip">This will override the default email that the ticket is CCed to. Separate emails with a comma.</span>
+	<span class="help">
+	<a href="javascript:void(0)" class="btn helpbutton" data-toggle="popover" data-original-title="CC Help" data-content="This will override the default email that the ticket is CCed to. Separate emails with a comma."><i class="icon-question-sign" title="CC Help"></i></a>
+	</span>
 	<br class="clear" />
 
 	<label for="outcomeRedirect">Redirect:</label>
 	<?php echo @form_input('outcomeRedirect', set_value('outcomeRedirect', $data['outcomeRedirect']), 'id="outcomeRedirect" class="formelement"'); ?>
-	<span class="tip">Here you can redirect the user to a URL on your website if you wish (e.g. form/success).</span>
+	<span class="help">
+	<a href="javascript:void(0)" class="btn helpbutton" data-toggle="popover" data-original-title="Redirect Help" data-content="Here you can redirect the user to a URL on your website if you wish (e.g. form/success)."><i class="icon-question-sign" title="Redirect Help"></i></a>
+	</span>
 	<br class="clear" />
 
 	<label for="outcomeMessage">Message:</label>
 	<?php echo @form_textarea('outcomeMessage', set_value('outcomeMessage', $data['outcomeMessage']), 'id="outcomeMessage" class="formelement small"'); ?>
+	<span class="help">
+	<a href="javascript:void(0)" class="btn helpbutton" data-toggle="popover" data-original-title="Message Help" data-content="Here you can display a custom message after the user submits the form."><i class="icon-question-sign" title="Message Help"></i></a>
+	</span>
 	<br class="clear" />
-	<span class="tip nolabel">Here you can display a custom message after the user submits the form.</span>
-	<br class="clear" /><br />
-
-	<p class="clear" style="text-align: right;"><a href="#" class="button grey" id="totop">Back to top</a></p>		
-	
+<?php
+	// Vizlogix CSRF protection:
+	echo '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+?>
 </form>
+
+<br class="clear" />
+
+<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>

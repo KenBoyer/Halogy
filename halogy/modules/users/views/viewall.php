@@ -8,41 +8,34 @@
 .ac_over { background-color: #0A246A; color: white; }
 </style>
 
-<script language="javascript" type="text/javascript" src="<?php echo $this->config->item('staticPath'); ?>/js/jquery.fieldreplace.js"></script>
-<script type="text/javascript">
-$(function(){
-    $('#searchbox').fieldreplace();
-	function formatItem(row) {
-		if (row[0].length) return row[1]+'<br /><span class="email">('+row[0]+')</span>';
-		else return 'No results';
-	}
-	$('#searchbox').autocomplete("<?php echo site_url('/admin/users/ac_users'); ?>", { delay: "0", selectFirst: false, matchContains: true, formatItem: formatItem, minChars: 2 });
-	$('#searchbox').result(function(event, data, formatted){
-		$(this).parent('form').submit();
-	});	
-});
-</script>
-
-<h1 class="headingleft">Users</h1>
+<div class="headingleft">
+	<h1 class="headingleft">Users</h1>
+</div>
 
 <div class="headingright">
 
 	<form method="post" action="<?php echo site_url('/admin/users/viewall'); ?>" class="default" id="search">
-		<input type="text" name="searchbox" id="searchbox" class="formelement inactive" title="Search Users..." />
-		<input type="image" src="<?php echo $this->config->item('staticPath'); ?>/images/btn_search.gif" id="searchbutton" />
+		<div class="input-append">
+			<input type="text" name="searchbox" id="searchbox" class="span2" title="Search Users..." />
+			<button class="btn btn-primary" type="submit" id="searchbutton"><i class="icon-search"></i></button>
+		</div>
+<?php
+		// Vizlogix CSRF protection:
+		echo '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+?>
 	</form>
 
 	<?php if (in_array('users_import', $this->permission->permissions)): ?>
-		<a href="<?php echo site_url('/admin/users/import'); ?>" class="button blue">Import Users</a>
-		<a href="<?php echo site_url('/admin/users/export'); ?>" class="button blue">Export Users</a>		
+		<a href="<?php echo site_url('/admin/users/import'); ?>" class="btn btn-info">Import Users <i class="icon-upload-alt"></i></a>
+		<a href="<?php echo site_url('/admin/users/export'); ?>" class="btn btn-info">Export Users <i class="icon-download-alt"></i></a>		
 	<?php endif; ?>
 
 	<?php if (in_array('users_groups', $this->permission->permissions)): ?>
-		<a href="<?php echo site_url('/admin/users/groups'); ?>" class="button blue">Groups</a>
+		<a href="<?php echo site_url('/admin/users/groups'); ?>" class="btn btn-info">Groups</a>
 	<?php endif; ?>	
 
 	<?php if (in_array('users_edit', $this->permission->permissions)): ?>
-		<a href="<?php echo site_url('/admin/users/add'); ?>" class="button">Add User</a>
+		<a href="<?php echo site_url('/admin/users/add'); ?>" class="btn btn-success">Add User <i class="icon-plus-sign"></i></a>
 	<?php endif; ?>
 </div>
 
@@ -99,7 +92,8 @@ $(function(){
 
 <?php echo $this->pagination->create_links(); ?>
 
-<p style="text-align: right;"><a href="#" class="button grey" id="totop">Back to top</a></p>
+<br class="clear" />
+<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>
 
 <?php else: ?>
 

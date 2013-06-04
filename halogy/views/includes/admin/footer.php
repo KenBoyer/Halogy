@@ -11,7 +11,12 @@
 		<div class="container">
 
 		
-			<p class="copyright">Powered by <a href="http://www.halogy.com" title="Halogy">Halogy</a></p>
+			<p class="copyright">
+			Powered by <a href="http://www.halogy.com" title="Halogy">Halogy</a>
+			</p>
+			<p class="copyright">
+			Built with <a href="http://twitter.github.com/bootstrap/" title="Bootstrap">Bootstrap</a>
+			</p>
 			
 			<br />
 			

@@ -1,13 +1,21 @@
-<h1>Add Forum</h1>
-
-<?php if ($errors = validation_errors()): ?>
-	<div class="error">
-		<?php echo $errors; ?>
-	</div>
-<?php endif; ?>
-
 <form method="post" action="<?php echo site_url($this->uri->uri_string()); ?>" class="default">
 
+	<div class="headingleft">
+	<h1 class="headingleft">Add Forum</h1>
+	<a href="<?php echo site_url('/admin/forums/forums'); ?>" class="btn">Back to Forums <i class="icon-arrow-up"></i></a>
+	</div>
+
+	<div class="headingright">
+		<button type="submit" class="btn btn-success">Save Changes <i class="icon-save"></i></button>
+	</div>
+
+	<div class="clear"></div>
+
+	<?php if ($errors = validation_errors()): ?>
+		<div class="alert alert-error">
+			<?php echo $errors; ?>
+		</div>
+	<?php endif; ?>
 
 	<label for="forumName">Forum Name:</label>
 	<?php echo @form_input('forumName', set_value('forumName', $data['forumName']), 'id="forumName" class="formelement"'); ?>
@@ -56,7 +64,8 @@
 
 	?>
 	<br class="clear" /><br />
-		
-	<input type="submit" value="Add Forum" class="button nolabel" />
-	
+<?php
+	// Vizlogix CSRF protection:
+	echo '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+?>
 </form>

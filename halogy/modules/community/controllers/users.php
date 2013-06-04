@@ -361,7 +361,8 @@ class Users extends MX_Controller {
 		}		
 
 		// populate template
-		$output['user:avatar'] = anchor('/users/profile/'.$data['userID'], display_image($this->users->get_avatar($data['avatar']), 'User Avatar', 150, 'class="bordered"', $this->config->item('staticPath').'/images/noavatar.gif'));
+		$output['user:avatar'] = display_image($this->users->get_avatar($data['avatar']), 'User Avatar', 150, 'class="bordered"', $this->config->item('staticPath').'/images/noavatar.gif');
+		$output['user:link'] = anchor(site_url('/users/profile/'.$data['userID']));
 		$output['user:logo'] = anchor('/users/profile/'.$data['userID'], display_image($this->users->get_avatar($data['companyLogo']), 'Company Logo', 150, 'class="bordered"'));		
 		$output['form:email'] = set_value('email', $data['email']);
 		$output['form:displayName'] = set_value('displayName', $data['displayName']);
@@ -518,7 +519,8 @@ class Users extends MX_Controller {
 		// populate template
 		$output['user:id'] = $userID;
 		$output['user:name'] = ($data['user']['displayName']) ? $data['user']['displayName'] : $data['user']['firstName'].' '.$data['user']['lastName'];
-		$output['user:avatar'] = anchor('/users/profile/'.$data['user']['userID'], display_image($this->users->get_avatar($data['user']['avatar']), 'User Avatar', 100, 'class="bordered"', $this->config->item('staticPath').'/images/noavatar.gif'));
+		$output['user:avatar'] = display_image($this->users->get_avatar($data['user']['avatar']), 'User Avatar', 150, 'class="bordered"', $this->config->item('staticPath').'/images/noavatar.gif');
+		$output['user:link'] = anchor(site_url('/users/profile/'.$userID));
 		$output['user:country'] = lookup_country($data['user']['country']);
 
 		// load bio
@@ -557,7 +559,7 @@ class Users extends MX_Controller {
 				foreach($users as $user)
 				{
 					$output['members'][] = array(
-						'member:avatar' => anchor('/users/profile/'.$user['userID'], display_image($this->users->get_avatar($user['avatar']), 'User Avatar', 80, 'class="avatar"', $this->config->item('staticPath').'/images/noavatar.gif')),
+						'member:avatar' => anchor(site_url('/users/profile/'.$user['userID']), display_image($this->users->get_avatar($user['avatar']), 'User Avatar', 80, 'class="avatar"', $this->config->item('staticPath').'/images/noavatar.gif')),
 						'member:name' => ($user['displayName']) ? $user['displayName'] : $user['firstName'].' '.$user['lastName'],
 						'member:link' => site_url('/users/profile/'.$user['userID'])
 					);

@@ -22,6 +22,7 @@ class Uploads {
 	var $errors;
 	var $siteID;
 	var $uploadsPath;
+	var $filesPath;
 	var $allowedTypes = 'gif|jpg|png|pdf|zip|mp3|mp4|js';
 	var $maxSize = '5000';
 	var $maxWidth = '5000';
@@ -38,9 +39,14 @@ class Uploads {
 			$this->siteID = SITEID;
 		}
 	
-		// set the path
-		$this->uploadsPath = $this->CI->config->item('uploadsPath');
-				
+		// set the paths for upload and retrieval
+		$this->filesPath = $this->CI->config->item('uploadsPath');
+		log_message('debug', "FILES PATH: ".$this->filesPath);
+
+//		$this->uploadsPath = $_SERVER["DOCUMENT_ROOT"].$this->filesPath;
+		$this->uploadsPath = $this->filesPath;
+		log_message('debug', "UPLOAD PATH: ".$this->uploadsPath);
+
 		// create uploads directories and files if they're not created already
 		if (!is_dir('.'.$this->uploadsPath))
 		{			 
@@ -69,7 +75,9 @@ class Uploads {
 		$config['max_width']  = $this->maxWidth;
 		$config['max_height']  = $this->maxHeight;
 		$config['encrypt_name']  = true;
-		
+
+//		console_debug(__FILE__.':'.__FUNCTION__.": uploads_path: ", $this->uploadsPath);
+
 		// load upload class
 		$this->CI->load->library('upload', $config);
 		$this->CI->load->library('image_lib');				
@@ -160,7 +168,10 @@ class Uploads {
 
 	function load_image($image, $thumbnail = false, $product = false)
 	{	
-		$pathToUploads = $this->uploadsPath;	
+		$pathToUploads = $this->uploadsPath;
+
+		console_debug(__FILE__.':'.__FUNCTION__.": filespath: ", $this->filesPath);
+		console_debug(__FILE__.':'.__FUNCTION__.": uploadspath: ", $this->uploadsPath);
 
 		// grab from db
 		if ($product)
@@ -183,6 +194,7 @@ class Uploads {
 		else
 		{
 			$imagePath = $pathToUploads.'/'.$image;
+			console_debug(__FILE__.':'.__FUNCTION__.": imagePath: ", $imagePath);
 
 			// get file
 			$query = $this->CI->db->get_where('images', array('imageRef' => $image, 'siteID' => $this->siteID, 'deleted' => 0));

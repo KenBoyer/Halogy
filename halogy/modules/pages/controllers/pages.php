@@ -306,6 +306,9 @@ class Pages extends MX_Controller {
 	// file viewer
 	function files($type = '', $ref = '')
 	{
+		console_debug(__FILE__.':'.__FUNCTION__.": type= ", $type);
+		console_debug(__FILE__.':'.__FUNCTION__.": ref= ", $ref);
+
 		// format filename
 		$filenames = @explode('.', $ref);
 		$extension = end($filenames);

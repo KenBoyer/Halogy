@@ -61,6 +61,43 @@ class Users_model extends CI_Model {
 		}
 	}
 
+	function get_users_by_group($groupName = '')
+	{
+		// default where
+		$where = array('users.siteID' => $this->siteID, 'privacy !=' => 'H');
+
+		$this->db->where($where);
+		$query_total = $this->db->get('users');
+		$totalRows = $query_total->num_rows();
+
+		// order
+//		$this->db->order_by('lastName', 'asc');
+
+		// grab
+		$where = array('users.siteID' => $this->siteID, 'privacy !=' => 'H', 'permission_groups.groupName' => $groupName);
+		$this->db->where($where);
+
+		// select
+		$this->db->select('users.*, groupName', FALSE);
+
+		// join groups table
+		$this->db->join('permission_groups', 'permission_groups.groupID = users.groupID', 'left');
+
+		$query = $this->db->get('users', $this->site->config['paging'], $this->pagination->offset);
+
+		if ($query->num_rows())
+		{
+			// set paging
+			$this->core->set_paging($totalRows, $this->site->config['paging']);
+
+			return $query->result_array();
+		}
+		else
+		{
+			return FALSE;
+		}
+	}
+
 	function get_user($userID)
 	{
 		// default wheres
@@ -86,7 +123,7 @@ class Users_model extends CI_Model {
 
 	function get_avatar($filename)
 	{
-		$pathToAvatars = '/static/uploads/avatars/';
+		$pathToAvatars = $this->uploads->uploadsPath.'/avatars/';
 		if (is_file('.'.$pathToAvatars.$filename))
 		{
 			$avatar = $pathToAvatars.$filename;
@@ -100,6 +137,11 @@ class Users_model extends CI_Model {
 
 	function import_csv($file)
 	{
+		if (strlen($file['tmp_name']) == 0)
+		{
+			$this->form_validation->set_error('No file selected.');
+			return FALSE;
+		}
 		$handle = fopen($file['tmp_name'], "r");
 		
 		if ($handle)

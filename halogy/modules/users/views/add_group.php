@@ -27,27 +27,35 @@ $(function(){
 	$('a.deselectall').click(function(event){
 		event.preventDefault();
 		$('input[type="checkbox"]').attr('checked', false);
-	});	
+	});
 });
 </script>
 
 <form method="post" action="<?php echo site_url($this->uri->uri_string()); ?>" class="default">
 
-	<h1 class="headingleft">Add User Group <small>(<a href="<?php echo site_url('/admin/users/groups'); ?>">Back to User Groups</a>)</small></h1>
+	<div class="headingleft">
+		<h1 class="headingleft">Add User Group</h1>
+		<a href="<?php echo site_url('/admin/users/groups'); ?>" class="btn">Back to User Groups <i class="icon-arrow-up"></i></a>
+	</div>
 
 	<div class="headingright">
-		<input type="submit" value="Save Changes" class="button" />
+		<input type="submit" value="Save Changes" class="btn btn-success" />
 	</div>
 	
 	<div class="clear"></div>
 	
 	<?php if ($errors = validation_errors()): ?>
-		<div class="error">
+		<div class="alert alert-error">
 			<?php echo $errors; ?>
 		</div>
 	<?php endif; ?>
+	<?php if (isset($message)): ?>
+		<div class="alert">
+			<?php echo $message; ?>
+		</div>
+	<?php endif; ?>
 
-	<label for="groupName">Name this group:</label><br class="clear" />
+	<label for="groupName">Group Name:</label>
 	<?php echo @form_input('groupName',set_value('groupName', $data['groupName']), 'id="groupName" class="formelement"'); ?>
 	<br class="clear" /><br />
 
@@ -55,14 +63,14 @@ $(function(){
 
 	<h3>Administrative Permissions</h3>
 	
-	<p><a href="#" class="selectall button small nolabel grey">Select All</a> <a href="#" class="deselectall button small grey">De-Select All</a></p>
+	<p><a href="#" class="selectall btn">Select All</a> <a href="#" class="deselectall btn">De-Select All</a></p>
 	
 	<?php foreach ($permissions as $cat => $perms): ?>
 
 		<div class="perm-heading">
 			<label for="<?php echo strtolower($cat); ?>_all" class="radio"><?php echo $cat; ?></label>
 			<input type="checkbox" class="selectall checkbox" id="<?php echo strtolower($cat); ?>_all" />
-			<input type="button" value="See more" class="seemore small-button" />
+			<input type="button" value="See more" class="seemore btn" />
 		</div>
 
 		<div class="permissions">
@@ -80,7 +88,10 @@ $(function(){
 	<?php endforeach; ?>
 	<?php endif; ?>
 
-
-	<p class="clear" style="text-align: right;"><a href="#" class="button grey" id="totop">Back to top</a></p>
-	
+<br class="clear" />
+<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>
+<?php
+	// Vizlogix CSRF protection:
+	echo '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+?>
 </form>

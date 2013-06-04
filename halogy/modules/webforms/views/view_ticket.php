@@ -1,14 +1,17 @@
 <form action="<?php echo site_url($this->uri->uri_string()); ?>" method="post" class="default">
 
-	<h1 class="headingleft">View Ticket <small>(<a href="<?php echo site_url('/admin/webforms/tickets'); ?>">Back to Tickets</a>)</small></h1>
-	
+	<div class="headingleft">
+	<h1 class="headingleft">View Ticket</h1>
+	<a href="<?php echo site_url('/admin/webforms/tickets'); ?>" class="btn">Back to Tickets <i class="icon-arrow-up"></i></a>
+	</div>
+
 	<div class="headingright">
-		<input type="submit" value="Update Ticket" class="button nolabel" />	
+		<button type="submit" class="btn btn-success">Update Ticket <i class="icon-refresh"></i></button>	
 	</div>
 
 	<div class="clear"></div>
 
-	<div class="message">
+	<div class="alert">
 		<p>
 			<strong>Subject:</strong> [#<?php echo $data['ticketID']; ?>]:</strong> <?php echo $data['subject']; ?><br />
 			<strong>Date sent:</strong> <?php echo dateFmt($data['dateCreated']); ?><br />
@@ -54,8 +57,8 @@
 
 	<label for="notes">Ticket notes:</label>
 	<?php echo form_textarea('notes',set_value('notes', $data['notes']), 'id="notes" class="formelement small"'); ?>
-	<br class="clear" />
 
 </form>
+<br class="clear" />
 
-<p class="clear" style="text-align: right;"><a href="#" class="button grey" id="totop">Back to top</a></p>
+<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>

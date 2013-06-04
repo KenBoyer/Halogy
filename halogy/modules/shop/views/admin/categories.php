@@ -18,11 +18,13 @@ $(function(){
 });
 </script>
 
+<div class="headingleft">
 <h1 class="headingleft">Shop Categories</h1>
+</div>
 
-<div class="headingright">	
-	<a href="<?php echo site_url('/admin/shop/products'); ?>" class="button blue">View Products</a>
-	<a href="<?php echo site_url('/admin/shop/add_cat'); ?>" class="showform button blue">Add Category</a>
+<div class="headingright">
+	<a href="<?php echo site_url('/admin/shop/products'); ?>" class="btn btn-info">View Products</a>
+	<a href="<?php echo site_url('/admin/shop/add_cat'); ?>" class="showform btn btn-success">Add Category <i class="icon-plus-sign"></i></a>
 </div>
 
 <div class="clear"></div>
@@ -43,8 +45,8 @@ $(function(){
 			</div>
 			<div class="col2">&nbsp;</div>
 			<div class="buttons">
-				<a href="<?php echo site_url('/admin/shop/edit_cat/'.$cat['catID']); ?>" class="showform"><img src="<?php echo $this->config->item('staticPath'); ?>/images/btn_edit.png" alt="Edit" /></a>
-				<a href="<?php echo site_url('/admin/shop/delete_cat/'.$cat['catID']); ?>" onclick="return confirm('Are you sure you want to delete this?')"><img src="<?php echo $this->config->item('staticPath'); ?>/images/btn_delete.png" alt="Delete" /></a>
+				<a href="<?php echo site_url('/admin/shop/edit_cat/'.$cat['catID']); ?>" class="showform btn btn-info">Edit <i class="icon-edit"></i></a>
+				<a href="<?php echo site_url('/admin/shop/delete_cat/'.$cat['catID']); ?>" onclick="return confirm('Are you sure you want to delete this?')" class="btn btn-danger">Delete <i class="icon-trash"></i></a>
 			</div>
 			<div class="clear"></div>
 			<?php if (@$children[$cat['catID']]): ?>
@@ -57,8 +59,8 @@ $(function(){
 						</div>
 						<div class="col2">&nbsp;</div>
 						<div class="buttons">
-							<a href="<?php echo site_url('/admin/shop/edit_cat/'.$child['catID']); ?>" class="showform"><img src="<?php echo $this->config->item('staticPath'); ?>/images/btn_edit.png" alt="Edit" /></a>
-							<a href="<?php echo site_url('/admin/shop/delete_cat/'.$child['catID']); ?>" onclick="return confirm('Are you sure you want to delete this?')"><img src="<?php echo $this->config->item('staticPath'); ?>/images/btn_delete.png" alt="Delete" /></a>
+							<a href="<?php echo site_url('/admin/shop/edit_cat/'.$child['catID']); ?>" class="showform btn btn-info">Edit <i class="icon-edit"></i></a>
+							<a href="<?php echo site_url('/admin/shop/delete_cat/'.$child['catID']); ?>" onclick="return confirm('Are you sure you want to delete this?')" class="btn btn-danger">Delete <i class="icon-trash"></i></a>
 						</div>
 						<div class="clear"></div>
 					</li>

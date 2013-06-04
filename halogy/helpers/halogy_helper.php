@@ -450,30 +450,47 @@ function display_image($path, $alt, $size = '', $extras = '', $nopic = FALSE)
 
 	if ($size)
 	{
-		if (is_array($size))
+		$CI =& get_instance();
+
+		if ($CI->config->item('bootstrap'))
 		{
-			$widthfactor = (isset($size['width'])) ? $imageSize[0] / $size['width'] : 0;
-			$heightfactor = (isset($size['height'])) ? $imageSize[1] / $size['height'] : 0;
-			
-			if ($imageSize[0] > $size['width'] && ($widthfactor > $heightfactor || $widthfactor == $heightfactor))
+			// NOTE: Due to the fact that Bootstrap sets the image height to "auto", it's best to set the width
+			if (is_array($size))
 			{
-				$factor = $imageSize[0] / $size['width'];
 				$imageHTML .= 'width="'.$size['width'].'" ';
 			}
-			elseif ($imageSize[1] > $size['height'] && $heightfactor > $widthfactor)
-			{
-				$imageHTML .= 'height="'.$size['height'].'" ';
-			}
-		}
-		elseif (intval($size) && $size > 0 && (($imageSize[0] > $size || $imageSize[1] > $size) || $nopic))
-		{
-			if (($imageSize[0] > $imageSize[1]) || $imageSize[0] == $imageSize[1])
+			elseif (intval($size) && $size > 0)
 			{
 				$imageHTML .= 'width="'.$size.'" ';
 			}
-			elseif ($imageSize[1] > $imageSize[0])
+		}
+		else
+		{
+			if (is_array($size))
 			{
-				$imageHTML .= 'height="'.$size.'" ';
+				$widthfactor = (isset($size['width'])) ? $imageSize[0] / $size['width'] : 0;
+				$heightfactor = (isset($size['height'])) ? $imageSize[1] / $size['height'] : 0;
+				
+				if ($imageSize[0] > $size['width'] && ($widthfactor > $heightfactor || $widthfactor == $heightfactor))
+				{
+					$factor = $imageSize[0] / $size['width'];
+					$imageHTML .= 'width="'.$size['width'].'" ';
+				}
+				elseif ($imageSize[1] > $size['height'] && $heightfactor > $widthfactor)
+				{
+					$imageHTML .= 'height="'.$size['height'].'" ';
+				}
+			}
+			elseif (intval($size) && $size > 0 && (($imageSize[0] > $size || $imageSize[1] > $size) || $nopic))
+			{
+				if (($imageSize[0] > $imageSize[1]) || $imageSize[0] == $imageSize[1])
+				{
+					$imageHTML .= 'width="'.$size.'" ';
+				}
+				elseif ($imageSize[1] > $imageSize[0])
+				{
+					$imageHTML .= 'height="'.$size.'" ';
+				}
 			}
 		}
 	}
@@ -502,7 +519,7 @@ function datefmt($date, $fmt = '', $timezone = '', $seconds = FALSE)
 	{
 		if (@$CI->site->config['dateOrder'] == 'MD')
 		{
-			$fmt = 'M jS Y';
+			$fmt = 'M jS, Y';
 		}
 		else
 		{
@@ -775,4 +792,100 @@ function mkdn($text)
 	$CI->load->library('mkdn');
 			
 	return $CI->mkdn->translate($text);
-}	
+}
+
+// Debugging PHP in browser’s Javascript console
+// downloaded 4-23-2013 from
+// http://www.codeforest.net/debugging-php-in-browsers-javascript-console
+// converted into a single function for use here
+// converted to CI log levels:
+// |	0 = Disables logging, Error logging TURNED OFF
+// |	1 = Error Messages (including PHP errors)
+// |	2 = Debug Messages
+// |	3 = Informational Messages
+// |	4 = All Messages
+function console_debug($name, $var = null, $type = 4)
+{
+//	$CI =& get_instance();
+
+//	if ($CI->config->item('log_threshold') == 0)
+	return;
+
+	if (!defined("LOG"))    define("LOG",4);
+    if (!defined("INFO"))   define("INFO",3);
+    if (!defined("WARN"))   define("WARN",2);
+    if (!defined("ERROR"))  define("ERROR",1);
+    if (!defined("NL"))     define("NL","\r\n");
+
+    /// this is for IE and other browsers w/o console
+//    echo '<script type="text/javascript">'.NL;
+    // echo 'if (!window.console) console = {};';
+    // echo 'console.log = console.log || function(){};';
+    // echo 'console.warn = console.warn || function(){};';
+    // echo 'console.error = console.error || function(){};';
+    // echo 'console.info = console.info || function(){};';
+    // echo 'console.debug = console.debug || function(){};';
+    // echo '</script>';
+    /// end of IE
+
+    echo '<script type="text/javascript">'.NL;
+    switch ($type)
+	{
+        case LOG:
+            echo 'console.log("'.$name.'");';
+        break;
+        case INFO:
+            echo 'console.info("'.$name.'");';
+        break;
+        case WARN:
+            echo 'console.warn("'.$name.'");';
+        break;
+        case ERROR:
+            echo 'console.error("'.$name.'");';
+        break;
+	}
+
+    if (!empty($var))
+	{
+        if (is_object($var) || is_array($var))
+		{
+            $object = json_encode($var);
+            echo 'var object'.preg_replace('~[^A-Z|0-9]~i',"_",$name).' = \''.str_replace("'","\'",$object).'\';'.NL;
+            echo 'var val'.preg_replace('~[^A-Z|0-9]~i',"_",$name).' = eval("(" + object'.preg_replace('~[^A-Z|0-9]~i',"_",$name).' + ")" );'.NL;
+            switch ($type)
+			{
+                case LOG:
+                    echo 'console.debug(val'.preg_replace('~[^A-Z|0-9]~i',"_",$name).');'.NL;
+                break;
+                case INFO:
+                    echo 'console.info(val'.preg_replace('~[^A-Z|0-9]~i',"_",$name).');'.NL;
+                break;
+                case WARN:
+                    echo 'console.warn(val'.preg_replace('~[^A-Z|0-9]~i',"_",$name).');'.NL;
+                break;
+                case ERROR:
+                    echo 'console.error(val'.preg_replace('~[^A-Z|0-9]~i',"_",$name).');'.NL;
+                break;
+            }
+        }
+		else
+		{
+            switch ($type)
+			{
+                case LOG:
+                    echo 'console.debug("'.str_replace('"','\\"',$var).'");'.NL;
+                break;
+                case INFO:
+                    echo 'console.info("'.str_replace('"','\\"',$var).'");'.NL;
+                break;
+                case WARN:
+                    echo 'console.warn("'.str_replace('"','\\"',$var).'");'.NL;
+                break;
+                case ERROR:
+                    echo 'console.error("'.str_replace('"','\\"',$var).'");'.NL;
+                break;
+            }
+        }
+    }
+    echo '</script>'.NL;
+}

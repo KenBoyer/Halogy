@@ -1,10 +1,10 @@
+<div class="headingleft">
 <h1 class="headingleft">Web Forms</h1>
+</div>
 
 <div class="headingright">
-
-	<a href="<?php echo site_url('/admin/webforms/tickets'); ?>" class="button blue">Tickets</a>
-	<a href="<?php echo site_url('/admin/webforms/add_form'); ?>" class="button">Add Form</a>
-
+	<a href="<?php echo site_url('/admin/webforms/tickets'); ?>" class="btn btn-info">View Tickets <i class="icon-eye-open"></i></a>
+	<a href="<?php echo site_url('/admin/webforms/add_form'); ?>" class="btn btn-success">Add Form <i class="icon-plus-sign"></i></a>
 </div>
 
 <?php if ($web_forms): ?>
@@ -44,7 +44,7 @@
 
 <?php echo $this->pagination->create_links(); ?>
 
-<p style="text-align: right;"><a href="#" class="button grey" id="totop">Back to top</a></p>
+<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>
 
 <?php else: ?>
 

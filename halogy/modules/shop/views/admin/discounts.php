@@ -5,10 +5,12 @@ $(function(){
 });
 </script>
 
-<h1 class="headingleft">Discount Codes</h1>
+<div class="headingleft">	
+	<h1 class="headingleft">Discount Codes</h1>
+</div>
 
 <div class="headingright">	
-	<a href="<?php echo site_url('/admin/shop/add_discount'); ?>" class="showform button blue">Add Discount</a>
+	<a href="<?php echo site_url('/admin/shop/add_discount'); ?>" class="showform btn btn-success">Add Discount <i class="icon-plus-sign"></i></a>
 </div>
 
 <div class="clear"></div>
@@ -23,7 +25,7 @@ $(function(){
 		<th>Code</th>
 		<th>Calculated On</th>
 		<th>Discount</th>
-		<th>Expiry Date</th>
+		<th>Expiration Date</th>
 		<th class="tiny">&nbsp;</th>
 		<th class="tiny">&nbsp;</th>
 	</tr>
@@ -47,7 +49,8 @@ $(function(){
 
 <?php echo $this->pagination->create_links(); ?>
 
-<p style="text-align: right;"><a href="#" class="button grey" id="totop">Back to top</a></p>
+<br class="clear" />
+<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>
 
 <?php else: ?>
 

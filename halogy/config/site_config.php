@@ -27,5 +27,9 @@ $config['uploadsPath']		=	'/static/uploads';			// where to upload files (must be
 $config['staticPath']		=	'/static';					// where are the images hosted
 $config['logoPath']			=	'';							// the administration logo
 $config['stagingSites']		=	FALSE;						// whether to create upload folders for each site automatically (for MSM)
-		
+
+// set default styles
+$config['bootstrap']		=	TRUE;						// include Twitter Bootstrap functionality
+$config['formvalid']		=	TRUE;						// include jQuery form validation
+
 /* END OF FILE */

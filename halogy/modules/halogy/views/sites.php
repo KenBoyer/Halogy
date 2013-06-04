@@ -23,16 +23,22 @@ $(function(){
 });
 </script>
 
-<h1 class="headingleft">Your Sites</h1>
+<div class="headingleft">
+	<h1 class="headingleft">Your Sites</h1>
+</div>
 
 <div class="headingright">
-
 	<form method="post" action="<?php echo site_url('/halogy/sites'); ?>" class="default" id="search">
-		<input type="text" name="searchbox" id="searchbox" class="formelement inactive" title="Search Sites..." />
-		<input type="image" src="<?php echo $this->config->item('staticPath'); ?>/images/btn_search.gif" id="searchbutton" />
+		<div class="input-append">
+			<input type="text" name="searchbox" id="searchbox" class="span2" title="Search Sites..." />
+			<button class="btn btn-primary" type="submit" id="searchbutton"><i class="icon-search"></i></button>
+		</div>
+<?php
+		// Vizlogix CSRF protection:
+		echo '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+?>
 	</form>
-
-	<a href="<?php echo site_url('/halogy/add_site'); ?>" class="button">Add Site</a>
+	<a href="<?php echo site_url('/halogy/add_site'); ?>" class="btn btn-success">Add Site <i class="icon-plus-sign"></i></a>
 </div>
 
 <div class="clear"></div>
@@ -43,7 +49,7 @@ $(function(){
 
 <table class="default">
 	<tr>
-		<th><?php echo order_link('halogy/sites/viewall','siteName','Site Name'); ?></th>
+		<th><?php echo order_link('halogy/sites/viewall','siteName','Site Name / URL'); ?></th>
 		<th><?php echo order_link('halogy/sites/viewall','dateCreated','Date Created'); ?></th>
 		<th><?php echo order_link('halogy/sites/viewall','siteDomain','Domain'); ?></th>
 		<th><?php echo order_link('halogy/sites/viewall','altDomain','Staging Domain'); ?></th>		
@@ -57,7 +63,8 @@ $(function(){
 	$class = ($i % 2) ? ' class="alt"' : ''; $i++;
 ?>
 	<tr<?php echo $class; ?>>
-		<td><?php echo anchor('/halogy/edit_site/'.$site['siteID'], $site['siteName']); ?></td>
+<!--		<td><?php echo anchor('/halogy/edit_site/'.$site['siteID'], $site['siteName']); ?></td> -->
+		<td><?php echo anchor('http://'.$site['siteDomain'], $site['siteName']); ?></td>
 		<td><?php echo dateFmt($site['dateCreated']); ?></td>		
 		<td><?php echo $site['siteDomain']; ?></td>
 		<td><?php echo $site['altDomain']; ?></td>		
@@ -79,7 +86,8 @@ $(function(){
 
 <?php echo $this->pagination->create_links(); ?>
 
-<p style="text-align: right;"><a href="#" class="button grey" id="totop">Back to top</a></p>
+<br class="clear" />
+<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>
 
 <?php else: ?>
 

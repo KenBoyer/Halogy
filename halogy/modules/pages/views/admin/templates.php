@@ -22,13 +22,12 @@ $(function(){
 });
 </script>
 
+<div class="headingleft">
 <h1 class="headingleft">Page Templates</h1>
+</div>
 
 <div class="headingright">
-	<label for="filter">
-		Filter
-	</label> 
-
+	<label for="filter">Filter:</label> 
 	<?php
 		$options = array(
 			'' => 'View All',
@@ -38,9 +37,9 @@ $(function(){
 		
 		echo form_dropdown('filter', $options, $type, 'id="filter"');
 	?>
-	<a href="<?php echo site_url('/admin/pages/includes'); ?>" class="button blue">Includes</a>
-	<a href="#" class="button blue toggle-zip">Import Theme</a>
-	<a href="<?php echo site_url('/admin/pages/add_template'); ?>" class="button">Add Template</a>
+	<a href="<?php echo site_url('/admin/pages/includes'); ?>" class="btn btn-info">Includes</a>
+	<a href="#" class="btn btn-info toggle-zip">Import Theme</a>
+	<a href="<?php echo site_url('/admin/pages/add_template'); ?>" class="btn btn-success">Add Template <i class="icon-plus-sign"></i></a>
 </div>
 
 <div class="hidden">
@@ -77,7 +76,7 @@ $(function(){
 
 <table class="default clear">
 	<tr>
-		<th>Templates</th>
+		<th>Template</th>
 		<th>Date Modified</th>		
 		<th>Usage</th>	
 		<th class="tiny">&nbsp;</th>
@@ -89,16 +88,16 @@ $(function(){
 	$class = ($i % 2) ? ' class="alt"' : ''; $i++;
 ?>
 	<tr<?php echo $class;?>>
-		<td><?php echo anchor('/admin/pages/edit_template/'.$template['templateID'], ($template['modulePath'] != '') ? '<small>Module</small>: '.$template['modulePath'].' <em>('.ucfirst(preg_replace('/^(.+)_/i', '', $template['modulePath'])).')</em>' : $template['templateName']); ?></td>
+		<td><?php echo anchor(site_url('/admin/pages/edit_template/'.$template['templateID']), ($template['modulePath'] != '') ? '<small>Module</small>: '.$template['modulePath'].' <em>('.ucfirst(preg_replace('/^(.+)_/i', '', $template['modulePath'])).')</em>' : $template['templateName']); ?></td>
 		<td><?php echo dateFmt($template['dateCreated']); ?></td>		
 		<td><?php if ($this->pages->get_template_count($template['templateID']) > 0): ?>
 				<?php echo $this->pages->get_template_count($template['templateID']); ?> <small>page(s)</small>
 			<?php endif; ?></td>
 		<td>
-			<?php echo anchor('/admin/pages/edit_template/'.$template['templateID'], 'Edit'); ?>
+			<?php echo anchor(site_url('/admin/pages/edit_template/'.$template['templateID']), 'Edit <i class="icon-edit"></i>', 'class="btn btn-info"'); ?>
 		</td>
 		<td>
-			<?php echo anchor('/admin/pages/delete_template/'.$template['templateID'], 'Delete', 'onclick="return confirm(\'Are you sure you want to delete this?\')"'); ?>
+			<?php echo anchor(site_url('/admin/pages/delete_template/'.$template['templateID']), 'Delete <i class="icon-trash"></i>', array('onclick' => 'return confirm(\'Are you sure you want to delete this?\')', 'class' => 'btn btn-danger')); ?>
 		</td>
 	</tr>
 <?php endforeach; ?>
@@ -106,7 +105,7 @@ $(function(){
 
 <?php echo $this->pagination->create_links(); ?>
 
-<p class="clear" style="text-align: right;"><a href="#" class="button grey" id="totop">Back to top</a></p>
+<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>
 
 <?php else: ?>
 

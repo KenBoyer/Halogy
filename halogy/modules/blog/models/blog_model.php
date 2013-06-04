@@ -617,6 +617,17 @@ class Blog_Model extends CI_Model {
 		return TRUE;	
 	}
 
+	function deactivate_comment($commentID)
+	{
+		$this->db->set('active', 0);
+		$this->db->where('siteID', $this->siteID);		
+		$this->db->where('commentID', $commentID);
+
+		$this->db->update('blog_comments');
+
+		return TRUE;	
+	}
+
 	function get_user($userID)
 	{
 		$query = $this->db->get_where('users', array('userID' => $userID), 1);
@@ -708,5 +719,49 @@ class Blog_Model extends CI_Model {
 		$this->db->where('siteID', $this->siteID);		
 		$this->db->update('blog_posts');
 	}
-			
+
+	// email subscription additions:
+	function get_subscriptions($postID)
+	{
+		// where
+		$this->db->where('postID', $postID);
+
+		// grab
+		$query = $this->db->get('blog_post_subs');
+
+		if ($query->num_rows())
+		{
+			$result = $query->result_array();
+
+			foreach($result as $row)
+			{
+				$userIDs[] = $row['userID'];
+			}
+
+			return $userIDs;
+		}
+		else
+		{
+			return FALSE;
+		}
+	}
+
+	function add_subscription($postID, $userID)
+	{
+		$this->db->set('postID', $postID);
+		$this->db->set('userID', $userID);
+		$this->db->set('siteID', $this->siteID);
+		$this->db->insert('blog_post_subs');
+
+		return TRUE;
+	}
+
+	function remove_subscription($postID, $userID)
+	{
+		$this->db->where('postID', $postID);
+		$this->db->where('userID', $userID);
+		$this->db->delete('blog_post_subs');
+
+		return TRUE;
+	}
 }

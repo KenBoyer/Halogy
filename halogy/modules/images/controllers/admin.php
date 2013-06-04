@@ -196,7 +196,7 @@ class Admin extends CI_Controller {
 				$imageName = ($this->input->post('imageName')) ? $this->input->post('imageName') : preg_replace('/.([a-z]+)$/i', '', $oldFileName);
 				
 				// set image reference and only add to db if its unique
-				$imageRef = url_title(trim(substr(strtolower($imageName),0,30)));
+				$imageRef = url_title(trim(substr($imageName,0,30)));
 		
 				if ($this->form_validation->unique($imageRef, 'images.imageRef'))
 				{	
@@ -230,7 +230,7 @@ class Admin extends CI_Controller {
 				}
 				else
 				{
-					$this->form_validation->set_error('<p>The image reference you entered has already been used, please try another.</p>');
+					$this->form_validation->set_error('<p>The image reference you entered has already been used. Please try another.</p>');
 				}		
 			}			
 		}
@@ -544,4 +544,15 @@ class Admin extends CI_Controller {
 		$this->output->set_output($output);
 	}
 
+	function preview()
+	{
+		// get parsed body
+		$html = $this->template->parse_body($this->input->post('body'));
+
+		// filter for scripts
+		$html = preg_replace('/<script(.*)<\/script>/is', '<em>This block contained scripts, please refresh page.</em>', $html);
+
+		// output
+		$this->output->set_output($html);
+	}
 }

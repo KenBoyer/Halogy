@@ -78,7 +78,8 @@ class Community extends MX_Controller {
 					'member:name' => ($user['displayName']) ? $user['displayName'] : $user['firstName'].' '.$user['lastName'],
 					'member:email' => $user['email'],
 					'member:group' => ($user['groupName']) ? $user['groupName'] : '',
-					'member:link' => site_url('/users/profile/'.$user['userID'])
+					'member:link' => site_url('/users/profile/'.$user['userID']),
+					'member:bio' => $user['bio'] // added to include staff positions, etc.
 				);
 			}
 		}

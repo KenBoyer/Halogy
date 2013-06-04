@@ -220,7 +220,30 @@ class Admin extends MX_Controller {
 		{
 			// set date
 			$this->core->set['dateModified'] = date("Y-m-d H:i:s");
-	
+
+			console_debug(__FILE__.':'.__FUNCTION__.": _POST=", $_POST);
+			// upload image
+			if (@$_FILES['image']['name'] != '')
+			{
+				console_debug(__FILE__.':'.__FUNCTION__.": _FILES=", $_FILES);
+				// set upload config
+				$this->uploads->allowedTypes = 'gif|jpg|png';
+				$this->uploads->uploadsPath .= '/avatars';
+				$this->uploads->maxSize = '100000';
+				$this->uploads->maxWidth = '2000';
+				$this->uploads->maxHeight = '2000';
+
+				// upload avatar
+				if ($imageData = $this->uploads->upload_image())
+				{
+					$this->core->set['avatar'] = $imageData['file_name'];
+				}
+				console_debug(__FILE__.':'.__FUNCTION__.': imageData=', $imageData['file_name']);
+
+				// set error
+				$error = ($this->uploads->errors) ? 'Problem with your image: '.$this->uploads->errors : '';
+			}
+
 			// check groupID is not being overridden
 			if (($this->input->post('groupID') && @!in_array('users_groups', $this->permission->permissions)) || ($this->input->post('groupID') < 0 && $this->session->userdata('groupID') >= 0))
 			{
@@ -243,8 +266,12 @@ class Admin extends MX_Controller {
 			{
 				$output['message'] = '<p>Your details have been updated.</p>';
 			}
-		}	
-		
+		}
+
+		// set image path
+		$output['imagePath'] = $this->users->get_avatar($user['avatar']);
+		console_debug(__FILE__.':'.__FUNCTION__.": imagePath=", $output['imagePath']);
+
 		// templates
 		$this->load->view($this->includes_path.'/header');
 		$this->load->view('edit',$output);

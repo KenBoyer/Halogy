@@ -13,57 +13,62 @@
 function setOrder(){
 	$.post('<?php echo site_url('/admin/shop/order/product'); ?>',$(this).sortable('serialize'),function(data){ });
 };
-var fixHelper = function (e, a) {
-	if ($(this).is('tbody')) {
-		a.children().each(function () {
-			$('table.order .' + $(this).attr('class')).width($(this).width())
-		})
-	}
-	return a
-};
+
 function initOrder(el){
+	$('ol.order').height($('ol.order').height());
 	$(el).sortable({ 
 		axis: 'y',
 	    revert: false, 
 	    delay: '80',
+		distance: '10',
 	    opacity: '0.5',
-	    update: setOrder,
-		helper: fixHelper
+	    update: setOrder
 	});
 };
+
 function formatItem(row){
 	if (row[0].length) return row[1]+'<br /><span class="email">(#'+row[0]+')</span>';
 	else return 'No results';
 }
+
 $(function(){
     $('#searchbox').fieldreplace();
-	$('#searchbox').autocomplete("<?php echo site_url('/admin/shop/ac_products'); ?>", { delay: "0", selectFirst: false, matchContains: true, formatItem: formatItem, minChars: 2 });
-	$('#searchbox').result(function(event, data, formatted){
-		$(this).parent('form').submit();
-	});
-	
+	function formatItem(row) {
+		if (row[0].length) return row[1]+'<br /><span class="email">('+row[0]+')</span>';
+		else return 'No results';
+	}
+	// $('#searchbox').autocomplete("<?php echo site_url('/halogy/ac_sites'); ?>", { delay: "0", selectFirst: false, matchContains: true, formatItem: formatItem, minChars: 2 });
+	// $('#searchbox').result(function(event, data, formatted){
+		// $(this).parent('form').submit();
+	// });	
+
 	$('select#category').change(function(){
 		var folderID = ($(this).val());
 		window.location.href = '<?php echo site_url('/admin/shop/products'); ?>/'+folderID;
 	});	
-	
-	initOrder('table.order tbody');	
+
+	initOrder('ol.order, ol.order ol');
 });
 </script>
 
+<div class="headingleft">
 <h1 class="headingleft">Products</h1>
+</div>
 
 <div class="headingright">
 
 	<form method="post" action="<?php echo site_url('/admin/shop/products'); ?>" class="default" id="search">
-		<input type="text" name="searchbox" id="searchbox" class="formelement inactive" title="Search Products..." />
-		<input type="image" src="<?php echo $this->config->item('staticPath'); ?>/images/btn_search.gif" id="searchbutton" />
+		<div class="input-append">
+			<input type="text" name="searchbox" id="searchbox" class="span2" title="Search Products..." />
+			<button class="btn btn-primary" type="submit" id="searchbutton"><i class="icon-search"></i></button>
+		</div>
+<?php
+		// Vizlogix CSRF protection:
+		echo '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+?>
 	</form>
 	
-	<label for="category">
-		Category
-	</label> 
-
+	<label for="category">Category:</label> 
 	<?php
 		$options = array(
 			'' => 'View All Products...',
@@ -78,7 +83,7 @@ $(function(){
 	?>	
 
 	<?php if (in_array('shop_edit', $this->permission->permissions)): ?>	
-		<a href="<?php echo site_url('/admin/shop/add_product'); ?>" class="button">Add Product</a>
+		<a href="<?php echo site_url('/admin/shop/add_product'); ?>" class="btn btn-success">Add Product <i class="icon-plus-sign"></i></a>
 	<?php endif; ?>
 </div>
 
@@ -86,59 +91,34 @@ $(function(){
 
 <?php if ($products): ?>
 
-<?php echo $this->pagination->create_links(); ?>
+<hr />
 
-<table class="default clear<?php echo ($catID) ? ' order' : ''; ?>">
-	<thead>
-		<tr>
-			<th><?php echo order_link('admin/shop/products'.(($catID) ? '/'.$catID : ''),'productName','Product name', (($catID) ? 5 : 4)); ?></th>
-			<th><?php echo order_link('admin/shop/products'.(($catID) ? '/'.$catID : ''),'subtitle','Subtitle', (($catID) ? 5 : 4)); ?></th>
-			<th><?php echo order_link('admin/shop/products'.(($catID) ? '/'.$catID : ''),'catalogueID','Catalogue ID', (($catID) ? 5 : 4)); ?></th>
-			<th><?php echo order_link('admin/shop/products'.(($catID) ? '/'.$catID : ''),'dateCreated','Date added', (($catID) ? 5 : 4)); ?></th>
-			<th class="narrow"><?php echo order_link('admin/shop/products'.(($catID) ? '/'.$catID : ''),'price','Price ('.currency_symbol().')', (($catID) ? 5 : 4)); ?></th>
-			<?php if ($this->site->config['shopStockControl']): ?>
-				<th><?php echo order_link('/admin/shop/products'.(($catID) ? '/'.$catID : ''),'stock','Stock', (($catID) ? 5 : 4)); ?></th>
-			<?php endif; ?>
-			<th class="narrow"><?php echo order_link('/admin/shop/products'.(($catID) ? '/'.$catID : ''),'published','Published', (($catID) ? 5 : 4)); ?></th>
-			<th class="tiny">&nbsp;</th>
-			<th class="tiny">&nbsp;</th>		
-		</tr>
-	</thead>
-	<tbody id="shop_products">
+<?php echo $this->pagination->create_links(); ?>
+<ol class="order">
 	<?php foreach ($products as $product): ?>
-		<tr class="<?php echo (!$product['published']) ? 'draft' : ''; ?>" id="shop_products-<?php echo $product['productID']; ?>">
-			<td class="col1"><?php echo (in_array('shop_edit', $this->permission->permissions)) ? anchor('/admin/shop/edit_product/'.$product['productID'], $product['productName']) : $product['productName']; ?></td>
-			<td class="col2"><?php echo $product['subtitle']; ?></td>		
-			<td class="col3"><?php echo $product['catalogueID']; ?></td>
-			<td class="col4"><?php echo dateFmt($product['dateCreated'], '', '', TRUE); ?></td>
-			<td class="col5"><?php echo currency_symbol(); ?><?php echo number_format($product['price'],2); ?></td>
-			<?php if ($this->site->config['shopStockControl']): ?>
-				<td class="col6"><?php echo ($product['stock'] > 0) ? '<span style="color:green;">'.$product['stock'].'</span>' : '<span style="color:red;">'.$product['stock'].'</span>'; ?></td>
-			<?php endif; ?>
-			<td class="col7">
-				<?php
-					if ($product['published']) echo '<span style="color:green;">Yes</span>';
-					else echo 'No';
-				?>
-			</td>
-			<td class="col8 tiny">
-				<?php if (in_array('shop_edit', $this->permission->permissions)): ?>	
-					<?php echo anchor('/admin/shop/edit_product/'.$product['productID'], 'Edit'); ?>
-				<?php endif; ?>
-			</td>
-			<td class="col9 tiny">
-				<?php if (in_array('shop_delete', $this->permission->permissions)): ?>	
-					<?php echo anchor('/admin/shop/delete_product/'.$product['productID'], 'Delete', 'onclick="return confirm(\'Are you sure you want to delete this?\')"'); ?>
-				<?php endif; ?>
-			</td>
-		</tr>
+	<li class="<?php echo (!$product['published']) ? 'draft' : ''; ?>" id="shop_products-<?php echo $product['productID']; ?>">
+		<div class="col1">
+			<span <?php if ($product['published']) echo 'style="color:green;"'; ?>>
+			<strong><?php echo $product['productName']; ?></strong>
+			</span><br />
+			<small><?php echo "Catalog ID: ".$product['catalogueID']; ?></small>
+		</div>
+		<div class="col2"><?php echo $product['subtitle']; ?></div>
+		<div class="buttons">
+			<a href="<?php echo site_url('/shop/viewproduct/'.$product['productID'].'/'); ?>" class="btn btn-warning">View <i class="icon-eye-open"></i></a>
+			<a href="<?php echo site_url('/admin/shop/edit_product/'.$product['productID']); ?>" class="btn btn-info">Edit <i class="icon-edit"></i></a>
+			<a href="<?php echo site_url('/admin/shop/delete_product/'.$product['productID']); ?>" onclick="return confirm('Are you sure you want to delete this?')" class="btn btn-danger">Delete <i class="icon-trash"></i></a>
+		</div>
+		<div class="clear"></div>
+	</li>
 	<?php endforeach; ?>
-	</tbody>
-</table>
+</ol>
 
 <?php echo $this->pagination->create_links(); ?>
 
-<p style="text-align: right;"><a href="#" class="button grey" id="totop">Back to top</a></p>
+<br class="clear" />
+
+<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>
 
 <?php else: ?>
 

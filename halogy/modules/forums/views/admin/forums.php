@@ -1,8 +1,10 @@
-<h1 class="headingleft">Forums</h1>
+<div class="headingleft">
+	<h1 class="headingleft">Forums</h1>
+</div>
 
 <div class="headingright">
 	<?php if (in_array('forums_edit', $this->permission->permissions)): ?>
-		<a href="<?php echo site_url('/admin/forums/add_forum'); ?>" class="button">Add Forum</a>
+		<a href="<?php echo site_url('/admin/forums/add_forum'); ?>" class="btn btn-success">Add Forum <i class="icon-plus-sign"></i></a>
 	<?php endif; ?>
 </div>
 
@@ -46,11 +48,11 @@
 
 <?php echo $this->pagination->create_links(); ?>
 
-<p style="text-align: right;"><a href="#" class="button grey" id="totop">Back to top</a></p>
+<br class="clear" />
+<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>
 
 <?php else: ?>
 
 <p class="clear">There are no forums yet.</p>
 
 <?php endif; ?>
-

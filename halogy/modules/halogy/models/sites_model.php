@@ -78,52 +78,161 @@ class Sites_model extends CI_Model {
 
 		// get default theme and import it
 		$this->pages->siteID = $siteID;	
-		
+
+		// set up default theme
 		if ($theme)
-		{	
-			$body = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="">
-	<head>
-		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-		<title>{page:title}</title>
+		{
+			// NOTE: Both page:title and page:description are included in the title tag for SEO purposes
+			$body = '<!DOCTYPE html>
+					<html xml:lang="en">
+					<head>
+					<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+					<title>{page:title} | {page:description}</title>
+					<meta name="keywords" content="{page:keywords}" />
+					<meta name="description" content="{page:description}" />';
 
-		<meta name="keywords" content="{page:keywords}" />
-		<meta name="description" content="{page:description}" />
+			if ($this->config->item('bootstrap'))
+			{
+				$body .= '
+				<!-- your bootstrap or boottheme-generated css file goes here -->
+				<link href="/static/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+				<link href="/static/css/bootstrap-image-gallery.min.css" rel="stylesheet" type="text/css">
+				<link href="/static/css/bootstrap-responsive.min.css" rel="stylesheet" type="text/css" />
 
-		<link rel="stylesheet" href="http://static.halogy.com/css/newsite.css" type="text/css" />
-		
-	</head>
-	<body>
-	
-		<div class="logo">
-			<a href="/">
-				<img src="http://static.halogy.com/images/halogy_logo.png" id="logo" alt="Halogy" />
-			</a>			
-		</div>
+				<link rel="stylesheet" href="/static/css/font-awesome.min.css">';
+			}
+			else
+			{
+				$body .= '<link rel="stylesheet" href="/static/css/default.css" type="text/css" />';
+			}
 
-		<div class="main">
-			<!--CONTENT-->
+			$body .= '
+				<link rel="shortcut icon" href="/static/images/favicon.ico" />
+				<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+				<!--[if lt IE 9]>
+					<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+				<![endif]-->';
 
-			{block1}
-			
-			<!--ENDCONTENT-->
-		</div>
-		
-		<div class="menu">
-			<ul>
-				{navigation}
-				'.((in_array('blog', $this->permission->permissions)) ? '<li><a href="'.$this->config->item('index_page').'/blog">Blog</a></li>' : '').'
-				'.((in_array('shop', $this->permission->permissions)) ? '<li><a href="'.$this->config->item('index_page').'/shop">Shop</a></li>' : '').'				<li><a href="'.$this->config->item('index_page').'/admin">Admin</a></li>
-			</ul>
-		</div>
-		
-		<center><p><small>Powered by <a href="http://www.halogy.com">Halogy</a></small></p>		
-	
-		
-	</body>
-</html>';
-					
+			if ($this->config->item('csrf_protection'))
+			{
+				$body .= '<!-- Vizlogix code to enable AJAX form submission with CSRF protection - DO NOT REMOVE -->
+				<script language="javascript" type="text/javascript" src="{site:url}/static/js/jquery.cookie.js"></script>
+				<script language="javascript" type="text/javascript">
+				$(function($) {
+					$.ajaxSetup({
+						data: {
+							csrf_test_name: $.cookie(\'csrf_cookie_name\')
+						}
+						});
+					});
+				</script>
+				<!-- END: Vizlogix code to enable AJAX form submission with CSRF protection -->';
+			}
+
+			// NOTE: Check this version of jQuery with regards to the needs of the site
+			$body .= '<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>';
+
+			// optional Bootstrap jQuery inclusion
+			if ($this->config->item('bootstrap'))
+			{
+				$body .= '<script src="/static/js/bootstrap.min.js"></script>';
+			}
+
+			// optional jQuery form validation
+			// TBD: needs to be generalized for all types of forms, fields, etc.
+			if ($this->config->item('formvalid'))
+			{
+				$body .= '<script type="text/javascript" src="/static/js/jquery.validate.js"></script>
+					<style type="text/css">
+						label { font-size: 100%; width: 14em; float: left; }
+						label.error { float: none; color: red; padding-left: .5em; vertical-align: top; }
+						.submit { margin-left: 12em; }
+						em { font-weight: bold; padding-right: 1em; vertical-align: top; }
+						.help-inline {
+							display: inline-block;
+							vertical-align: top;
+							padding-left: 10px;
+						}
+					</style>
+					<script>
+					$(document).ready(function(){
+						$("#contactForm").validate({
+						errorElement: \'span\',
+						errorClass: \'help-inline\',
+						highlight: function (element, errorClass) {
+							$(element).parent().parent().addClass(\'error\');
+						},
+						unhighlight: function (element, errorClass) {
+							$(element).parent().parent().removeClass(\'error\');
+						}
+						});
+					});
+					</script>';
+			}
+
+			$body .= '</head>
+					<body>';
+
+			// navigation
+			// optional Bootstrap navigation styling
+			if ($this->config->item('bootstrap'))
+			{
+				$body .= '
+				<div class="container">
+				<div class="navbar navbar-inverse navbar-static-top">
+				<div class="navbar-inner">
+				<div class="container">
+					<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+					<i class="icon-reorder"></i> MENU
+					</a>
+					<div class="nav-collapse collapse">
+					<ul class="nav">
+					{navigation}
+					</ul>
+					</div><!--/.nav-collapse -->
+				</div>
+				</div>
+				</div>
+				</div>
+				';
+			}
+			else
+			{
+				$body .= '<div class="menu">
+					<ul>
+					{navigation}
+					</ul>
+				</div>';
+			}
+
+			$body .= '
+				<div class="container">
+				<!--CONTENT-->';
+
+			if ($this->config->item('bootstrap'))
+			{
+				$body .= '<div class="row-fluid"><div class="span12">';
+			}
+			$body .= '
+				{block1}';
+			if ($this->config->item('bootstrap'))
+			{
+				$body .= '</div></div>';
+			}
+
+			$body .= '
+				<!--ENDCONTENT-->
+				</div>';
+
+			// footer
+			$body .= '
+				<footer class="container">
+				<p>&copy;2013 &ndash; {date:year} {site:name} |
+				<a href="{site:url}/admin">CMS Admin</a></p>
+				<p>Site powered by <a href="http://www.halogy.com/" target="_blank">Halogy</a></p>
+				</footer>
+				</body>
+				</html>';
 			$templateID = $this->pages->import_template('default.html', $body);
 		}
 		else

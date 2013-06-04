@@ -29,11 +29,13 @@ $(function(){
 });
 </script>
 
+<div class="headingleft">
 <h1 class="headingleft">Image Folders</h1>
+</div>
 
 <div class="headingright">
-	<a href="<?php echo site_url('/admin/images/viewall'); ?>" class="button blue">View Images</a>
-	<a href="#" class="toggle button blue">Add Folder</a>
+	<a href="<?php echo site_url('/admin/images/viewall'); ?>" class="btn btn-info">View Images <i class="icon-eye-open"></i></a>
+	<a href="#" class="toggle btn btn-info">Add Folder <i class="icon-plus-sign"></i></a>
 </div>
 
 <div class="clear"></div>
@@ -44,7 +46,10 @@ $(function(){
 		<label for="folderName">Folder Name:</label>
 		
 		<?php echo @form_input('folderName',$images_folders['folderName'], 'class="formelement" id="folderName"'); ?>
-			
+<?php
+		// Vizlogix CSRF protection:
+		echo '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+?>
 		<input type="submit" value="Add Folder" id="submit" class="button" />
 
 		<br class="clear" />
@@ -61,20 +66,23 @@ $(function(){
 		<li id="image_folders-<?php echo $folder['folderID']; ?>">
 			<div class="col1">
 				<span><strong><?php echo $folder['folderName']; ?></strong> <small>(<?php echo url_title(strtolower($folder['folderName'])); ?>)</small></span>
-				<?php echo @form_input($folder['folderID'].'[folderName]', $folder['folderName'], 'class="formelement hide" title="folder Name"'); ?><input type="submit" class="button hide" value="Edit" />
+				<?php echo @form_input($folder['folderID'].'[folderName]', $folder['folderName'], 'class="formelement hide" title="folder Name"'); ?><button type="submit" class="btn btn-success hide">Edit <i class="icon-edit"></i></button>
 			</div>
 			<div class="col2">
 				&nbsp;
 			</div>
 			<div class="buttons">
-				<a href="#" class="edit"><img src="<?php echo $this->config->item('staticPath'); ?>/images/btn_edit.png" alt="Edit" /></a>
-				<a href="<?php echo site_url('/admin/images/delete_folder/'.$folder['folderID']); ?>" onclick="return confirm('Are you sure you want to delete this?')"><img src="<?php echo $this->config->item('staticPath'); ?>/images/btn_delete.png" alt="Delete" /></a>
+				<a href="#" class="btn btn-info edit">Edit <i class="icon-edit"></i></a>
+				<a href="<?php echo site_url('/admin/images/delete_folder/'.$folder['folderID']); ?>" onclick="return confirm('Are you sure you want to delete this?')" class="btn btn-danger">Delete <i class="icon-trash"></i></a>
 			</div>
 			<div class="clear"></div>
 		</li>
 	<?php endforeach; ?>
 	</ol>
-
+<?php
+	// Vizlogix CSRF protection:
+	echo '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+?>
 </form>
 
 <?php else: ?>

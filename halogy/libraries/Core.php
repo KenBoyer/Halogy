@@ -1347,6 +1347,7 @@ class Core {
 				$this->CI->db->where($field.'ID', $value);
 				$this->CI->db->update($table, array($field.'Order' => ($key + 1)));
 			}
+			return true;
 		}
 		else
 		{

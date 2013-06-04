@@ -29,11 +29,13 @@ $(function(){
 });
 </script>
 
+<div class="headingleft">
 <h1 class="headingleft">File Folders</h1>
+</div>
 
 <div class="headingright">
-	<a href="<?php echo site_url('/admin/files/viewall'); ?>" class="button blue">View Files</a>
-	<a href="#" class="toggle button blue">Add Folder</a>
+	<a href="<?php echo site_url('/admin/files/viewall'); ?>" class="btn btn-info">View Files <i class="icon-eye-open"></i></a>
+	<a href="#" class="toggle btn btn-info">Add Folder <i class="icon-plus-sign"></i></a>
 </div>
 
 <div class="clear"></div>
@@ -44,7 +46,10 @@ $(function(){
 		<label for="folderName">Folder Name:</label>
 		
 		<?php echo @form_input('folderName',$files_folders['folderName'], 'class="formelement" id="folderName"'); ?>
-			
+<?php
+		// Vizlogix CSRF protection:
+		echo '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+?>
 		<input type="submit" value="Add Folder" id="submit" class="button" />
 
 		<br class="clear" />
@@ -67,14 +72,17 @@ $(function(){
 				&nbsp;
 			</div>
 			<div class="buttons">
-				<a href="#" class="edit"><img src="<?php echo $this->config->item('staticPath'); ?>/images/btn_edit.png" alt="Edit" /></a>
-				<a href="<?php echo site_url('/admin/files/delete_folder/'.$folder['folderID']); ?>" onclick="return confirm('Are you sure you want to delete this?')"><img src="<?php echo $this->config->item('staticPath'); ?>/images/btn_delete.png" alt="Delete" /></a>
+				<a href="#" class="btn btn-info edit">Edit <i class="icon-edit"></i></a>
+				<a href="<?php echo site_url('/admin/files/delete_folder/'.$folder['folderID']); ?>" onclick="return confirm('Are you sure you want to delete this?')" class="btn btn-danger">Delete <i class="icon-trash"></i></a>
 			</div>
 			<div class="clear"></div>
 		</li>
 	<?php endforeach; ?>
 	</ol>
-
+<?php
+	// Vizlogix CSRF protection:
+	echo '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+?>
 </form>
 
 <?php else: ?>
