@@ -220,6 +220,7 @@ class Blog extends MX_Controller {
 							
 							// send email
 							$this->load->library('email');						
+//							$this->email->set_mailtype('html');
 							$this->email->from($this->site->config['siteEmail'], $this->site->config['siteName']);
 							$this->email->to($user['email']);			
 							$this->email->subject('New Blog Comment on '.$this->site->config['siteName']);
@@ -242,7 +243,7 @@ class Blog extends MX_Controller {
 			// set meta description
 			if ($post['excerpt'])
 			{
-				$output['page:description'] = $post['excerpt'];
+				$output['page:description'] = strip_tags($post['excerpt']);
 			}
 
 			// get author details
