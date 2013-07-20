@@ -624,6 +624,11 @@ class Template {
 					$template[$webformID] .= '
 						<input style="display: none;" type="hidden" name="formID" value="'.$this->CI->core->encode($matches[1][0]).'" />
 					';
+
+					// Vizlogix anti-CSRF
+					$template[$webformID] .= '
+						<input style="display: none;" type="hidden" name="'.$this->CI->security->get_csrf_token_name().'" value="'.$this->CI->security->get_csrf_hash().'" />
+					';
 				}
 
 				// set fields
@@ -662,6 +667,8 @@ class Template {
 					$template[$webformID] .= '
 						<input style="display: none;" type="hidden" name="formID" value="'.$this->CI->core->encode($matches[1][0]).'" />
 					';
+
+					// Vizlogix anti-CSRF
 					$template[$webformID] .= '
 						<input style="display: none;" type="hidden" name="'.$this->CI->security->get_csrf_token_name().'" value="'.$this->CI->security->get_csrf_hash().'" />
 					';
@@ -723,12 +730,13 @@ class Template {
 						<input style="display: none;" type="hidden" name="formID" value="'.$this->CI->core->encode($matches[1][0]).'" />
 					';
 
+					// Vizlogix anti-CSRF
 					$template[$webformID] .= '
 						<input style="display: none;" type="hidden" name="'.$this->CI->security->get_csrf_token_name().'" value="'.$this->CI->security->get_csrf_hash().'" />
 					';
 
 					$template[$webformID] .= '
-						<input type="submit" value="Submit" class="btn btn-primary"/>
+						<input type="submit" value="Submit" class="btn"/>
 					';
 					$template[$webformID] .= form_close();
 				}
@@ -737,9 +745,9 @@ class Template {
 				if ($webform['fieldSet'] == 0)
 				{
 					// populate template
-					$template[$webformID] .= '
-						<input type="hidden" name="subject" value="'.$webform['formName'].'" />
-					';
+					// $template[$webformID] .= '
+						// <input type="hidden" name="subject" value="'.$webform['formName'].'" />
+					// ';
 
 					// set required
 					if ($required)
@@ -753,6 +761,11 @@ class Template {
 					$template[$webformID] .= '
 						<input style="display: none;" type="hidden" name="formID" value="'.$this->CI->core->encode($matches[1][0]).'" />
 					';
+
+					// Vizlogix anti-CSRF
+					$template[$webformID] .= '
+						<input style="display: none;" type="hidden" name="'.$this->CI->security->get_csrf_token_name().'" value="'.$this->CI->security->get_csrf_hash().'" />
+					';
 				}
 
 				// set account
@@ -765,11 +778,20 @@ class Template {
 						<input type="hidden" name="groupID" value="'.$webform['groupID'].'" />
 					';
 				}
+
+				if ($webform['fileTypes'])
+				{
+					// enctype="multipart/form-data"
+				}
 			}
 			else
 			{
 				$template[$webformID] = '';
 			}
+
+			// TBD: Set other template elements
+//			$output['select:state'] = @display_states('state', set_value('state', $this->input->post('state')), 'id="state" class="formelement"');
+//			$output['select:country'] = @display_countries('country', set_value('country', $this->input->post('country')), 'id="country" class="formelement"');
 		}
 
 		// get blog headlines
@@ -1022,16 +1044,17 @@ class Template {
 						if ($imageData = $this->get_image($galleryimage['imageRef']))
 						{
 							$imageHTML = display_image($imageData['src'], $imageData['imageName']);
-							$imageHTML = preg_replace('/src=("[^"]*")/i', 'src="'.site_url('/images/'.$imageData['imageRef'].strtolower($imageData['ext'])).'"', $imageHTML);
+							$imageHTML = preg_replace('/src=("[^"]*")/i', 'src="'.site_url('/images/'.$imageData['imageRef'].strtolower($imageData['ext'])).'" class="gallery image-'.$i.'"', $imageHTML);
 
 							console_debug(__FILE__.':'.__FUNCTION__.": imageHTML: ", $imageHTML);
 
 							$thumbHTML = display_image($imageData['src'], $imageData['imageName']);
-							$thumbHTML = preg_replace('/src=("[^"]*")/i', 'src="'.site_url('/thumbs/'.$imageData['imageRef'].strtolower($imageData['ext'])).'" class="gallery"', $imageHTML);
+							$thumbHTML = preg_replace('/src=("[^"]*")/i', 'src="'.site_url('/thumbs/'.$imageData['imageRef'].strtolower($imageData['ext'])).'" class="gallery image-'.$i.'"', $imageHTML);
 
 							console_debug(__FILE__.':'.__FUNCTION__.": thumbHTML: ", $thumbHTML);
 
 							$template[$headlineID][$i] = array(
+								'galleryimage:number' => $i,
 								'galleryimage:link' => site_url('images/'.$imageData['imageRef'].$imageData['ext']),
 								'galleryimage:title' => $imageData['imageName'],
 								'galleryimage:description' => mkdn($imageData['description']),
@@ -1177,6 +1200,16 @@ class Template {
 							'feed:link' => $item['link'],
 						);
 
+						if (isset($item['imageURL']))
+						{
+							$j = 1;
+							foreach ($item['imageURL'] as $imageURL)
+							{
+								$template[$headlineID][$i]['feed:imageURL_'.$j] = $imageURL;
+								$j++;
+							}
+						}
+
 						$i++;
 					}
 				}
@@ -1188,6 +1221,98 @@ class Template {
 						'feed:author' => 'author',
 						'feed:date' => 'pubDate',
 						'feed:link' => 'link',
+						'feed:imageURL' => 'imageURL'
+					);
+				}
+			}
+		}
+
+		// get Picasa Gallery RSS feed (NOTE: this does not validate the URL)
+		if (preg_match_all('/\{picasafeed\:url\(([^)]*)\)\}/i', $body, $matches, PREG_PATTERN_ORDER))
+		{
+			// load RSS library
+			$this->CI->load->library('picasaparser');
+
+			// filter through matches
+			for ($x = 0; $x < sizeof($matches[0]); $x++)
+			{
+				// filter matches
+				$headlineID = preg_replace('/{|}/', '', $matches[0][$x]);
+				$url = $matches[1][$x];
+//				$limit = ($matches[4][$x]) ? $matches[4][$x] : $this->CI->site->config['headlines'];
+				$limit = 20;	// TBD
+
+				// parse feed
+				if ($url)
+				{
+					// Parse the URL to extract the userID and albumID
+					$url_array = parse_url($url);
+
+					// TBD: error checking
+					$path = $url_array['path'];
+					$path = trim($path, '/');			// eliminate leading or trailing slashes
+					$segments = explode('/', $path);
+					$numSegments = count($segments);	// debug?
+					$next_segment = '';
+					$user = 0; $albumid = 0;
+					foreach ($segments as $segment)
+					{
+						// find user and albumid
+						if ($next_segment == "user")
+						{
+							$user = $segment;
+							$next_segment = '';
+						}
+						if ($next_segment == "albumid")
+						{
+							$albumid = $segment;
+							break;
+						}
+
+						if ($segment == "user")
+						{
+							$next_segment = $segment;
+						}
+						if ($segment == "albumid")
+						{
+							$next_segment = $segment;
+						}
+					}
+
+					if ($user)
+					{
+						if (!$albumid)
+						{
+							$albumid = '';	// set it to an acceptable NULL value
+						}
+						$user = strval($user);
+						$albumid = strval($albumid);
+//						echo "user=".$user." albumid=".$albumid;
+
+						$pictures = $this->CI->picasaparser->getPictures($user, $albumid, "160", "400");
+
+						$i = 0;
+						foreach ($pictures AS $item)
+						{
+							$template[$headlineID][$i] = array(
+								'feed:title' => $item['title'],
+	//							'feed:description' => $item['description'],
+	//							'feed:author' => $item['author'],
+								'feed:date' => date("F d, Y", strtotime((string)$item['published'])),
+								'feed:img' => $item['picture'],
+								'feed:thumb' => $item['thumbnail'],
+							);
+							$i++;
+						}
+					}
+				}
+				else
+				{
+					$template[$headlineID][0] = array(
+						'feed:title' => 'TITLE',
+						'feed:date' => 'published',
+						'feed:img' => 'picture',
+						'feed:thumb' => 'thumbnail'
 					);
 				}
 			}
