@@ -145,6 +145,21 @@ class Core {
 				$body[$blockRow['blockRef']] = form_prep($blockRow['body']);
 
 				$mkdnBody[$blockRow['blockRef']] = $this->CI->template->parse_body($blockRow['body']);
+
+				// see if there's a phrase to highlight
+				if ($this->CI->session->userdata('highlight_phrase'))
+				{
+					$highlight_phrase = $this->CI->session->userdata('highlight_phrase');
+
+					// clear the highlight phrase
+//					$this->CI->session->unset_userdata('highlight_phrase');
+
+					// quote the text for regex
+					$phrase = preg_quote($highlight_phrase);
+
+					// highlight the word or phrase while skipping over HTML markup
+					$mkdnBody[$blockRow['blockRef']] = preg_replace("/(".$phrase.")(?![^<>]*>)/i", '<span class="highlight">'.$phrase.'</span>', $mkdnBody[$blockRow['blockRef']]);
+				}
 			}
 		}
 
@@ -619,7 +634,7 @@ class Core {
 		{
 			foreach($_FILES as $name => $file)
 			{
-				$this->CI->uploads->maxSize = '2000';
+				$this->CI->uploads->maxSize = '200000';
 				$this->CI->uploads->allowedTypes = $webform['fileTypes'];
 				
 				// check a file has actually been uploaded
@@ -731,15 +746,30 @@ class Core {
 			$message .= $this->CI->input->post('message', TRUE);
 
 			// set defaults 
-			$fullName = ($this->CI->input->post('fullName')) ? $this->CI->input->post('fullName', TRUE) : 'N/A';
-			$subject = ($this->CI->input->post('subject')) ? $this->CI->input->post('subject', TRUE) : (($webform['formName']) ? $webform['formName'] : 'No Subject');
+
+			// get first and last name
+			if ($this->CI->input->post('firstName', TRUE))
+			{
+				$firstName = $this->CI->input->post('firstName', TRUE);
+				$lastName = $this->CI->input->post('lastName', TRUE);
+				$fullName = $firstName.' '.$lastName;
+			}		
+			elseif ($fullName = $this->CI->input->post('fullName', TRUE))
+			{
+				$fullNameArray = @explode(' ', $fullName);
+				$lastName = (sizeof($fullNameArray) > 0) ? ucfirst(trim(end($fullNameArray))) : '';
+				$firstName = (sizeof($fullNameArray) > 0) ? ucfirst(trim($fullNameArray[0])) : $fullName;
+			}
+			else
+			{
+				$firstName = 'N/A';
+				$lastName = 'N/A';
+				$fullName = $firstName.' '.$lastName;
+			}
+
+			$subject = $webform['formName'].': '.$this->CI->input->post('subject');
 			$outcomeEmails = ($webform['outcomeEmails']) ? explode(',', $webform['outcomeEmails']) : $this->CI->site->config['siteEmail'];
 			
-			// get first name and last name
-			$names = explode(' ', $fullName);
-			$firstName = (sizeof($names) > 1 && $names[0]) ? ucfirst(trim($names[0])) : '';
-			$lastName = (sizeof($names) > 1) ? ucfirst(end($names)) : '';
-					
 			// add ticket
 			$this->CI->db->set('siteID', $this->siteID);
 			$this->CI->db->set('dateCreated', date("Y-m-d H:i:s"));
@@ -809,7 +839,7 @@ class Core {
 			// send to recipient
 			$this->CI->email->to($this->CI->input->post('email', TRUE));
 			$this->CI->email->from($this->CI->site->config['siteEmail'], $this->CI->site->config['siteName']);
-			$this->CI->email->subject('[#'.$ticketID.']: ' . $subject);
+			$this->CI->email->subject($subject.' ['.$this->CI->site->config['siteName'].' Ticket ID: '.$ticketID.']');
 			$this->CI->email->message($body.$footerBody);
 			$this->CI->email->send();
 
@@ -818,7 +848,7 @@ class Core {
 			// send to CC or admin
 			$this->CI->email->to($outcomeEmails);
 			$this->CI->email->from($this->CI->input->post('email', TRUE));
-			$this->CI->email->subject('FW: [#'.$ticketID.']: ' . $this->CI->input->post('subject', TRUE));
+			$this->CI->email->subject($subject.' [Ticket ID: '.$ticketID.']');
 			$this->CI->email->message("A web form was submitted on ".$this->CI->site->config['siteName'].".\n\n---------------------------------------------\n\n".$body.$footerBody);
 			$this->CI->email->send();
 
@@ -1276,8 +1306,18 @@ class Core {
 		// set pagination config
 		$config['total_rows'] = $totalRows;		
 		$config['per_page'] = $limit;
-		$config['full_tag_open'] = '<div class="pagination"><p>';
-		$config['full_tag_close'] = '</p></div>';
+		$config['full_tag_open'] = '<div class="pagination"><ul>';
+		$config['prev_tag_open'] = '<li>';
+		$config['prev_link'] = '&laquo;';
+		$config['prev_tag_close'] = '</li>';
+		$config['cur_tag_open'] = '<li class="active"><a href="#">';
+		$config['cur_tag_close'] = '</a></li>';
+		$config['num_tag_open'] = '<li>';
+		$config['num_tag_close'] = '</li>';
+		$config['next_tag_open'] = '<li>';
+		$config['next_link'] = '&raquo;';
+		$config['next_tag_close'] = '</li>';
+		$config['full_tag_close'] = '</ul></div>';
 		$config['num_links'] = 6;
 		$this->CI->pagination->initialize($config);
 	}	

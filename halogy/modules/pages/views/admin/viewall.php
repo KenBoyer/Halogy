@@ -68,19 +68,19 @@ $(function(){
 				<?php if ($page['active']): ?>
 					<span style="color:green">
 						<?php if ($page['redirect']): ?>
-							<strong>Redirect</strong> (<?php echo $page['redirect']; ?>)
+							<span class="label label-important">Redirect <i class="icon-circle-arrow-right"></i></span> <?php echo $page['redirect']; ?>
 						<?php else: ?>
 							<?php if ($page['active'] && $page['datePublished'] > 0 && ($page['newBlocks'] > 0 || $page['newVersions'] > 0)): ?>
-								<strong>Published (but modified)</strong>
+								<span class="label label-warning">Published but modified</span>
 							<?php else: ?>
-								<strong>Published</strong>
+								<span class="label label-success">Published</span>
 							<?php endif; ?>
-							<?php echo (!$page['navigation']) ? ' (hidden)' : ''; ?>
+							<?php echo (!$page['navigation']) ? ' <span class="label label-inverse">Hidden</span>' : ''; ?>
 						<?php endif; ?>						
 					</span>
 				<?php else: ?>
-					Draft
-					<?php echo (!$page['navigation']) ? ' (hidden)' : ''; ?>
+					<span class="label">Draft</span>
+					<?php echo (!$page['navigation']) ? ' <span class="label label-inverse">Hidden</span>' : ''; ?>
 				<?php endif; ?>
 				<br />
 				<?php if ($page['active'] && (!$page['newBlocks'] && !$page['newVersions'])): ?>
@@ -114,19 +114,19 @@ $(function(){
 							<?php if ($child['active']): ?>
 								<span style="color:green">
 									<?php if ($child['redirect']): ?>
-										<strong>Redirect</strong> (<?php echo $child['redirect']; ?>)
+										<span class="label label-important">Redirect <i class="icon-circle-arrow-right"></i></span> <?php echo $child['redirect']; ?>
 									<?php else: ?>
 									<?php if ($child['active'] && $child['datePublished'] > 0 && ($child['newBlocks'] > 0 || $child['newVersions'] > 0)): ?>
-										<strong>Published (but modified)</strong>
+										<span class="label label-warning">Published but modified</span>
 									<?php else: ?>
-										<strong>Published</strong>
+										<span class="label label-success">Published</span>
 									<?php endif; ?>
-										<?php echo (!$child['navigation']) ? ' (hidden)' : ''; ?>
+										<?php echo (!$child['navigation']) ? ' <span class="label label-inverse">Hidden</span>' : ''; ?>
 									<?php endif; ?>						
 								</span>
 							<?php else: ?>
-								Draft
-								<?php echo (!$child['navigation']) ? ' (hidden)' : ''; ?>
+								<span class="label">Draft</span>
+								<?php echo (!$child['navigation']) ? ' <span class="label label-inverse">Hidden</span>' : ''; ?>
 							<?php endif; ?>
 							<br />
 							<?php if ($child['active'] && (!$child['newBlocks'] && !$child['newVersions'])): ?>
@@ -160,19 +160,19 @@ $(function(){
 										<?php if ($subchild['active']): ?>
 											<span style="color:green">
 												<?php if ($subchild['redirect']): ?>
-													<strong>Redirect</strong> (<?php echo $subchild['redirect']; ?>)
+													<span class="label label-important">Redirect <i class="icon-circle-arrow-right"></i></span> <?php echo $subchild['redirect']; ?>
 												<?php else: ?>
 												<?php if ($subchild['active'] && $subchild['datePublished'] > 0 && ($subchild['newBlocks'] > 0 || $subchild['newVersions'] > 0)): ?>
-													<strong>Published (but modified)</strong>
+													<span class="label label-warning">Published but modified</span>
 												<?php else: ?>
-													<strong>Published</strong>
+													<span class="label label-success">Published</span>
 												<?php endif; ?>
-													<?php echo (!$subchild['navigation']) ? ' (hidden)' : ''; ?>
+													<?php echo (!$subchild['navigation']) ? ' <span class="label label-inverse">Hidden</span>' : ''; ?>
 												<?php endif; ?>						
 											</span>
 										<?php else: ?>
-											Draft
-											<?php echo (!$subchild['navigation']) ? ' (hidden)' : ''; ?>
+											<span class="label">Draft</span>
+											<?php echo (!$subchild['navigation']) ? ' <span class="label label-inverse">Hidden</span>' : ''; ?>
 										<?php endif; ?>
 										<br />
 										<?php if ($subchild['active'] && (!$subchild['newBlocks'] && !$subchild['newVersions'])): ?>
@@ -206,19 +206,19 @@ $(function(){
 													<?php if ($subsubchild['active']): ?>
 														<span style="color:green">
 															<?php if ($subsubchild['redirect']): ?>
-																<strong>Redirect</strong> (<?php echo $subsubchild['redirect']; ?>)
+																<span class="label label-important">Redirect <i class="icon-circle-arrow-right"></i></span> <?php echo $subsubchild['redirect']; ?>
 															<?php else: ?>
 															<?php if ($subsubchild['active'] && $subsubchild['datePublished'] > 0 && ($subsubchild['newBlocks'] > 0 || $subsubchild['newVersions'] > 0)): ?>
-																<strong>Published (but modified)</strong>
+																<span class="label label-warning">Published but modified</span>
 															<?php else: ?>
-																<strong>Published</strong>
+																<span class="label label-success">Published</span>
 															<?php endif; ?>
-																<?php echo (!$subsubchild['navigation']) ? ' (hidden)' : ''; ?>
+																<?php echo (!$subsubchild['navigation']) ? ' <span class="label label-inverse">Hidden</span>' : ''; ?>
 															<?php endif; ?>						
 														</span>
 													<?php else: ?>
-														Draft
-														<?php echo (!$subsubchild['navigation']) ? ' (hidden)' : ''; ?>
+														<span class="label">Draft</span>
+														<?php echo (!$subsubchild['navigation']) ? ' <span class="label label-inverse">Hidden</span>' : ''; ?>
 													<?php endif; ?>
 													<br />
 													<?php if ($subsubchild['active'] && (!$subsubchild['newBlocks'] && !$subsubchild['newVersions'])): ?>

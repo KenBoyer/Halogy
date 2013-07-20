@@ -7,5 +7,6 @@ $route['css/(:any)'] = 'pages/files/css/$1';
 $route['js/(:any)'] = 'pages/files/js/$1';
 $route['files/(:any)'] = 'pages/files/files/$1';
 $route['thumbs/(:any)'] = 'pages/files/thumbs/$1';
+$route['pages/search'] = 'pages/search';
 
 ?>

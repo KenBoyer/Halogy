@@ -83,10 +83,16 @@ class RSSParser {
 		// Parse the document
 		if (!isset($rawFeed))
 		{
-			$rawFeed = file_get_contents($this->feed_uri);
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, $this->feed_uri);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			$rawFeed = curl_exec($ch);
+			curl_close($ch);
+//			$rawFeed = file_get_contents($this->feed_uri);
 		}
 
 		$xml = new SimpleXmlElement($rawFeed);
+		$namespaces = $xml->getNamespaces(true);
 
 		if ($xml->channel)
 		{
@@ -100,8 +106,27 @@ class RSSParser {
 				$data = array();
 				$data['title'] = (string)$item->title;
 				$data['description'] = (string)$item->description;
-				$data['pubDate'] = (string)$item->pubDate;
+
+				// date("F d, Y", strtotime($input))
+				$data['pubDate'] = date("F d, Y", strtotime((string)$item->pubDate));
 				$data['link'] = (string)$item->link;
+
+				$data['imageURL'] = array();
+				if (isset($namespaces['media']))
+				{
+					// get a thumbnail image to use in the blog feed
+					foreach ($item->children($namespaces['media']) as $media)
+					{
+	//					print_r($media->attributes());
+						$mediaAttr = $media->attributes();
+						$data['imageURL'][] = $mediaAttr['url'];
+					}
+				}
+				else
+				{
+					$data['imageURL'][0] = "";
+				}
+
 				$dc = $item->children('http://purl.org/dc/elements/1.1/');
 				$data['author'] = (string)$dc->creator;
 				
@@ -126,11 +151,11 @@ class RSSParser {
 				$data['id'] = (string)$item->id;
 				$data['title'] = (string)$item->title;
 				$data['description'] = (string)$item->content;
-				$data['pubDate'] = (string)$item->published;
+				$data['pubDate'] = (string)date("F d, Y", strtotime((string)$item->published));
 				$data['link'] = (string)$item->link['href'];
 				$dc = $item->children('http://purl.org/dc/elements/1.1/');
 				$data['author'] = (string)$dc->creator;
-				
+
 				if ($this->callback)
 				{
 					$data = call_user_func($this->callback, $data, $item);

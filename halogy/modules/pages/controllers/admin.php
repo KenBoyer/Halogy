@@ -1155,13 +1155,14 @@ class Admin extends MX_Controller {
 		}
 		else
 		{
-			redirect('/');
+			redirect(site_url('/admin/pages/viewall'));
+//			redirect('/');
 		}
 	}
 
 	function module($modulePath = '')
 	{
-		if ($modulePath)
+		if ($modulePath = $this->input->post('modulePath'))
 		{
 			$file = '';
 
