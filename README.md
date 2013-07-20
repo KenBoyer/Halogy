@@ -1,4 +1,4 @@
-VROOM CMS 1.0 INSTALLATION GUIDE
+VROOM CMS INSTALLATION GUIDE
 ================================
 
 Thank you for downloading VROOM CMS. VROOM CMS is... the Vizlogix Responsive bOOtstrap Multisite Content Management System. VROOM is based on the solid [Halogy CMS](http://www.halogy.com), extended by Vizlogix to (optionally) utilize the Twitter Bootstrap responsive framework on the front-end code as well as in the administration dashboard. This guide provides the basic steps needed in order to get VROOM CMS running on your server.
