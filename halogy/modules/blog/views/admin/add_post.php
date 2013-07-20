@@ -5,6 +5,8 @@ function preview(el){
 	});
 }
 $(function(){
+	$('.helpbutton').popover({placement: 'right', html: 'true'});
+
 	$('div.category>span, div.category>input').hover(
 		function() {
 			if (!$(this).prev('input').attr('checked') && !$(this).attr('checked')){
@@ -97,19 +99,9 @@ $(function(){
 	<a href="#" class="btn urlbutton"><i class="icon-link" title="Insert URL Link"></i></a>
 	<a href="<?php echo site_url('/admin/images/browser'); ?>" class="btn halogycms_imagebutton" title="Insert Image"><i class="icon-picture"></i></a>
 	<a href="<?php echo site_url('/admin/files/browser'); ?>" class="btn halogycms_filebutton" title="Insert File"><i class="icon-file-alt"></i></a>
+	<a href="javascript:void(0)" class="btn helpbutton" data-toggle="popover" data-original-title="Formatting Help" data-content="<p>Select desired text, then click button to format or insert.</p><p>Additional formatting options:</p><ul><li>+ before list elements</li><li>> before block quotes</li><li>4 space indentation to format code listings</li><li>3 hyphens on a line by themselves to make a horizontal rule</li><li>` (backtick quote) to span code within text</li></ul>"><i class="icon-question-sign" title="Formatting Help"></i></a>
 	<a href="#" class="btn previewbutton" title="Update Preview"><i class="icon-eye-open"></i></a>
 </div>
-<span class="tip">
-<p>Select desired text, then click button to format or insert.</p>
-<p>Additional formatting options:</p>
-<ul>
-<li>+ before list elements</li>
-<li>> before block quotes</li>
-<li>4 space indentation to format code listings</li>
-<li>3 hyphens on a line by themselves to make a horizontal rule</li>
-<li>` (backtick quote) to span code within text</li>
-</ul>
-</span>
 <br class="clear" /><br />
 
 <div class="autosave">
