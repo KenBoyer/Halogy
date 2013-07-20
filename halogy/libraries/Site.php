@@ -269,7 +269,7 @@ class Site {
 		// shop defaults
 		if (!$this->config['shopVariation1'])
 		{
-			$this->config['shopVariation1'] = 'Colour';
+			$this->config['shopVariation1'] = 'Color';
 		}
 		if (!$this->config['shopVariation2'])
 		{
@@ -291,11 +291,11 @@ class Site {
 		}
 		if (!$this->config['emailTicket'])
 		{
-			$this->config['emailTicket'] = "Thank you for contacting us, a new ticket has been created. This is an automated response confirming the receipt of your message. We will attend to your enquiry soon as possible. The details of your enquiry are below for your records. When replying, please keep the ticket ID in the subject to ensure that your replies are dealt with correctly.";
+			$this->config['emailTicket'] = "Thank you for contacting us; a new ticket has been created. This is an automated response confirming the receipt of your message. We will respond to your inquiry soon as possible. The details of your inquiry are included below for your records. When replying, please keep the ticket ID in the subject to ensure that your replies are dealt with correctly.";
 		}
 		if (!$this->config['emailOrder'])
 		{
-			$this->config['emailOrder'] = "This is a confirmation to say that your order on ".$this->config['siteName']." has been placed and is currently being processed. We will email you again once your order has been shipped.\n\nIf you have any queries about your order, please do not hesitate to contact us at ".$this->config['siteEmail']." quoting your unique order reference number. Thank you for your custom.";
+			$this->config['emailOrder'] = "This is a confirmation email stating that your order on ".$this->config['siteName']." has been placed and is currently being processed. We will email you again once your order has been shipped.\n\nIf you have any questions about your order, please do not hesitate to contact us at ".$this->config['siteEmail']." quoting your unique order reference number. Thank you for your business.";
 		}
 		if (!$this->config['emailAccount'])
 		{
@@ -307,11 +307,11 @@ class Site {
 		}
 		if (!$this->config['emailSubscription'])
 		{
-			$this->config['emailSubscription'] = "This is a confirmation to say that your subscription has been created on ".$this->config['siteName'].". You can update your subscription and view invoices by logging in to your account. Please note that your subscription will renew at the intervals stated on the website unless you cancel the subscription prior to the renewal date. See our website for more information. To login to your account please click on the URL below:\n\n".site_url('/shop/account')."\n\nYour subscription details are below, thank you for your custom.";
+			$this->config['emailSubscription'] = "This is a confirmation to say that your subscription has been created on ".$this->config['siteName'].". You can update your subscription and view invoices by logging in to your account. Please note that your subscription will renew at the intervals stated on the website unless you cancel the subscription prior to the renewal date. See our website for more information. To login to your account, please click on the URL below:\n\n".site_url('/shop/account')."\n\nYour subscription details are below. Thank you for your business.";
 		}
 		if (!$this->config['emailDispatch'])
 		{
-			$this->config['emailDispatch'] = "This is a notification to say that your order {order-id} on ".$this->config['siteName']." has been shipped.\n\nYou can track your order and view past orders by clicking on the link below.\n\n".site_url('/shop/orders')."\n\nIf you have any other queries about your order, please do not hesitate to contact us at ".$this->config['siteEmail']." quoting your unique order reference number.";
+			$this->config['emailDispatch'] = "This is a notification to say that your order {order-id} on ".$this->config['siteName']." has been shipped.\n\nYou can track your order and view past orders by clicking on the link below.\n\n".site_url('/shop/orders')."\n\nIf you have any other questions about your order, please do not hesitate to contact us at ".$this->config['siteEmail']." including your unique order reference number.";
 		}
 
 
