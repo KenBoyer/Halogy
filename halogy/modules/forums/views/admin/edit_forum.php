@@ -18,11 +18,11 @@
 	<?php endif; ?>
 
 	<label for="forumName">Forum Name:</label>
-	<?php echo @form_input('forumName', set_value('forumName', $data['forumName']), 'id="forumName" class="formelement"'); ?>
+	<?php echo @form_input('forumName', set_value('forumName', $data['forumName']), 'id="forumName" class="form-control"'); ?>
 	<br class="clear" />
 
 	<label for="description">Description:</label>
-	<?php echo @form_input('description', set_value('description', $data['description']), 'id="description" class="formelement"'); ?>
+	<?php echo @form_input('description', set_value('description', $data['description']), 'id="description" class="form-control"'); ?>
 	<br class="clear" />
 
 	<label for="category">Category: <small>[<a href="<?php echo site_url('/admin/forums/categories'); ?>" onclick="return confirm('You will lose any unsaved changes.\n\nContinue anyway?')">update</a>]</small></label>
@@ -32,7 +32,7 @@
 			$options[$category['catID']] = $category['catName'];
 		endforeach;
 		
-		echo @form_dropdown('catID',$options,set_value('catID', $data['catID']),'id="category" class="formelement"');
+		echo @form_dropdown('catID',$options,set_value('catID', $data['catID']),'id="category" class="form-control"');
 	endif;
 	?>	
 	<br class="clear" />	
@@ -50,7 +50,7 @@
 				$values[$group['groupID']] = $group['groupName'];
 			}
 		}					
-		echo @form_dropdown('groupID',$values,$data['groupID'], 'id="groupID" class="formelement"'); 
+		echo @form_dropdown('groupID',$values,$data['groupID'], 'id="groupID" class="form-control"'); 
 	?>
 	<span class="tip">Who has access to this forum?</span>
 	<br class="clear" />
@@ -60,7 +60,7 @@
 		$options = array();
 		$options[1] = 'Yes';
 		$options[0] = 'No';		
-		echo @form_dropdown('active',$options,set_value('active', $data['active']),'id="active" class="formelement"');
+		echo @form_dropdown('active',$options,set_value('active', $data['active']),'id="active" class="form-control"');
 
 	?>
 	<br class="clear" /><br />

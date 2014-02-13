@@ -1,3 +1,4 @@
+<!-- <script type="text/javascript" src="<?php echo $this->config->item('staticPath'); ?>/js/tinymce/tinymce.min.js"></script> -->
 <script type="text/javascript">
 function preview(el){
 	$.post('<?php echo site_url('/admin/shop/preview'); ?>', { body: $(el).val() }, function(data){
@@ -7,6 +8,16 @@ function preview(el){
 
 $(function(){
 	$('.helpbutton').popover({placement: 'right', html: 'true'});
+
+	// tinymce.init({
+		// selector: "textarea#body",
+		// plugins: [
+			// "advlist autolink lists link image charmap print preview anchor",
+			// "searchreplace visualblocks code fullscreen",
+			// "insertdatetime media table contextmenu paste moxiemanager"
+		// ],
+		// toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image"
+	// });
 
 	$('input.datebox').datepicker({
 	dateFormat: 'd M yy'
@@ -46,7 +57,7 @@ $(function(){
 	<div style="width: 40%; float: left;">
 
 	<label for="catName">Title:</label>
-	<?php echo @form_input('catName', $data['catName'], 'class="formelement" id="catName"'); ?>
+	<?php echo @form_input('catName', $data['catName'], 'class="form-control" id="catName"'); ?>
 	<br class="clear" />
 		
 	<label for="templateID">Parent:</label>
@@ -59,7 +70,7 @@ $(function(){
 			endforeach;
 		endif;
 		
-		echo @form_dropdown('parentID',$options,$data['parentID'],'id="parentID" class="formelement"');
+		echo @form_dropdown('parentID',$options,$data['parentID'],'id="parentID" class="form-control"');
 	?>	
 	<br class="clear" />
 
@@ -78,15 +89,15 @@ $(function(){
 	</div>
 
 	<label for="description">Description:</label>
-	<?php echo @form_textarea('description',set_value('description', $data['description']), 'id="body" class="formelement code"'); ?>
+	<?php echo @form_textarea('description',set_value('description', $data['description']), 'id="body" class="form-control code"'); ?>
 	<br class="clear" />
 
 	<label for="catStart">Start Date:</label>
-	<?php echo @form_input('catStart', (($data['catStart'] > 0) ? date('d M Y', strtotime($data['catStart'])) : ''), 'id="catStart" class="formelement datebox" readonly="readonly"'); ?>
+	<?php echo @form_input('catStart', (($data['catStart'] > 0) ? date('d M Y', strtotime($data['catStart'])) : ''), 'id="catStart" class="form-control datebox" readonly="readonly"'); ?>
 	<br class="clear" />
 
 	<label for="catStop">Stop Date:</label>
-	<?php echo @form_input('catStop', (($data['catStop'] > 0) ? date('d M Y', strtotime($data['catStop'])) : ''), 'id="catStop" class="formelement datebox" readonly="readonly"'); ?>
+	<?php echo @form_input('catStop', (($data['catStop'] > 0) ? date('d M Y', strtotime($data['catStop'])) : ''), 'id="catStop" class="form-control datebox" readonly="readonly"'); ?>
 	<br class="clear" />
 
 <?php

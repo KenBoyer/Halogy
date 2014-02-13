@@ -107,22 +107,26 @@ class Shop extends MX_Controller {
 		$this->partials['rowpad:featured'] = '';
 		for ($x = 0; $x < ($this->shop->siteVars['shopItemsPerRow'] - sizeof($products)); $x++)
 		{
-			$this->partials['rowpad:featured'] .= '<td width="'.floor((1 / $this->shop->siteVars['shopItemsPerRow']) * 100).'%">&nbsp;</td>';
+//			$this->partials['rowpad:featured'] .= '<td width="'.floor((1 / $this->shop->siteVars['shopItemsPerRow']) * 100).'%">&nbsp;</td>';
+			$this->partials['rowpad:featured'] .= '<div class="span'.floor((12 / $this->shop->siteVars['shopItemsPerRow'])).'">&nbsp;</div>';
 		}
 		$this->partials['rowpad:latest'] = '';
 		for ($x = 0; $x < ($this->shop->siteVars['shopItemsPerRow'] - sizeof($latestProducts)); $x++)
 		{
-			$this->partials['rowpad:latest'] .= '<td width="'.floor((1 / $this->shop->siteVars['shopItemsPerRow']) * 100).'%">&nbsp;</td>';
+//			$this->partials['rowpad:latest'] .= '<td width="'.floor((1 / $this->shop->siteVars['shopItemsPerRow']) * 100).'%">&nbsp;</td>';
+			$this->partials['rowpad:latest'] .= '<div class="span'.floor((12 / $this->shop->siteVars['shopItemsPerRow'])).'">&nbsp;</div>';
 		}
 		$this->partials['rowpad:popular'] = '';
 		for ($x = 0; $x < ($this->shop->siteVars['shopItemsPerRow'] - sizeof($popularProducts)); $x++)
 		{
-			$this->partials['rowpad:popular'] .= '<td width="'.floor((1 / $this->shop->siteVars['shopItemsPerRow']) * 100).'%">&nbsp;</td>';
+//			$this->partials['rowpad:popular'] .= '<td width="'.floor((1 / $this->shop->siteVars['shopItemsPerRow']) * 100).'%">&nbsp;</td>';
+			$this->partials['rowpad:popular'] .= '<div class="span'.floor((12 / $this->shop->siteVars['shopItemsPerRow'])).'">&nbsp;</div>';
 		}
 		$this->partials['rowpad:mostviewed'] = '';
 		for ($x = 0; $x < ($this->shop->siteVars['shopItemsPerRow'] - sizeof($mostViewedProducts)); $x++)
 		{
-			$this->partials['rowpad:mostviewed'] .= '<td width="'.floor((1 / $this->shop->siteVars['shopItemsPerRow']) * 100).'%">&nbsp;</td>';
+//			$this->partials['rowpad:mostviewed'] .= '<td width="'.floor((1 / $this->shop->siteVars['shopItemsPerRow']) * 100).'%">&nbsp;</td>';
+			$this->partials['rowpad:mostviewed'] .= '<div class="span'.floor((12 / $this->shop->siteVars['shopItemsPerRow'])).'">&nbsp;</div>';
 		}
 	}
 
@@ -186,7 +190,8 @@ class Shop extends MX_Controller {
 			$output['rowpad'] = '';
 			for ($x = 0; $x < ($this->shop->siteVars['shopItemsPerRow'] - sizeof($products)); $x++)
 			{
-				$output['rowpad'] .= '<td width="'.floor((1 / $this->shop->siteVars['shopItemsPerRow']) * 100).'%">&nbsp;</td>';
+//				$output['rowpad'] .= '<td width="'.floor((1 / $this->shop->siteVars['shopItemsPerRow']) * 100).'%">&nbsp;</td>';
+				$output['rowpad'] .= '<div class="span'.floor((12 / $this->shop->siteVars['shopItemsPerRow'])).'">&nbsp;</div>';
 			}
 			$output['shop:paging'] = $limit;
 			$output['shop:total-products'] = ($products) ? $this->pagination->total_rows : 0;
@@ -412,6 +417,9 @@ class Shop extends MX_Controller {
 		// populate template
 		$output['product:id'] = $product['productID'];
 		$output['product:link'] = site_url('/shop/'.$product['productID'].'/'.strtolower(url_title($product['productName'])));
+		$output['product:edit'] = ($this->session->userdata('userID')) ? anchor('/admin/shop/edit_product/'.$product['productID'], '<i class="icon-edit"></i> Edit Product', 'class="btn btn-mini"') : '';
+		$output['product:ref'] = strtolower(url_title($product['productName']));
+
 		$output['product:title'] = $product['productName'];
 		// if the subtitle field contains a valid URL, then create an "extlink" field instead of a "subtitle" field:
 		if (filter_var($product['subtitle'], FILTER_VALIDATE_URL))
@@ -427,6 +435,50 @@ class Shop extends MX_Controller {
 		$output['product:excerpt'] = $this->template->parse_body($product['excerpt']);
 		$output['product:stock'] = $product['stock'];
 		$output['product:category'] = (isset($category) && $category) ? $category['catName'] : '';
+
+		// load image library
+		$this->load->model('images/images_model', 'images');
+		$limit = 9; // TBD: base this on a config setting?
+
+		// get a gallery of photos in a folder named like the product
+		if ($gallery = $this->images->get_images_by_folder_ref(strtolower(url_title($product['productName'])), $limit))
+		{
+			// fill up template array
+			$i = 0;
+			foreach ($gallery as $galleryimage)
+			{
+				if ($imageData = $this->template->get_image($galleryimage['imageRef']))
+				{
+					$imageHTML = display_image($imageData['src'], $imageData['imageName']);
+					$imageHTML = preg_replace('/src=("[^"]*")/i', 'src="'.site_url('/images/'.$imageData['imageRef'].strtolower($imageData['ext'])).'" class="gallery image-'.$i.'"', $imageHTML);
+
+					console_debug(__FILE__.':'.__FUNCTION__.": imageHTML: ", $imageHTML);
+
+					$thumbHTML = display_image($imageData['src'], $imageData['imageName']);
+					$thumbHTML = preg_replace('/src=("[^"]*")/i', 'src="'.site_url('/thumbs/'.$imageData['imageRef'].strtolower($imageData['ext'])).'" class="gallery image-'.$i.'"', $imageHTML);
+
+					console_debug(__FILE__.':'.__FUNCTION__.": thumbHTML: ", $thumbHTML);
+
+					$output['gallery'][$i]['galleryimage:number'] = $i;
+					$output['gallery'][$i]['galleryimage:link'] = site_url('images/'.$imageData['imageRef'].$imageData['ext']);
+					$output['gallery'][$i]['galleryimage:title'] = $imageData['imageName'];
+					$output['gallery'][$i]['galleryimage:description'] = mkdn($imageData['description']);
+					$output['gallery'][$i]['galleryimage:image'] = $imageHTML;
+					$output['gallery'][$i]['galleryimage:thumb'] = $thumbHTML;
+					$output['gallery'][$i]['galleryimage:filename'] = $imageData['imageRef'].$imageData['ext'];
+					$output['gallery'][$i]['galleryimage:date'] = dateFmt($imageData['dateCreated'], ($this->site->config['dateOrder'] == 'MD') ? 'M jS Y' : 'jS M Y');
+					$output['gallery'][$i]['galleryimage:author'] = $this->images->lookup_user($imageData['userID'], TRUE);
+					$output['gallery'][$i]['galleryimage:author-id'] = $imageData['userID'];
+					$output['gallery'][$i]['galleryimage:class'] = $imageData['class'];
+
+					$i++;
+				}
+			}
+		}
+		else
+		{
+			$output['gallery'] = array();
+		}
 
 		// get tags
 		if ($product['tags'])
@@ -446,6 +498,31 @@ class Shop extends MX_Controller {
 		$output['form:name'] = set_value('fullName', $this->session->userdata('firstName').' '.$this->session->userdata('lastName'));
 		$output['form:email'] = set_value('email', $this->session->userdata('email'));
 		$output['form:review'] = $this->input->post('review');
+
+		$uploaded_images = '';
+		$uploads = $this->session->userdata('uploads');
+		if ($uploads)
+		{
+			$i = 0;
+			foreach ($uploads as $name => $upload)
+			{
+				$output['uploads'][$i]['upload:image'] = '<img src="'.site_url($this->uploads->uploadsPath.'/'.$upload['filename']).'" id="'.$upload['uploadName'].'" alt="'.$upload['uploadName'].'" id="upload" />';
+
+				// TBD: Fill in the results of the image quality assessment, if applicable
+				$image_quality = $upload['quality'];
+				// TBD: conversion
+				$output['upload:maxheight'] = 14;
+				$output['upload:maxwidth'] = 20;
+				$i++;
+			}
+			$output['uploads:count'] = $i;
+		}
+		else
+		{
+			// defaults?
+			$output['upload:maxheight'] = 14;
+			$output['upload:maxwidth'] = 20;
+		}
 
 		// Vizlogix CSRF protection:
 		$output['form:csrf'] = '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
@@ -505,7 +582,12 @@ class Shop extends MX_Controller {
 		}
 
 		// load partials
+		// TBD: The following will be deprecated in favor of 3+ options:
 		$output['product:variations'] = @$this->parser->parse('partials/variations', $data, TRUE);
+		$output['product:variations_select'] = @$this->parser->parse('partials/variations_select', $data, TRUE);
+		$output['product:variations_radio'] = @$this->parser->parse('partials/variations_radio', $data, TRUE);
+		// TBD: Bootstrap "radio buttons" partial:
+//		$output['product:variations_radio_buttons'] = @$this->parser->parse('partials/variations_radio_buttons', $data, TRUE);
 
 		// output product ID for CMS button
 		$output['productID'] = $productID;
@@ -1033,12 +1115,14 @@ class Shop extends MX_Controller {
 			'confirmPassword' => array('label' => 'Confirm Password', 'rules' => 'required'),
 			'firstName' => array('label' => 'First name', 'rules' => 'required|trim|ucfirst'),
 			'lastName' => array('label' => 'Last name', 'rules' => 'required|trim|ucfirst'),
-			'address1' => array('label' => 'Address1', 'rules' => 'required|trim|ucfirst'),
+
+			// TBD: There needs to be a configuration of what fields need to be present for initial account creation
+/*			'address1' => array('label' => 'Address1', 'rules' => 'required|trim|ucfirst'),
 			'address2' => array('label' => 'Address2', 'rules' => 'trim|ucfirst'),
 			'address3' => array('label' => 'Town', 'rules' => 'trim|ucfirst'),
 			'city' => array('label' => 'City / State', 'rules' => 'required|trim|ucfirst'),
 			'postcode' => array('label' => 'ZIP/Postcode', 'rules' => 'required|trim|strtoupper'),
-			'phone' => array('label' => 'Phone', 'rules' => 'required|trim')
+			'phone' => array('label' => 'Phone', 'rules' => 'required|trim') */
 		);
 
 		// security check
@@ -1129,16 +1213,16 @@ class Shop extends MX_Controller {
 		$output['form:address2'] = set_value('address2', $this->input->post('address2'));
 		$output['form:address3'] = set_value('address3', $this->input->post('address3'));
 		$output['form:city'] = set_value('city', $this->input->post('city'));
-		$output['select:state'] = @display_states('state', set_value('state', $this->input->post('state')), 'id="state" class="formelement"');
+		$output['select:state'] = @display_states('state', set_value('state', $this->input->post('state')), 'id="state" class="form-control"');
 		$output['form:postcode'] = set_value('postcode', $this->input->post('postcode'));
-		$output['select:country'] = @display_countries('country', (($this->input->post('country')) ? $this->input->post('country') : $this->site->config['siteCountry']), 'id="country" class="formelement"');
+		$output['select:country'] = @display_countries('country', (($this->input->post('country')) ? $this->input->post('country') : $this->site->config['siteCountry']), 'id="country" class="form-control"');
 		$output['form:billingAddress1'] = set_value('billingAddress1', $this->input->post('billingAddress1'));
 		$output['form:billingAddress2'] = set_value('billingAddress2', $this->input->post('billingAddress2'));
 		$output['form:billingAddress3'] = set_value('billingAddress3', $this->input->post('billingAddress3'));
 		$output['form:billingCity'] = set_value('billingCity', $this->input->post('billingCity'));
-		$output['select:billingState'] = @display_states('billingState', $data['billingState'], 'id="billingState" class="formelement"');
+		$output['select:billingState'] = @display_states('billingState', $data['billingState'], 'id="billingState" class="form-control"');
 		$output['form:billingPostcode'] = set_value('billingPostcode', $this->input->post('billingPostcode'));
-		$output['select:billingCountry'] = @display_countries('billingCountry', (($this->input->post('billingCountry')) ? $this->input->post('billingCountry') : $this->site->config['siteCountry']), 'id="billingCountry" class="formelement"');
+		$output['select:billingCountry'] = @display_countries('billingCountry', (($this->input->post('billingCountry')) ? $this->input->post('billingCountry') : $this->site->config['siteCountry']), 'id="billingCountry" class="form-control"');
 
 		// Vizlogix CSRF protection:
 		$output['form:csrf'] = '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
@@ -1225,16 +1309,16 @@ class Shop extends MX_Controller {
 		$output['form:address2'] = set_value('address2', $data['address2']);
 		$output['form:address3'] = set_value('address3', $data['address3']);
 		$output['form:city'] = set_value('city', $data['city']);
-		$output['select:state'] = @display_states('state',$data['state'], 'id="state" class="formelement"');
+		$output['select:state'] = @display_states('state',$data['state'], 'id="state" class="form-control"');
 		$output['form:postcode'] = set_value('postcode', $data['postcode']);
-		$output['select:country'] = @display_countries('country', set_value('country', $data['country']), 'id="country" class="formelement"');
+		$output['select:country'] = @display_countries('country', set_value('country', $data['country']), 'id="country" class="form-control"');
 		$output['form:billingAddress1'] = set_value('billingAddress1', $data['billingAddress1']);
 		$output['form:billingAddress2'] = set_value('billingAddress2', $data['billingAddress2']);
 		$output['form:billingAddress3'] = set_value('billingAddress3', $data['billingAddress3']);
 		$output['form:billingCity'] = set_value('billingCity', $data['billingCity']);
-		$output['select:billingState'] = @display_states('billingState', $data['billingState'], 'id="billingState" class="formelement"');
+		$output['select:billingState'] = @display_states('billingState', $data['billingState'], 'id="billingState" class="form-control"');
 		$output['form:billingPostcode'] = set_value('billingPostcode', $data['billingPostcode']);
-		$output['select:billingCountry'] = @display_countries('billingCountry', set_value('billingCountry', $data['billingCountry']), 'id="billingCountry" class="formelement"');
+		$output['select:billingCountry'] = @display_countries('billingCountry', set_value('billingCountry', $data['billingCountry']), 'id="billingCountry" class="form-control"');
 
 		// Vizlogix CSRF protection:
 		$output['form:csrf'] = '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
@@ -1384,6 +1468,7 @@ class Shop extends MX_Controller {
 		$output['order:address2'] = ($order['address2']) ? $order['address2'] : '';
 		$output['order:address3'] = ($order['address3']) ? $order['address3'] : '';
 		$output['order:city'] = ($order['city']) ? $order['city'] : '';
+		$output['order:state'] = ($order['state']) ? $order['state'] : '';
 		$output['order:country'] = ($order['country']) ? lookup_country($order['country']) : '';
 		$output['order:postcode'] = ($order['postcode']) ? $order['postcode'] : '';
 		$output['order:phone'] = ($order['phone']) ? $order['phone'] : 'N/A';
@@ -1458,6 +1543,9 @@ class Shop extends MX_Controller {
 		// set page title
 		$output['page:title'] = 'Login to Shop'.(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
 
+		// Vizlogix CSRF protection:
+		$output['form:csrf'] = '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+
 		// display with cms layer
 		if (!$this->input->post('email'))
 		{
@@ -1522,6 +1610,9 @@ class Shop extends MX_Controller {
 		// set title
 		$output['page:title'] = 'Forgotten Password'.(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
 		$output['page:heading'] = 'Forgotten Password';
+
+		// Vizlogix CSRF protection:
+		$output['form:csrf'] = '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
 
 		// display with cms layer
 		$this->pages->view('shop_forgotten', $output, 'shop');
@@ -1600,6 +1691,9 @@ class Shop extends MX_Controller {
 		// set title
 		$output['page:title'] = 'Reset Password'.(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
 		$output['page:heading'] = 'Reset Password';
+
+		// Vizlogix CSRF protection:
+		$output['form:csrf'] = '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
 
 		// display with cms layer
 		$this->pages->view('shop_reset', $output, 'shop');
@@ -2009,6 +2103,276 @@ class Shop extends MX_Controller {
 		}
 	}
 
+	// this function is currently for image upload, but we may want to expand it to handle uploads
+	// of other media (e.g., audio, text, etc.)
+	function upload($productID = '', $files = '')
+	{
+		// get partials
+		$output = $this->partials;
+
+		// ensure that user is logged in; if not, send them away from this controller
+		if (!$this->session->userdata('session_user'))
+		{
+			redirect('/shop/login/'.$this->core->encode($this->uri->uri_string()));
+		}
+
+		// display email in the form, if it's been entered
+		$output['form:email'] = set_value('email', $this->session->userdata('email'));
+
+		// make sure it's a valid product
+		if ($productID)
+		{
+			if (!$product = $this->shop->get_product($productID))
+			{
+				show_error('Not a valid product!');
+			}
+		}
+
+		// required
+		$this->core->required = array(
+			'email' => array('label' => 'Email', 'rules' => 'required|valid_email')
+		);
+
+		// look for files
+		$files = FALSE;
+		if (count($_FILES))
+		{
+			// TBD: We should limit the number of uploads at a time to 1
+			foreach($_FILES as $name => $file)
+			{
+				// TBD: What's the maximum size required?
+				// TBD: Add this max size to the shop config options
+				$this->uploads->maxSize = '200000';
+
+				// TBD: What are all possible file types?
+				// TBD: Add this list to the shop config options
+				$this->uploads->allowedTypes = 'jpg|gif|png';
+
+				// ensure that a file has actually been uploaded
+				if ($file['name'] != '')
+				{
+					if ($fileData = $this->uploads->upload_file($name))
+					{
+						// save the upload in the uploads table
+						$this->shop->upload($fileData, $this->session->userdata('userID'));
+						$filepath = site_url($this->uploads->uploadsPath.'/'.$fileData['file_name']);
+
+						// TBD: Handle: <input type="hidden" name="image_quality" value="1" />
+						$analyze_image = $this->input->post('image_quality');
+						if ($analyze_image)
+						{
+							// TBD: Need a way to configure the image quality analysis!
+							// - either a config parameter or a site/shop setting or even a posted hidden input???
+							// ($filepath)
+							// if ($result != 0)
+							// - acceptable
+							// Q: What if, somehow, quality is better in one direction vs the other?
+							// $output['upload:quality'] = 'Acceptable';
+							// $h_quality = 20;
+							// $w_quality = 20;
+							// $output['upload:maxheight'] = $h_quality;
+							// $output['upload:maxwidth'] = $w_quality;
+							// $qualityData = serialize(array('crop_x' => $crop_x, 'crop_y' => $crop_y, 'crop_w' => $crop_w, 'crop_h' => $crop_h));
+							// $this->shop->set_upload_quality($uploadID, $qualityData);
+						}
+						else
+						{
+							// if no image quality analysis is chosen, set {upload:quality} to ''
+							$output['upload:quality'] = '';
+							// $output['selectedupload'][$i]['upload:maxheight'] = 14;
+							// $output['selectedupload'][$i]['upload:maxwidth'] = 20;
+							// $output['upload:dimensions'] = '';
+						}
+
+						$files[$name] = $fileData;
+					}
+					else
+					{
+						$this->form_validation->set_error($this->uploads->errors);
+					}
+				}
+			}
+		}
+
+		// get files and save to session data
+		if ($files)
+		{
+			// save for display of what was just uploaded
+			$this->session->set_userdata('uploads', $files);
+		}
+
+		// display what was uploaded, if anything
+
+		// retrieve any upload data for display
+		$uploads = $this->shop->get_uploads($this->session->userdata('userID'));
+		if ($uploads)
+		{
+			$upload_count = count($uploads);
+		}
+		else
+		{
+			$upload_count = 0;
+		}
+
+		if ($upload_count > 1)
+		{
+			$i = 0;
+//			print_r($uploads);
+
+			$data['uploads'] = $uploads;
+			// TBD: Get all uploads by this user and populate a row/column matrix:
+			// need to build a "table" of all of the user's uploads
+			$output['useruploads'] = @$this->parser->parse('partials/upload_select', $data, TRUE);
+//			$output['product:variations'] = @$this->parser->parse('partials/variations', $data, TRUE);
+		}
+		else if ($upload_count == 1)
+		{
+			// GO DIRECTLY TO CROP
+			$i = 0;
+//			print_r($uploads);
+
+			// there should be only one match
+			$upload = $uploads[0];
+
+			redirect('/shop/select_upload/'.$upload['uploadID']);
+//			$this->select_upload($upload['uploadID']);
+//////////
+				// $output['uploads'][$i]['upload:image'] = '<img src="'.site_url($this->uploads->uploadsPath.'/'.$upload['filename']).'" alt="'.$upload['uploadName'].'" id="upload" />';
+				// $output['uploads'][$i]['upload:caption'] = $upload['uploadName'];
+				// $output['uploads'][$i]['upload:date'] = dateFmt($upload['dateCreated'], ($this->site->config['dateOrder'] == 'MD') ? 'M jS Y' : 'jS M Y');
+
+				// // TBD: This needs to be the uploadID from the database table
+				// $output['uploads'][$i]['upload:id'] = $upload['uploadID'];
+				// $i++;
+			// }
+			// $output['uploads:count'] = $i;
+		}
+		else
+		{
+			$output['useruploads'] = '<h4>Once you have uploaded a photo, it should appear below.</h4>';
+		}
+
+		// set page title
+		$output['page:title'] = 'File Upload'.(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
+		$output['page:heading'] = 'File Upload';
+
+		// Vizlogix CSRF protection:
+		$output['form:csrf'] = '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+
+		// display with cms layer
+		$this->pages->view('shop_upload', $output, TRUE);
+	}
+
+	function select_upload($uploadID = '')
+	{
+		// get partials
+		$output = $this->partials;
+
+		// ensure that user is logged in; if not, send them away from this controller
+		if (!$this->session->userdata('session_user'))
+		{
+			redirect('/shop/login/'.$this->core->encode($this->uri->uri_string()));
+		}
+
+		// display email in the form, if it's been entered
+		$output['form:email'] = set_value('email', $this->session->userdata('email'));
+
+		if ($uploadID)
+		{
+			// retrieve selected upload item for display
+			$uploads = $this->shop->get_uploads($this->session->userdata('userID'), $uploadID);
+			$i = 0;
+//			print_r($uploads);
+			foreach ($uploads as $upload)
+			{
+				$output['selectedupload'][$i]['upload:image'] = '<img src="'.site_url($this->uploads->uploadsPath.'/'.$upload['filename']).'" alt="'.$upload['uploadName'].'" id="upload" />';
+				$output['selectedupload'][$i]['upload:caption'] = $upload['uploadName'];
+				$output['selectedupload'][$i]['upload:description'] = $upload['description'];
+				$output['selectedupload'][$i]['upload:date'] = dateFmt($upload['dateCreated'], ($this->site->config['dateOrder'] == 'MD') ? 'F jS, Y' : 'jS M Y');
+
+				// TBD: retrieve image analysis from database
+				$image_quality = $upload['quality'];
+//				if ($image_quality)
+				$output['selectedupload'][$i]['upload:quality'] = $upload['quality'];
+				$output['selectedupload'][$i]['upload:maxheight'] = 14;
+				$output['selectedupload'][$i]['upload:maxwidth'] = 20;
+
+				$output['selectedupload'][$i]['upload:id'] = $upload['uploadID'];
+				$i++;
+			}
+
+			// save for display of what was just uploaded
+			$this->session->set_userdata('uploads', $uploads);
+		}
+
+		// set page title
+		$output['page:title'] = 'File Upload'.(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
+		$output['page:heading'] = 'File Upload';
+
+		// Vizlogix CSRF protection:
+		$output['form:csrf'] = '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+
+		// display with cms layer
+		$this->pages->view('shop_upload', $output, TRUE);
+	}
+
+	function update_upload()
+	{
+		// get partials
+		$output = $this->partials;
+
+		// get the passed-in category for the redirect
+		if ($this->input->post('category'))
+		{
+			$category = $this->input->post('category');
+		}
+		else
+		{
+			$category = '';
+		}
+
+		// id of uploaded entity
+		$uploadID = 0;
+		if ($this->input->post('uploadID')) $uploadID = $this->input->post('uploadID');
+		// TBD: insert test for 0 (invalid table ID)
+
+		// configuration - check for:
+		// - cropping data (x,y,w,h)
+		// initialize all possible inputs
+		$crop_x = 0;
+		$crop_y = 0;
+		// init these to image w/h?
+		$crop_w = 0;
+		$crop_h = 0;
+		// store the crop data (generally the first time through):
+		if ($this->input->post('crop_x')) $crop_x = $this->input->post('crop_x');
+		if ($this->input->post('crop_y')) $crop_y = $this->input->post('crop_y');
+		if ($this->input->post('crop_w')) $crop_w = $this->input->post('crop_w');
+		if ($this->input->post('crop_h')) $crop_h = $this->input->post('crop_h');
+
+		// - size(w,h)
+		$size_w = 0;
+		$size_h = 0;
+		// TBD: maximum dimensions, based on image quality {upload:maxheight}" x {upload:maxwidth}"
+		// These might be a nice touch:
+		// - position on wall?(x,y)
+		// - (user-selected) wall color?(RGB)
+		// - room furniture?(selection 1-3 or name string???)
+
+		$configData = serialize(array('crop_x' => $crop_x, 'crop_y' => $crop_y, 'crop_w' => $crop_w, 'crop_h' => $crop_h));
+
+		$this->shop->update_upload($uploadID, $configData);
+
+		// set page title
+		$output['page:title'] = 'Print Media Selection'.(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
+		$output['page:heading'] = 'Print Media Selection';
+
+		// Vizlogix CSRF protection:
+		$output['form:csrf'] = '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+
+		redirect('/shop/'.$category);
+	}
+
 	function _create_order($orderID = '')
 	{
 		// get order ID
@@ -2345,7 +2709,7 @@ class Shop extends MX_Controller {
 
 				if (($i % $itemsPerRow) == 0 && $i > 1)
 				{
-					$data[$x]['product:rowpad'] = '</tr><tr>'."\n";
+					$data[$x]['product:rowpad'] = '</div><div class="row-fluid">'."\n";
 					$i = 0;
 				}
 				else

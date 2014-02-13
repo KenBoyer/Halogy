@@ -36,23 +36,23 @@
 			endforeach;
 		endif;
 			
-		echo @form_dropdown('folderID',$options,set_value('folderID', $data['folderID']),'id="folderID" class="formelement"');
+		echo @form_dropdown('folderID',$options,set_value('folderID', $data['folderID']),'id="folderID" class="form-control"');
 	?>	
 	<br class="clear" />
 	
 	<label for="imageName">Name:</label>
-	<?php echo @form_input('imageName', $data['imageName'], 'class="formelement" id="imageName"'); ?>
+	<?php echo @form_input('imageName', $data['imageName'], 'class="form-control" id="imageName"'); ?>
 	<br class="clear" />
 
 	<label for="imageDesc">Description:</label>
-	<?php echo @form_textarea('description', set_value('description', $data['description']), 'id="body" class="formelement code"'); ?>
+	<?php echo @form_textarea('description', set_value('description', $data['description']), 'id="body" class="form-control code"'); ?>
 	<br class="clear" />
 
 	<?php
 	// TBD: Should this be readonly? Why would anyone change it?
 	?>
 	<label for="imageRef">Reference:</label>
-	<?php echo @form_input('imageRef', $data['imageRef'], 'class="formelement" id="imageRef"'); ?>
+	<?php echo @form_input('imageRef', $data['imageRef'], 'class="form-control" id="imageRef"'); ?>
 	<br class="clear" />
 
 	<label for="class">Display:</label>
@@ -69,12 +69,12 @@
 			'full' => 'Full Width',			
 			'' => 'No Style'
 		);					
-		echo @form_dropdown('class',$values,$data['class'], 'class="formelement"'); 
+		echo @form_dropdown('class',$values,$data['class'], 'class="form-control"'); 
 	?>
 	<br class="clear" />
 
 	<label for="maxsize">Max Size (px):</label>
-	<?php echo @form_input('maxsize', set_value('maxsize', (($data['maxsize']) ? $data['maxsize'] : '')), 'class="formelement" id="maxsize"'); ?>
+	<?php echo @form_input('maxsize', set_value('maxsize', (($data['maxsize']) ? $data['maxsize'] : '')), 'class="form-control" id="maxsize"'); ?>
 	<br class="clear" /><br />	
 <?php
 	// Vizlogix CSRF protection:

@@ -40,8 +40,9 @@ class Images_model extends CI_Model {
 		
 		$this->db->where('(imageRef LIKE "%'.$this->db->escape_like_str($query).'%" OR imageName LIKE "%'.$this->db->escape_like_str($query).'%")');
 				
-		$this->db->order_by('imageRef', 'asc');
-		
+//		$this->db->order_by('imageRef', 'asc');
+		$this->db->order_by('imageOrder', 'asc');
+
 		$query = $this->db->get('images', $limit);
 		
 		if ($query->num_rows())
@@ -63,8 +64,9 @@ class Images_model extends CI_Model {
 		$this->db->select('images.*, folderName, folderSafe');
 		$this->db->join('image_folders', 'image_folders.folderID = images.folderID');
 		
-		$this->db->order_by('imageRef', 'asc');
-		
+//		$this->db->order_by('imageRef', 'asc');
+		$this->db->order_by('imageOrder', 'asc');
+
 		$query = $this->db->get('images', $limit);
 		
 		if ($query->num_rows())

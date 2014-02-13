@@ -28,7 +28,7 @@ $(function(){
 </div>
 
 <div class="clear"></div>
-<div class="hidden"></div>
+<div class="hidden-form"></div>
 
 <?php if ($parents): ?>
 
@@ -54,7 +54,7 @@ $(function(){
 				<?php foreach ($children[$cat['catID']] as $child): ?>
 					<li id="shop_cats-<?php echo $child['catID']; ?>">
 						<div class="col1">
-							<span class="padded">--</span>
+							<span class="padded"><img src="<?php echo $this->config->item('staticPath'); ?>/images/arrow_child.gif" alt="Arrow" /></span>
 							<span><strong><?php echo $child['catName']; ?></strong></span>
 						</div>
 						<div class="col2">&nbsp;</div>

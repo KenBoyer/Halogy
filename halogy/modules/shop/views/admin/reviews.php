@@ -13,8 +13,8 @@
 		<th>Author</th>
 		<th>Email</th>
 		<th>Review</th>
-		<th class="narrow">Status</th>
-		<th class="tiny">&nbsp;</th>
+		<th class="tiny">Status</th>
+		<th class="narrow">&nbsp;</th>
 		<th class="tiny">&nbsp;</th>
 	</tr>
 <?php foreach ($reviews as $review): ?>
@@ -23,21 +23,21 @@
 		<td><?php echo anchor('/shop/viewproduct/'.$review['productID'], $review['productName']); ?></td>
 		<td><?php echo $review['fullName']; ?></td>
 		<td><?php echo $review['email']; ?></td>
-		<td><?php echo (strlen($review['review'] > 50)) ? substr($review['review'], 0, 50).'...' : $review['review']; ?></td>
-		<td><?php echo ($review['active']) ? '<span style="color:green;">Active</span>' : '<span style="color:orange;">Pending</span>'; ?></td>
+		<td><small><?php echo (strlen($review['review'] > 50)) ? substr($review['review'], 0, 50).'...' : $review['review']; ?></small></td>
+		<td><?php echo ($review['active']) ? '<span class="label label-success">Active</span>' : '<span class="label label-warning">Pending</span>'; ?></td>
 		<td>
 		<?php
 			if (!$review['active'])
 			{
-				echo anchor('/admin/shop/approve_review/'.$review['reviewID'], 'Approve');
+				echo anchor('/admin/shop/approve_review/'.$review['reviewID'], 'Approve <i class="icon-check"></i>', 'class="btn btn-success"');
 			}
 			else
 			{
-				echo anchor('/admin/shop/deactivate_review/'.$review['reviewID'], 'Deactivate');
+				echo anchor('/admin/shop/deactivate_review/'.$review['reviewID'], 'Deactivate <i class="icon-off"></i>', 'class="btn btn-warning"');
 			}
 		?>
 		<td>
-			<?php echo anchor('/admin/shop/delete_review/'.$review['reviewID'], 'Delete', 'onclick="return confirm(\'Are you sure you want to delete this?\')"'); ?>
+			<?php echo anchor('/admin/shop/delete_review/'.$review['reviewID'], 'Delete <i class="icon-trash"></i>', array('onclick' => 'return confirm(\'Are you sure you want to delete this?\')', 'class' => 'btn btn-danger')); ?>
 		</td>
 	</tr>
 <?php endforeach; ?>

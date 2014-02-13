@@ -78,8 +78,8 @@ class Users extends MX_Controller {
 		{
 			// login
 			if ($this->input->post('password'))
-			{	
-				$username = array('field' => 'email', 'label' => 'Email address', 'value' => $this->input->post('email'));
+			{
+				$username = $this->input->post('username');
 			
 				// set admin session name, if given
 				if ($output = $this->auth->login($username, $this->input->post('password'), 'session_user', FALSE, $this->input->post('remember')))
@@ -135,6 +135,10 @@ class Users extends MX_Controller {
 
 	function create_account($redirect = '')
 	{
+		// TBD:
+		// 1) Either first name / last name OR display name are required
+		// 2) Password is not required here; need to make sure they create a password if they actually want an "account"
+		//
 		// email is always required
 		$this->form_validation->set_rules('email', 'Email', 'required|valid_email|unique[users.email]|trim|strtolower');
 
@@ -143,18 +147,24 @@ class Users extends MX_Controller {
 		{
 			$this->form_validation->set_rules('password', 'Password', 'required|matches[confirmPassword]');
 		}
-		else
+		else if (isset($_POST['password']))
 		{
 			$this->form_validation->set_rules('password', 'Password', 'required');
 		}
 		
+		// require display name?
+		if (isset($_POST['displayName']))
+		{
+			$this->form_validation->set_rules('displayName', 'Name', 'required');
+		}
+
 		// require first name?
 		if (isset($_POST['firstName']))
 		{
 			$this->form_validation->set_rules('firstName', 'First Name', 'required');
 		}
 
-		// require first name?
+		// require last name?
 		if (isset($_POST['lastName']))
 		{
 			$this->form_validation->set_rules('lastName', 'Last Name', 'required');
@@ -186,6 +196,7 @@ class Users extends MX_Controller {
 			
 		
 			// send email			
+//			$this->email->set_mailtype('html');
 			$this->email->from($this->site->config['siteEmail'], $this->site->config['siteName']);
 			$this->email->to($this->input->post('email'));			
 			$this->email->subject('New account set up on '.$this->site->config['siteName']);
@@ -220,9 +231,13 @@ class Users extends MX_Controller {
 		$output['form:displayName'] = set_value('displayName', $this->input->post('displayName'));
 		$output['form:firstName'] = set_value('firstName', $this->input->post('firstName'));
 		$output['form:lastName'] = set_value('lastName', $this->input->post('lastName'));
+		$output['select:state'] = @display_states('state', set_value('state', $this->input->post('state')), 'id="state" class="form-control"');
 		$output['form:postcode'] = set_value('postcode', $this->input->post('postcode'));
-		$output['select:country'] = @display_countries('country', set_value('country', $this->input->post('country')), 'id="country" class="formelement"');
-		
+		$output['select:country'] = @display_countries('country', set_value('country', $this->input->post('country')), 'id="country" class="form-control"');
+
+		// Vizlogix CSRF protection:
+		$output['form:csrf'] = '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+
 		// display with cms layer
 		$this->pages->view('community_create_account', $output, 'community');			
 	}
@@ -378,22 +393,27 @@ class Users extends MX_Controller {
 		$output['form:address2'] = set_value('address2', $data['address2']);
 		$output['form:address3'] = set_value('address3', $data['address3']);
 		$output['form:city'] = set_value('city', $data['city']);
+		$output['select:state'] = @display_states('state', set_value('state', $data['state']), 'id="state" class="form-control"');
 		$output['form:postcode'] = set_value('postcode', $data['postcode']);
 		$output['form:phone'] = set_value('phone', $data['phone']);
-		$output['select:country'] = @display_countries('country', set_value('country', $data['country']), 'id="country" class="formelement"');
+		$output['select:country'] = @display_countries('country', set_value('country', $data['country']), 'id="country" class="form-control"');
 		$values = array(
 			'V' => 'Everyone can see my profile',
+			'F' => 'Only logged-in users can see my profile',
 			'H' => 'Hide my profile and feed'
 		);
-		$output['select:privacy'] = @form_dropdown('privacy',$values,set_value('privacy', $data['privacy']), 'id="privacy" class="formelement"');
+		$output['select:privacy'] = @form_dropdown('privacy',$values,set_value('privacy', $data['privacy']), 'id="privacy" class="form-control"');
 		$values = array(
 			0 => 'No',
 			1 => 'Yes',
 		);
-		$output['select:notifications'] = @form_dropdown('notifications',$values,set_value('notifications', $data['notifications']), 'id="notifications" class="formelement"');
-		$output['select:currency'] = @form_dropdown('currency', currencies(), set_value('currency', $data['currency']), 'id="currency" class="formelement"');
-		$output['select:language'] = @form_dropdown('language', languages(), set_value('language', $data['language']), 'id="language" class="formelement"');
-		
+		$output['select:notifications'] = @form_dropdown('notifications',$values,set_value('notifications', $data['notifications']), 'id="notifications" class="form-control"');
+		$output['select:currency'] = @form_dropdown('currency', currencies(), set_value('currency', $data['currency']), 'id="currency" class="form-control"');
+		$output['select:language'] = @form_dropdown('language', languages(), set_value('language', $data['language']), 'id="language" class="form-control"');
+
+		// Vizlogix CSRF protection:
+		$output['form:csrf'] = '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+
 		// display with cms layer	
 		$this->pages->view('community_account', $output, 'community');
 	}
@@ -460,12 +480,6 @@ class Users extends MX_Controller {
 
 	function profile($userID = '')
 	{
-		// check user is logged in, if not send them away from this controller
-		if (!$this->session->userdata('session_user'))
-		{
-			redirect('/users/login/'.$this->core->encode($this->uri->uri_string()));
-		}		
-
 		// redirect so that the permalink is set to their ID
 		if (!$userID)
 		{
@@ -478,8 +492,11 @@ class Users extends MX_Controller {
 			show_error('No user was found!');
 		}
 
-		// load helper
-		$this->load->helper('bbcode');
+		// ensure that profile is public, else send them away from this controller
+		if ($data['user']['privacy'] != 'V' && !$this->session->userdata('session_user'))
+		{
+			redirect('/users/login/'.$this->core->encode($this->uri->uri_string()));
+		}
 
 		// show logged in user profile
 		if ($userID == $this->session->userdata('userID'))
@@ -521,23 +538,27 @@ class Users extends MX_Controller {
 		$output['user:name'] = ($data['user']['displayName']) ? $data['user']['displayName'] : $data['user']['firstName'].' '.$data['user']['lastName'];
 		$output['user:avatar'] = display_image($this->users->get_avatar($data['user']['avatar']), 'User Avatar', 150, 'class="bordered"', $this->config->item('staticPath').'/images/noavatar.gif');
 		$output['user:link'] = anchor(site_url('/users/profile/'.$userID));
+		$output['user:signature'] = $data['user']['signature']; // added by Vizlogix to include full names on staff pages, etc.
 		$output['user:country'] = lookup_country($data['user']['country']);
 
 		// load bio
-		$data['user']['bio'] .= ($userID == $this->session->userdata('userID')) ? '  [[url=/users/account#changebio]Update[/url]]' : '';
-		$output['user:bio'] = (($data['user']['privacy'] == 'V' || $data['user']['userID'] == $this->session->userdata('userID')) && $data['user']['bio']) ? bbcode($data['user']['bio']) : FALSE;
+		$data['user']['bio'] .= ($userID == $this->session->userdata('userID')) ? '<a href="/users/account" class="btn">Edit <i class="icon-edit"></i></a>' : '';
+		$output['user:bio'] = (($data['user']['privacy'] == 'V' || $data['user']['userID'] == $this->session->userdata('userID')) && $data['user']['bio']) ? $data['user']['bio'] : FALSE;
 
 		// load company
 		$output['user:company'] = ($data['user']['companyName']) ? $data['user']['companyName'] : '';
 		$output['user:company-website'] = ($data['user']['companyWebsite']) ? $data['user']['companyWebsite'] : '';
-		$data['user']['companyDescription'] .= ($userID == $this->session->userdata('userID')) ? ' [[url=/users/account#changework]Update[/url]]' : '';
-		$output['user:company-description'] = (($data['user']['privacy'] == 'V' || $data['user']['userID'] == $this->session->userdata('userID')) && $data['user']['companyDescription']) ? bbcode($data['user']['companyDescription']) : FALSE;
+		$data['user']['companyDescription'] .= ($userID == $this->session->userdata('userID')) ? '<a href="/users/account#changework" class="btn">Edit <i class="icon-edit"></i></a>' : '';
+		$output['user:company-description'] = (($data['user']['privacy'] == 'V' || $data['user']['userID'] == $this->session->userdata('userID')) && $data['user']['companyDescription']) ? $data['user']['companyDescription'] : FALSE;
 
 		// load content
 		$output['profile:navigation'] = $this->parser->parse('partials/profile_navigation', $data, TRUE);
 
 		// set page heading
 		$output['page:heading'] = $data['user']['firstName'].' '.$data['user']['lastName'] . (($data['user']['displayName']) ? ' <small>('.$data['user']['displayName'].')</small>' : '');		
+
+		// Vizlogix CSRF protection:
+		$output['form:csrf'] = '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
 
 		// display with cms layer
 		$this->pages->view($viewFile, $output, 'community');
@@ -561,7 +582,11 @@ class Users extends MX_Controller {
 					$output['members'][] = array(
 						'member:avatar' => anchor(site_url('/users/profile/'.$user['userID']), display_image($this->users->get_avatar($user['avatar']), 'User Avatar', 80, 'class="avatar"', $this->config->item('staticPath').'/images/noavatar.gif')),
 						'member:name' => ($user['displayName']) ? $user['displayName'] : $user['firstName'].' '.$user['lastName'],
-						'member:link' => site_url('/users/profile/'.$user['userID'])
+						'member:email' => ($user['email']) ? $user['email'] : '',
+//						'member:group' => ($user['groupName']) ? $user['groupName'] : '',
+						'member:link' => site_url('/users/profile/'.$user['userID']),
+						'member:link' => site_url('/users/profile/'.$user['userID']),
+						'member:bio' => ($user['bio']) ? $user['bio'] : '' // added to include staff positions, etc.
 					);
 				}
 			}
@@ -573,7 +598,10 @@ class Users extends MX_Controller {
 
 		// set pagination
 		$output['pagination'] = ($pagination = $this->pagination->create_links()) ? $pagination : '';
-		
+
+		// Vizlogix CSRF protection:
+		$output['form:csrf'] = '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+
 		// display with cms layer
 		$this->pages->view('community_members', $output, 'community');		
 	}
@@ -633,6 +661,7 @@ class Users extends MX_Controller {
 				$emailFooter = str_replace('{email}', $user['email'], $emailFooter);
 				
 				// send email			
+//				$this->email->set_mailtype('html');
 				$this->email->from($this->site->config['siteEmail'], $this->site->config['siteName']);
 				$this->email->to($user['email']);			
 				$this->email->subject('Password reset request on '.$this->site->config['siteName']);
@@ -703,6 +732,7 @@ class Users extends MX_Controller {
 					$emailFooter = str_replace('{email}', $user['email'], $emailFooter);
 								
 					// send email			
+//					$this->email->set_mailtype('html');
 					$this->email->from($this->site->config['siteEmail'], $this->site->config['siteName']);
 					$this->email->to($user['email']);			
 					$this->email->subject('Your password was reset on '.$this->site->config['siteName']);

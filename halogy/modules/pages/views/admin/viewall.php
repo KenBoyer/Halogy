@@ -37,8 +37,8 @@ $(function(){
 
 <div class="headingright">
 
-	<label for="collapse">Filter:</label> 
-	<select id="collapse">
+	<label for="collapse">Filter:</label>
+	<select id="collapse" class="form-control">
 		<option value="all">Show all</option>		
 		<option value="hidden">Hide hidden pages</option>
 		<option value="collapse">Hide sub-pages</option>		

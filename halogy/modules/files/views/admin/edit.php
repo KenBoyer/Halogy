@@ -35,7 +35,7 @@ $(function(){
 	<div style="width: 40%; float: left;">
 
 	<label for="fileRef">Reference:</label>
-	<?php echo @form_input('fileRef', $data['fileRef'], 'class="formelement" id="fileRef"'); ?>
+	<?php echo @form_input('fileRef', $data['fileRef'], 'class="form-control" id="fileRef"'); ?>
 	<br class="clear" />
 
 	<label for="folderID">Folder: <small>[<a href="<?php echo site_url('/admin/files/folders'); ?>" onclick="return confirm('You will lose any unsaved changes.\n\nContinue anyway?')">update</a>]</small></label>
@@ -47,7 +47,7 @@ $(function(){
 			endforeach;
 		endif;
 			
-		echo @form_dropdown('folderID',$options,set_value('folderID', $data['folderID']),'id="folderID" class="formelement"');
+		echo @form_dropdown('folderID',$options,set_value('folderID', $data['folderID']),'id="folderID" class="form-control"');
 	?>	
 	<br class="clear" />
 
@@ -66,7 +66,7 @@ $(function(){
 	</div>
 
 	<label for="body">Description:</label>
-	<?php echo @form_textarea('description', set_value('description', $data['description']), 'id="body" class="formelement code"'); ?>
+	<?php echo @form_textarea('description', set_value('description', $data['description']), 'id="body" class="form-control code"'); ?>
 	<br class="clear" />
 
 <?php

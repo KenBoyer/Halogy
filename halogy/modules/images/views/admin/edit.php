@@ -31,9 +31,12 @@ $(function(){
 	</div>
 <?php endif; ?>
 
+<div id="edit-image" class="panel collapse in">
+<div class="panel-heading">Edit Image</div>
+<div class="panel-body">
 <form method="post" action="<?php echo site_url($this->uri->uri_string()); ?>" enctype="multipart/form-data" class="default">
-	<div style="width: 40%; float: left;">
-
+	<div class="row">
+	<div class="col-lg-5">
 	<label for="image">Image:</label>
 	<div class="uploadfile">
 		<?php echo @form_upload('image', '', 'size="16" id="image"'); ?>
@@ -49,12 +52,12 @@ $(function(){
 			endforeach;
 		endif;
 
-		echo @form_dropdown('folderID',$options,set_value('folderID', $data['folderID']),'id="folderID" class="formelement"');
+		echo @form_dropdown('folderID',$options,set_value('folderID', $data['folderID']),'id="folderID" class="form-control"');
 	?>
 	<br class="clear" />
 
 	<label for="imageName">Name:</label>
-	<?php echo @form_input('imageName', $data['imageName'], 'class="formelement" id="imageName"'); ?>
+	<?php echo @form_input('imageName', $data['imageName'], 'class="form-control" id="imageName"'); ?>
 	<br class="clear" />
 
 	<label for="buttons">Formatting:</label>
@@ -72,14 +75,14 @@ $(function(){
 	</div>
 
 	<label for="body">Description:</label>
-	<?php echo @form_textarea('description', set_value('description', $data['description']), 'id="body" class="formelement code"'); ?>
+	<?php echo @form_textarea('description', set_value('description', $data['description']), 'id="body" class="form-control code"'); ?>
 	<br class="clear" />
 
 	<?php
 	// TBD: Should this be readonly? Why would anyone change it?
 	?>
 	<label for="imageRef">Reference:</label>
-	<?php echo @form_input('imageRef', $data['imageRef'], 'class="formelement" id="imageRef"'); ?>
+	<?php echo @form_input('imageRef', $data['imageRef'], 'class="form-control" id="imageRef"'); ?>
 	<br class="clear" />
 
 	<label for="class">Display:</label>
@@ -96,23 +99,23 @@ $(function(){
 			'full' => 'Full Width',
 			'' => 'No Style'
 		);
-		echo @form_dropdown('class',$values,$data['class'], 'class="formelement"');
+		echo @form_dropdown('class',$values,$data['class'], 'class="form-control"');
 	?>
 	<br class="clear" />
 
 	<label for="maxsize">Max Size (px):</label>
-	<?php echo @form_input('maxsize', set_value('maxsize', (($data['maxsize']) ? $data['maxsize'] : '')), 'class="formelement" id="maxsize"'); ?>
+	<?php echo @form_input('maxsize', set_value('maxsize', (($data['maxsize']) ? $data['maxsize'] : '')), 'class="form-control" id="maxsize"'); ?>
 	<br class="clear" /><br />
 <?php
 	// Vizlogix CSRF protection:
 	echo '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
 ?>
-	<button type="submit" class="btn btn-success" id="submit">Save Changes <i class="icon-save"></i></button>
-	<a href="<?php echo $this->session->userdata('lastPage'); ?>" class="btn cancel">Cancel <i class="icon-remove-sign"></i></a>
+	<button type="submit" class="btn btn-success accordion-toggle" id="submit">Save Changes <i class="icon-save"></i></button>
+	<a href="#edit-image" class="btn btn-default accordion-toggle" data-toggle="collapse" data-parent="#accordion">Cancel <i class="icon-remove-sign"></i></a>
 	<br class="clear" />
 	</div>
 
-	<div style="float: right; width: 60%;">
+	<div class="col-lg-7">
 		<?php
 			$image = $this->uploads->load_image($data['imageRef']);
 			$thumb = $this->uploads->load_image($data['imageRef'], true);
@@ -123,7 +126,10 @@ $(function(){
 
 		<div class="preview"></div>
 	</div>
+	</div>
 
 </form>
+</div>
+</div>
 
 <br class="clear" />

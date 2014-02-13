@@ -26,17 +26,17 @@
 	<form action="" method="post" class="default">
 
 		<label for="username">Username:</label>
-		<div class="input-prepend" style="display: block;">
-			<span class="add-on"><i class="icon-user"></i></span>
-			<input type="text" id="username" name="username" class="span2" style="width: 40%;" />
+		<div class="input-group">
+			<span class="input-group-addon"><i class="icon-user"></i></span>
+			<input type="text" class="form-control" id="username" name="username" style="width: 40%;" />
 		</div>
 
 		<br class="clear" />
 
 		<label for="password">Password:</label>
-		<div class="input-prepend" style="display: block;">
-			<span class="add-on"><i class="icon-key"></i></span>
-			<input type="password" id="password" name="password" class="span2" style="width: 40%;" />
+		<div class="input-group">
+			<span class="input-group-addon"><i class="icon-key"></i></span>
+			<input type="password" class="form-control" id="password" name="password" style="width: 40%;" />
 		</div>
 <?php
 		// Vizlogix CSRF protection:

@@ -248,7 +248,7 @@ class Events_Model extends CI_Model {
 
 		// retrieve only events that are occurring now
 		// TBD: Change to take "time" into account (repeats / no repeats) and the range between eventDate and eventEnd
-		$this->db->where('DAYOFYEAR (NOW()) BETWEEN DAYOFYEAR(eventDate) AND DAYOFYEAR(eventEnd)');
+		$this->db->where('DAYOFYEAR(NOW()) BETWEEN DAYOFYEAR(eventDate) AND DAYOFYEAR(eventEnd)');
 
 		// order by event date
 		$this->db->order_by('eventDate', 'asc');

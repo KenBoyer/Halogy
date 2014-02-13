@@ -27,10 +27,10 @@
 	<tr>
 		<td><?php echo (in_array('users_groups', $this->permission->permissions)) ? anchor('/admin/users/edit_group/'.$group['groupID'], $group['groupName']) : $group['groupName']; ?></td>
 		<td class="tiny">
-			<?php echo anchor('/admin/users/edit_group/'.$group['groupID'], 'Edit'); ?>
+			<?php echo anchor('/admin/users/edit_group/'.$group['groupID'], 'Edit <i class="icon-edit"></i>', 'class="btn btn-info"'); ?>
 		</td>
 		<td class="tiny">
-			<?php echo anchor('/admin/users/delete_group/'.$group['groupID'], 'Delete', 'onclick="return confirm(\'Are you sure you want to delete this?\')"'); ?>
+			<?php echo anchor('/admin/users/delete_group/'.$group['groupID'], 'Delete <i class="icon-trash"></i>', array('onclick' => 'return confirm(\'Are you sure you want to delete this?\')', 'class' => 'btn btn-danger')); ?>
 		</td>
 	</tr>
 <?php endforeach; ?>

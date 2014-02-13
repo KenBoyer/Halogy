@@ -1716,6 +1716,85 @@ class Shop_model extends CI_Model {
 		}
 	}
 
+	function upload($fileData, $userID)
+	{
+		if ($userID == 0)
+		{
+			$userID = $this->session->userdata('userID');
+		}
+
+		$uploadID = 0;
+		$set = array(
+			'dateCreated' => date("Y-m-d H:i:s"),
+			'filename' => $fileData['file_name'],
+			'userID' => $userID,
+			'siteID' => $this->siteID,
+			'uploadRef' => strtolower(url_title($fileData['client_name'])),
+			'uploadName' => $fileData['client_name'],
+			'configuration' => ''
+		);
+
+		$this->db->set($set);
+		$this->db->insert('shop_uploads');
+
+		// Get the ID number of the new upload record
+		$uploadID = $this->db->insert_id();
+
+		return $uploadID;
+	}
+
+	function set_upload_quality($uploadID, $qualityData = '')
+	{
+		// echo "uploadID = ".$uploadID;
+		// print_r($qualityData);
+		if ($qualityData)
+		{
+			$this->db->set('quality', $qualityData);
+		}
+		$this->db->where('uploadID', $uploadID);
+		$this->db->where('siteID', $this->siteID);
+		$this->db->update('shop_uploads');
+
+		return true;
+	}
+
+	function update_upload($uploadID, $configData = '')
+	{
+		// echo "uploadID = ".$uploadID;
+		// print_r($configData);
+		if ($configData)
+		{
+			$this->db->set('configuration', $configData);
+		}
+
+		$this->db->where('uploadID', $uploadID);
+		$this->db->where('siteID', $this->siteID);
+		$this->db->update('shop_uploads');
+
+		return true;
+	}
+
+	function get_uploads($userID = '', $uploadID = '')
+	{
+		$this->db->where('siteID', $this->siteID);
+		$this->db->where('userID', $userID);
+		if ($uploadID)
+		{
+			$this->db->where('uploadID', $uploadID);
+		}
+
+		$query = $this->db->get('shop_uploads');
+
+		if ($query->num_rows() > 0)
+		{
+			return $query->result_array();
+		}
+		else
+		{
+			return FALSE;
+		}
+	}
+
 	function get_subscription($subscriptionID)
 	{
 		$this->db->where('siteID', $this->siteID);
@@ -2024,7 +2103,8 @@ class Shop_model extends CI_Model {
 			fclose($fp); // close connection
 		}
 
-		if (eregi("VERIFIED",$this->response))
+		if (preg_match('/VERIFIED/i', $this->response))
+//		if (eregi("VERIFIED",$this->response))
 		{
 			// check for cancellation
 			if ($this->response_date['txn_type'] == 'subscr_eot')

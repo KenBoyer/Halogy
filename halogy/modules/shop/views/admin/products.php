@@ -57,15 +57,19 @@ $(function(){
 
 <div class="headingright">
 
-	<form method="post" action="<?php echo site_url('/admin/shop/products'); ?>" class="default" id="search">
-		<div class="input-append">
-			<input type="text" name="searchbox" id="searchbox" class="span2" title="Search Products..." />
+	<form method="post" action="<?php echo site_url('/admin/shop/products'); ?>" class="form-horizontal" id="search">
+	<div class="form-group">
+		<div class="input-group">
+			<input type="text" name="searchbox" id="searchbox" class="form-control" title="Search Products..." />
+			<span class="input-group-btn">
 			<button class="btn btn-primary" type="submit" id="searchbutton"><i class="icon-search"></i></button>
+			</span>
 		</div>
 <?php
 		// Vizlogix CSRF protection:
 		echo '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
 ?>
+	</div>
 	</form>
 	
 	<label for="category">Category:</label> 
@@ -79,7 +83,7 @@ $(function(){
 				$options[$category['catID']] = ($category['parentID']) ? '-- '.$category['catName'] : $category['catName'];
 			endforeach;
 		endif;					
-		echo @form_dropdown('catID', $options, set_value('catID', $catID), 'id="category" class="formelement"');
+		echo @form_dropdown('catID', $options, set_value('catID', $catID), 'id="category" class="form-control"');
 	?>	
 
 	<?php if (in_array('shop_edit', $this->permission->permissions)): ?>	
@@ -103,7 +107,9 @@ $(function(){
 			</span><br />
 			<small><?php echo "Catalog ID: ".$product['catalogueID']; ?></small>
 		</div>
-		<div class="col2"><?php echo $product['subtitle']; ?></div>
+		<div class="col2">
+			<?php echo $product['subtitle']; ?>
+		</div>
 		<div class="buttons">
 			<a href="<?php echo site_url('/shop/viewproduct/'.$product['productID'].'/'); ?>" class="btn btn-warning">View <i class="icon-eye-open"></i></a>
 			<a href="<?php echo site_url('/admin/shop/edit_product/'.$product['productID']); ?>" class="btn btn-info">Edit <i class="icon-edit"></i></a>

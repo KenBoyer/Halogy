@@ -77,6 +77,16 @@ CREATE TABLE `ha_blog_posts` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
+# Dump of table ha_blog_post_subs
+# ------------------------------------------------------------
+
+CREATE TABLE `ha_blog_post_subs` (
+  `postID` int(11) NOT NULL default '0',
+  `userID` int(11) NOT NULL default '0',
+  `siteID` int(11) default NULL,
+  PRIMARY KEY  (`postID`,`userID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 
 # Dump of table ha_captcha
 # ------------------------------------------------------------
@@ -189,7 +199,7 @@ CREATE TABLE `ha_email_includes` (
   `includeID` int(11) NOT NULL auto_increment,
   `dateCreated` timestamp NOT NULL default CURRENT_TIMESTAMP,
   `includeRef` varchar(100) default NULL,
-  `body` text,
+  `body` text collate utf8_unicode_ci NOT NULL,
   `siteID` int(11) default NULL,
   PRIMARY KEY  (`includeID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -229,7 +239,7 @@ CREATE TABLE `ha_email_lists` (
 CREATE TABLE `ha_email_templates` (
   `templateID` int(11) NOT NULL auto_increment,
   `templateName` varchar(100) default NULL,
-  `body` text,
+  `body` text collate utf8_unicode_ci NOT NULL,
   `dateCreated` timestamp NOT NULL default '0000-00-00 00:00:00',
   `dateModified` timestamp NOT NULL default CURRENT_TIMESTAMP,
   `linkStyle` varchar(200) default NULL,
@@ -247,8 +257,8 @@ CREATE TABLE `ha_emails` (
   `emailID` int(11) NOT NULL auto_increment,
   `emailName` varchar(100) default NULL,
   `emailSubject` varchar(100) default NULL,
-  `bodyHTML` text,
-  `bodyText` text,
+  `bodyHTML` text collate utf8_unicode_ci NOT NULL,
+  `bodyText` text collate utf8_unicode_ci NOT NULL,
   `campaignID` int(11) NOT NULL default '0',
   `templateID` int(11) default NULL,
   `dateCreated` timestamp NOT NULL default '0000-00-00 00:00:00',
@@ -294,6 +304,16 @@ CREATE TABLE `ha_events` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
+# Dump of table ha_event_subs
+# ------------------------------------------------------------
+
+CREATE TABLE `ha_event_subs` (
+  `eventID` int(11) NOT NULL default '0',
+  `userID` int(11) NOT NULL default '0',
+  `siteID` int(11) default NULL,
+  PRIMARY KEY  (`eventID`,`userID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 
 # Dump of table ha_file_folders
 # ------------------------------------------------------------
@@ -318,10 +338,12 @@ CREATE TABLE `ha_files` (
   `fileID` int(11) NOT NULL auto_increment,
   `fileRef` varchar(100) collate utf8_unicode_ci default NULL,
   `filename` varchar(100) collate utf8_unicode_ci default NULL,
+  `description` text collate utf8_unicode_ci,
   `dateCreated` timestamp NOT NULL default '0000-00-00 00:00:00',
   `dateModified` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
   `folderID` int(11) NOT NULL default '0',
   `userID` int(11) default NULL,
+  `fileOrder` int(11) default '0',
   `deleted` tinyint(1) unsigned NOT NULL default '0',
   `filesize` int(11) NOT NULL default '0',
   `downloads` int(11) NOT NULL default '0',
@@ -448,9 +470,11 @@ CREATE TABLE `ha_images` (
   `dateCreated` timestamp NOT NULL default '0000-00-00 00:00:00',
   `dateModified` timestamp NOT NULL default CURRENT_TIMESTAMP,
   `imageName` varchar(100) collate utf8_unicode_ci default NULL,
+  `description` text collate utf8_unicode_ci,
   `folderID` int(11) NOT NULL default '0',
   `groupID` int(11) NOT NULL default '0',
   `userID` int(11) default NULL,
+  `imageOrder` int(11) default '0',
   `class` varchar(100) collate utf8_unicode_ci default NULL,
   `filesize` int(11) NOT NULL default '0',
   `maxsize` int(11) default NULL,
@@ -485,7 +509,7 @@ CREATE TABLE `ha_includes` (
   `dateModified` timestamp NOT NULL default CURRENT_TIMESTAMP,
   `versionID` int(11) NOT NULL default '0',
   `includeRef` varchar(100) collate utf8_unicode_ci default NULL,
-  `type` enum('H','C','J') collate utf8_unicode_ci NOT NULL default 'H',
+  `type` enum('H','C','J','L') collate utf8_unicode_ci NOT NULL default 'H',
   `deleted` tinyint(1) unsigned NOT NULL default '0',
   `siteID` int(11) NOT NULL default '0',
   PRIMARY KEY  (`includeID`)
@@ -736,6 +760,8 @@ CREATE TABLE `ha_shop_cats` (
   `dateCreated` timestamp NOT NULL default '0000-00-00 00:00:00',
   `dateModified` timestamp NOT NULL default '0000-00-00 00:00:00',
   `catOrder` int(11) default NULL,
+  `catStart` timestamp NOT NULL default '0000-00-00 00:00:00',
+  `catStop` timestamp NOT NULL default '0000-00-00 00:00:00',
   `deleted` tinyint(1) unsigned NOT NULL default '0',
   `siteID` int(11) default NULL,
   PRIMARY KEY  (`catID`)
@@ -832,6 +858,30 @@ CREATE TABLE `ha_shop_products` (
   `deleted` tinyint(1) unsigned NOT NULL default '0',
   `siteID` int(11) NOT NULL default '0',
   PRIMARY KEY  (`productID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+
+# Dump of table ha_shop_uploads
+# ------------------------------------------------------------
+
+CREATE TABLE `ha_shop_uploads` (
+  `uploadID` int(11) NOT NULL auto_increment,
+  `uploadRef` varchar(100) collate utf8_unicode_ci default NULL,
+  `filename` varchar(100) collate utf8_unicode_ci default NULL,
+  `dateCreated` timestamp NOT NULL default '0000-00-00 00:00:00',
+  `dateModified` timestamp NOT NULL default CURRENT_TIMESTAMP,
+  `uploadName` varchar(100) collate utf8_unicode_ci default NULL,
+  `description` text collate utf8_unicode_ci,
+  `configuration` text collate utf8_unicode_ci,
+  `groupID` int(11) NOT NULL default '0',
+  `userID` int(11) default NULL,
+  `uploadOrder` int(11) default '0',
+  `filesize` int(11) NOT NULL default '0',
+  `maxsize` int(11) default NULL,
+  `deleted` tinyint(1) unsigned NOT NULL default '0',
+  `siteID` int(11) default NULL,
+  PRIMARY KEY  (`uploadID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
@@ -1145,6 +1195,7 @@ CREATE TABLE `ha_users` (
   `username` varchar(100) collate utf8_unicode_ci NOT NULL default '',
   `password` varchar(32) collate utf8_unicode_ci default NULL,
   `groupID` int(11) NOT NULL default '0',
+  `userOrder` int(11) NOT NULL default '0',
   `email` varchar(100) collate utf8_unicode_ci default NULL,
   `subscription` enum('Y','E','P','N') collate utf8_unicode_ci NOT NULL default 'Y',
   `subscribed` tinyint(1) unsigned NOT NULL default '0',

@@ -13,6 +13,7 @@ $(function(){
 	timeFormat: 'h:mm tt',
 	stepMinute: 15
 	});
+
 	$('textarea#body').focus(function(){
 		$('.previewbutton').css("display", "inline-block");
 	});
@@ -47,18 +48,21 @@ $(function(){
 		</div>
 	<?php endif; ?>
 
+	<div class="row-fluid">
+	<div class="span6">
+
 	<h2 class="underline">Place and Time</h2>
 
 	<label for="eventName">Event title:</label>
-	<?php echo @form_input('eventTitle', set_value('eventTitle', $data['eventTitle']), 'id="eventTitle" class="formelement"'); ?>
+	<?php echo @form_input('eventTitle', set_value('eventTitle', $data['eventTitle']), 'id="eventTitle" class="form-control"'); ?>
 	<br class="clear" />
 
 	<label for="eventDate">Start Date and Time:</label>
-	<?php echo @form_input('eventDate', date('d M Y g:i a', strtotime($data['eventDate'])), 'id="eventDate" class="formelement datebox" readonly="readonly"'); ?>
+	<?php echo @form_input('eventDate', date('d M Y g:i a', strtotime($data['eventDate'])), 'id="eventDate" class="form-control datebox" readonly="readonly"'); ?>
 	<br class="clear" />
 
 	<label for="eventEnd">End Date and Time:</label>
-	<?php echo @form_input('eventEnd', (($data['eventEnd'] > 0) ? date('d M Y g:i a', strtotime($data['eventEnd'])) : ''), 'id="eventEnd" class="formelement datebox" readonly="readonly"'); ?>
+	<?php echo @form_input('eventEnd', (($data['eventEnd'] > 0) ? date('d M Y g:i a', strtotime($data['eventEnd'])) : ''), 'id="eventEnd" class="form-control datebox" readonly="readonly"'); ?>
 	<br class="clear" />
 
 	<label for="time">Repeats:</label>
@@ -78,35 +82,11 @@ $(function(){
 	<br class="clear" />
 
 	<label for="location">Location:</label>
-	<?php echo @form_input('location', set_value('location', $data['location']), 'id="location" class="formelement"'); ?>
-	<br class="clear" /><br />
-
-	<h2 class="underline">Event Description</h2>	
-
-	<label for="excerpt">Excerpt:</label>
-	<?php echo @form_textarea('excerpt', set_value('excerpt', $data['excerpt']), 'id="excerpt" class="formelement code short"'); ?>
-	<br class="clear" /><br />
-
-	<label for="buttons">Formatting:</label>
-	<div class="buttons" id="buttons">
-		<a href="#" class="btn boldbutton" title="Bold"><i class="icon-bold"></i></a>
-		<a href="#" class="btn italicbutton" title="Italic"><i class="icon-italic"></i></a>
-		<a href="#" class="btn btn-small h1button" title="Heading 1">h1</a>
-		<a href="#" class="btn btn-small h2button" title="Heading 2">h2</a>
-		<a href="#" class="btn btn-small h3button" title="Heading 3">h3</a>
-		<a href="#" class="btn urlbutton"><i class="icon-link" title="Insert URL Link"></i></a>
-		<a href="<?php echo site_url('/admin/images/browser'); ?>" class="btn halogycms_imagebutton" title="Insert Image"><i class="icon-picture"></i></a>
-		<a href="<?php echo site_url('/admin/files/browser'); ?>" class="btn halogycms_filebutton" title="Insert File"><i class="icon-file-alt"></i></a>
-		<a href="javascript:void(0)" class="btn helpbutton" data-toggle="popover" data-original-title="Formatting Help" data-content="<p>Select desired text, then click button to format or insert.</p><p>Additional formatting options:</p><ul><li>+ before list elements</li><li>> before block quotes</li><li>4 space indentation to format code listings</li><li>3 hyphens on a line by themselves to make a horizontal rule</li><li>` (backtick quote) to span code within text</li></ul>"><i class="icon-question-sign" title="Formatting Help"></i></a>
-		<a href="#" class="btn previewbutton" title="Update Preview"><i class="icon-eye-open"></i></a>
+	<?php echo @form_input('location', set_value('location', $data['location']), 'id="location" class="form-control"'); ?>
+	<br class="clear" />
 	</div>
-	<br class="clear" /><br />
 
-	<label for="body">Description:</label>
-	<?php echo @form_textarea('description', set_value('description', $data['description']), 'id="body" class="formelement code half"'); ?>
-	<div class="preview"></div>
-	<br class="clear" /><br />
-
+	<div class="span6">
 	<h2 class="underline">Publishing</h2>
 	
 	<label for="featured">Featured:</label>
@@ -119,9 +99,11 @@ $(function(){
 	?>
 	<br class="clear" />
 
-	<label for="tags">Tags: <br /></label>
-	<?php echo @form_input('tags', set_value('tags', $data['tags']), 'id="tags" class="formelement"'); ?>
-	<span class="tip">Separate tags with spaces (e.g. &ldquo;event popular london&rdquo;)</span>
+	<label for="tags">Tags:</label>
+	<?php echo @form_input('tags', set_value('tags', $data['tags']), 'id="tags" class="form-control"'); ?>
+	<span class="help">
+	<a href="javascript:void(0)" class="btn helpbutton" data-toggle="popover" data-original-title="Help" data-content="Separate tags with spaces (e.g. &ldquo;event popular London&rdquo;)"><i class="icon-question-sign" title="Help"></i></a>
+	</span>
 	<br class="clear" />
 
 	<label for="published">Publish:</label>
@@ -132,8 +114,46 @@ $(function(){
 		);
 		echo @form_dropdown('published',$values,set_value('published', $data['published']), 'id="published"'); 
 	?>
-
 	<br class="clear" />
+
+	<label for="excerpt">Headline Excerpt:</label>
+	<?php echo @form_textarea('excerpt', set_value('excerpt', $data['excerpt']), 'id="excerpt" class="form-control code"'); ?>
+	<br class="clear" /><br />
+
+	</div>
+	</div>
+
+	<div class="row-fluid">
+	<div class="span6">
+
+	<h2 class="underline">Event Description</h2>	
+
+	<label for="buttons">Formatting:</label>
+	<div class="buttons" id="buttons">
+		<a href="#" class="btn boldbutton" title="Bold"><i class="icon-bold"></i></a>
+		<a href="#" class="btn italicbutton" title="Italic"><i class="icon-italic"></i></a>
+		<a href="#" class="btn btn-small h1button" title="Heading 1">h1</a>
+		<a href="#" class="btn btn-small h2button" title="Heading 2">h2</a>
+		<a href="#" class="btn btn-small h3button" title="Heading 3">h3</a>
+		<a href="#" class="btn urlbutton"><i class="icon-link" title="Insert URL Link"></i></a>
+		<a href="<?php echo site_url('/admin/images/browser'); ?>" class="btn halogycms_imagebutton" title="Insert Image"><i class="icon-picture"></i></a>
+		<a href="<?php echo site_url('/admin/files/browser'); ?>" class="btn halogycms_filebutton" title="Insert File"><i class="icon-file-alt"></i></a>
+		<a href="javascript:void(0)" class="btn helpbutton" data-toggle="popover" data-original-title="Formatting Help" data-content="<p>Select desired text, then click button to format or insert.</p><p>Additional formatting options:</p><ul><li>+ before list elements</li><li>> before block quotes</li><li>4 space indentation to format code listings</li><li>3 hyphens on a line by themselves to make a horizontal rule</li><li>` (backtick quote) to span code within text</li></ul>"><i class="icon-question-sign" title="Formatting Help"></i></a>
+	</div>
+	<br class="clear" /><br />
+
+	<?php echo @form_textarea('description', set_value('description', $data['description']), 'id="body" class="form-control code"'); ?>
+
+	</div>
+	<div class="span6">
+
+	<h2 class="underline">Event Preview <a href="#" class="btn previewbutton" title="Update Preview">Update Preview <i class="icon-eye-open"></i></a>
+</h2>
+	<div class="preview"></div>
+
+	</div>
+	</div>
+
 	<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>
 <?php
 	// Vizlogix CSRF protection:

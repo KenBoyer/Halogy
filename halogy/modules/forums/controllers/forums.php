@@ -292,7 +292,7 @@ class Forums extends MX_Controller {
 					$options[$catforum['forumID']] = $catforum['forumName'];
 				}
 			}
-			$output['select:forums'] = @form_dropdown('forumID', $options, '', 'id="category" class="formelement"');
+			$output['select:forums'] = @form_dropdown('forumID', $options, '', 'id="category" class="form-control"');
 		}
 		elseif ($forums = $this->forums->get_forums())
 		{
@@ -301,7 +301,7 @@ class Forums extends MX_Controller {
 			{
 				$options[$catforum['forumID']] = $catforum['forumName'];
 			}
-			$output['select:forums'] = @form_dropdown('forumID', $options, '', 'id="category" class="formelement"');
+			$output['select:forums'] = @form_dropdown('forumID', $options, '', 'id="category" class="form-control"');
 		}
 
 		// set permissions
@@ -502,6 +502,7 @@ class Forums extends MX_Controller {
 			{
 				// load email lib
 				$this->load->library('email');
+//				$this->email->set_mailtype('html');
 
 				// get postID
 				$postID = $this->db->insert_id();

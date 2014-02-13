@@ -5,8 +5,9 @@
 <div class="headingright">
 	<a href="<?php echo site_url('/admin/pages/templates'); ?>" class="btn btn-info">Templates</a>
 	<a href="<?php echo site_url('/admin/pages/includes'); ?>" class="btn btn-info">Includes</a>
-	<a href="<?php echo site_url('/admin/pages/includes/J'); ?>" class="btn btn-info">Javascript</a>	
-	<a href="<?php echo site_url('/admin/pages/add_include/C'); ?>" class="btn btn-success">Add CSS <i class="icon-plus-sign"></i></a>
+	<a href="<?php echo site_url('/admin/pages/includes/less'); ?>" class="btn btn-info">LESS</a>
+	<a href="<?php echo site_url('/admin/pages/includes/js'); ?>" class="btn btn-info">Javascript</a>	
+	<a href="<?php echo site_url('/admin/pages/add_include/css'); ?>" class="btn btn-success">Add CSS <i class="icon-plus-sign"></i></a>
 </div>
 
 <div class="hidden">

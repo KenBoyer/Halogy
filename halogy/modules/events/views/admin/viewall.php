@@ -19,7 +19,7 @@
 		<th><?php echo order_link('/admin/events/viewall','eventDate','Event Start'); ?></th>
 		<th><?php echo order_link('/admin/events/viewall','eventEnd','Event End'); ?></th>
 		<th>Repeats</th>
-		<th>Active</th>
+		<th>Status</th>
 		<th class="tiny">&nbsp;</th>
 		<th class="tiny">&nbsp;</th>
 	</tr>
@@ -32,18 +32,20 @@
 		<td><?php echo $event['time']; ?></td>
 		<td>
 			<?php
-				if (strtotime($event['eventEnd']) < time()) echo 'No';
-				else echo 'Yes';
+				if (strtotime($event['eventEnd']) < time())
+					echo '<span class="label">Inactive</span>';
+				else
+					echo '<span class="label label-warning">Occurring now</span>';
 			?>
 		</td>
 		<td class="tiny">
 			<?php if (in_array('events_edit', $this->permission->permissions)): ?>
-				<?php echo anchor('/admin/events/edit_event/'.$event['eventID'], 'Edit'); ?>
+				<?php echo anchor('/admin/events/edit_event/'.$event['eventID'], 'Edit <i class="icon-edit"></i>', 'class="btn btn-info"'); ?>
 			<?php endif; ?>
 		</td>
 		<td class="tiny">			
 			<?php if (in_array('events_delete', $this->permission->permissions)): ?>
-				<?php echo anchor('/admin/events/delete_event/'.$event['eventID'], 'Delete', 'onclick="return confirm(\'Are you sure you want to delete this?\')"'); ?>
+				<?php echo anchor('/admin/events/delete_event/'.$event['eventID'], 'Delete <i class="icon-trash"></i>', array('onclick' => 'return confirm(\'Are you sure you want to delete this?\')', 'class' => 'btn btn-danger')); ?>
 			<?php endif; ?>
 		</td>
 	</tr>

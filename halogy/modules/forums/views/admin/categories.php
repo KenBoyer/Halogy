@@ -46,17 +46,17 @@ $(function(){
 
 <div class="headingright">	
 	<a href="<?php echo site_url('/admin/forums/forums'); ?>" class="btn btn-info">View Forums</a>
-	<a href="#" class="toggle btn btn-success">Add Category</a>
+	<a href="#" class="toggle btn btn-success">Add Category <i class="icon-plus-sign"></i></a>
 </div>
 
-<p class="clear">Order your categories below by dragging the items in the order you want them.</p>
+<p class="clear">Order your categories below by dragging the items up or down.</p>
 
 <div class="hidden">
 	<form method="post" action="<?php echo site_url($this->uri->uri_string()); ?>" class="default">
 	
 		<label for="categoryName">Category name:</label>
 		
-		<?php echo @form_input('catName',$forums_cats['catName'], 'class="formelement" id="catName"'); ?>
+		<?php echo @form_input('catName',$forums_cats['catName'], 'class="form-control" id="catName"'); ?>
 			
 		<input type="submit" value="Add Category" id="submit" class="btn btn-success" />
 
@@ -76,7 +76,7 @@ $(function(){
 	<?php foreach ($categories as $category): ?>
 		<li id="forums_cats-<?php echo $category['catID']; ?>">
 			<span><strong><?php echo $category['catName']; ?></strong></span>
-			<?php echo @form_input($category['catID'].'[catName]', $category['catName'], 'class="formelement hide" title="Category Name"'); ?><input type="submit" class="button hide" value="Edit" />
+			<?php echo @form_input($category['catID'].'[catName]', $category['catName'], 'class="form-control hide" title="Category Name"'); ?><input type="submit" class="button hide" value="Edit" />
 			<a href="#" class="edit"><img src="<?php echo $this->config->item('staticPath'); ?>/images/btn_edit.png" alt="Edit" /></a>
 			<a href="<?php echo site_url('/admin/forums/delete_cat/'.$category['catID']); ?>" onclick="return confirm('Are you sure you want to delete this?')"><img src="<?php echo $this->config->item('staticPath'); ?>/images/btn_delete.png" alt="Delete" /></a>
 		</li>

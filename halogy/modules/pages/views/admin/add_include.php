@@ -32,13 +32,15 @@ height: 400px;
 <script src="<?php echo $this->config->item('staticPath'); ?>/codemirror/mode/css/css.js"></script>
 <script src="<?php echo $this->config->item('staticPath'); ?>/codemirror/mode/htmlmixed/htmlmixed.js"></script>
 <script type="text/javascript">
+var editor;
+
 $(function(){
 	$('.helpbutton').popover({placement: 'right', html: 'true'});
 
 <?php
 	if ($type == 'C') {
 ?>
-	var editor = CodeMirror.fromTextArea(document.getElementById("body"), {
+	editor = CodeMirror.fromTextArea(document.getElementById("body"), {
 		autoCloseTags: true,
 		lineNumbers: true,
 		matchBrackets: true,
@@ -47,9 +49,20 @@ $(function(){
 		extraKeys: {"Ctrl-Space": "autocomplete"}
 	});
 <?php
+	} elseif ($type == 'L') {
+?>
+	editor = CodeMirror.fromTextArea(document.getElementById("body"), {
+		autoCloseTags: true,
+		lineNumbers: true,
+		matchBrackets: true,
+		mode: 'text/x-less',
+		tabMode: "indent",
+		extraKeys: {"Ctrl-Space": "autocomplete"}
+	});
+<?php
 	} elseif ($type == 'J') {
 ?>
-	var editor = CodeMirror.fromTextArea(document.getElementById("body"), {
+	editor = CodeMirror.fromTextArea(document.getElementById("body"), {
 		autoCloseTags: true,
 		lineNumbers: true,
 		matchBrackets: true,
@@ -60,7 +73,7 @@ $(function(){
 <?php
 	} elseif ($type == 'H') {
 ?>
-	var editor = CodeMirror.fromTextArea(document.getElementById("body"), {
+	editor = CodeMirror.fromTextArea(document.getElementById("body"), {
 		autoCloseTags: true,
 		lineNumbers: true,
 		matchBrackets: true,
@@ -71,7 +84,7 @@ $(function(){
 <?php
 	} else {
 ?>
-	var editor = CodeMirror.fromTextArea(document.getElementById("body"), {
+	editor = CodeMirror.fromTextArea(document.getElementById("body"), {
 		autoCloseTags: true,
 		lineNumbers: true,
 		matchBrackets: true,
@@ -92,14 +105,22 @@ $(function(){
 		<?php
 		if ($type == 'C' || $type == "css") {
 			echo 'CSS File';
+			$type = 'C';
 			$typeLink = 'css';
 			$list_type = 'CSS';
+		} elseif ($type == 'L' || $type == "less") {
+			echo 'LESS File';
+			$type = 'L';
+			$typeLink = 'less';
+			$list_type = 'LESS';
 		} elseif ($type == 'J' || $type == "js") {
 			echo 'JS File';
+			$type = 'J';
 			$typeLink = 'js';
 			$list_type = 'Javascript';
 		} else {
 			echo 'Include File';
+			$type = 'H';
 			$typeLink = '';
 			$list_type = 'Include';
 		}
@@ -128,7 +149,7 @@ $(function(){
 <?php if ($type == 'C'): ?>
 
 	<label for="includeRef">Filename:</label>
-	<?php echo @form_input('includeRef',set_value('includeRef', $data['includeRef']), 'id="includeRef" class="formelement"'); ?>
+	<?php echo @form_input('includeRef',set_value('includeRef', $data['includeRef']), 'id="includeRef" class="form-control"'); ?>
 	<span class="help">
 	<a href="#" class="btn helpbutton" data-toggle="popover" data-original-title="Filename Help" data-content="Your file will be found at &ldquo;/css/filename.css&rdquo; (make sure you use the '.css' extension)."><i class="icon-question-sign" title="Filename Help"></i></a>
 	</span>
@@ -136,10 +157,21 @@ $(function(){
 
 	<?php echo @form_hidden('type', 'C'); ?>
 
+<?php elseif ($type == 'L'): ?>
+
+	<label for="includeRef">Filename:</label>
+	<?php echo @form_input('includeRef',set_value('includeRef', $data['includeRef']), 'id="includeRef" class="form-control"'); ?>
+	<span class="help">
+	<a href="#" class="btn helpbutton" data-toggle="popover" data-original-title="Help" data-content="Your LESS file will be compiled into a target css file when you save it (make sure you use the '.less' extension)."><i class="icon-question-sign" title="Help"></i></a>
+	</span>
+	<br class="clear" />
+
+	<?php echo @form_hidden('type', 'L'); ?>
+
 <?php elseif ($type == 'J'): ?>
 
 	<label for="includeRef">Filename:</label>
-	<?php echo @form_input('includeRef',set_value('includeRef', $data['includeRef']), 'id="includeRef" class="formelement"'); ?>
+	<?php echo @form_input('includeRef',set_value('includeRef', $data['includeRef']), 'id="includeRef" class="form-control"'); ?>
 	<span class="help">
 	<a href="#" class="btn helpbutton" data-toggle="popover" data-original-title="Filename Help" data-content="Your file will be found at &ldquo;/js/filename.js&rdquo; (make sure you use the '.js' extension)."><i class="icon-question-sign" title="Filename Help"></i></a>
 	</span>
@@ -150,7 +182,7 @@ $(function(){
 <?php else: ?>
 
 	<label for="includeRef">Reference:</label>
-	<?php echo @form_input('includeRef',set_value('includeRef', $data['includeRef']), 'id="includeRef" class="formelement"'); ?>
+	<?php echo @form_input('includeRef',set_value('includeRef', $data['includeRef']), 'id="includeRef" class="form-control"'); ?>
 	<span class="help">
 	<a href="#" class="btn helpbutton" data-toggle="popover" data-original-title="Filename Help" data-content="To use this include file, enter {include:<i>reference</i>} in your template."><i class="icon-question-sign" title="Filename Help"></i></a>
 	</span>

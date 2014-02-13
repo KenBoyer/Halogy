@@ -30,8 +30,8 @@ $(function(){
 </div>
 
 <div class="headingright">
-
 	<form method="post" action="<?php echo site_url('/admin/shop/orders'); ?>" class="default" id="search">
+<?php /*
 		<div class="input-append">
 			<input type="text" name="searchbox" id="searchbox" class="span2" title="Search Orders..." />
 			<button class="btn btn-primary" type="submit" id="searchbutton"><i class="icon-search"></i></button>
@@ -40,8 +40,7 @@ $(function(){
 		// Vizlogix CSRF protection:
 		echo '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
 ?>
-	</form>
-
+*/ ?>
 	<label for="filter">Filter:</label> 
 	<?php
 		foreach ($statusArray as $key => $status):
@@ -50,8 +49,9 @@ $(function(){
 		
 		echo form_dropdown('filter',$options,$trackingStatus,'id="filter"');
 	?>
+	</form>
 	
-	<a href="<?php echo site_url('/admin/shop/export_orders'); ?>" class="btn btn-info">Export Orders as CSV</a>
+	<a href="<?php echo site_url('/admin/shop/export_orders'); ?>" class="btn btn-info">Export Orders as CSV <i class="icon-download-alt"></i></a>
 
 </div>
 
@@ -91,8 +91,8 @@ $(function(){
 				else echo 'Unpaid Checkout';
 			?>
 		</td>
-		<td><?php echo anchor('/admin/shop/view_order/'.$order['transactionID'], 'View'); ?></td>
-		<td><?php echo anchor('/admin/shop/delete_order/'.$order['transactionID'], 'Delete', 'onclick="return confirm(\'Are you absolutely sure you want to delete this order? There is no undo.\')"'); ?></td>
+		<td><?php echo anchor('/admin/shop/view_order/'.$order['transactionID'], 'View <i class="icon-eye-open"></i>', 'class="btn btn-warning"'); ?></td>
+		<td><?php echo anchor('/admin/shop/delete_order/'.$order['transactionID'], 'Delete <i class="icon-trash"></i>', array('onclick="return confirm(\'Are you absolutely sure you want to delete this order? There is no undo.\')"', 'class' => 'btn btn-danger')); ?></td>
 	</tr>
 <?php endforeach; ?>
 </table>

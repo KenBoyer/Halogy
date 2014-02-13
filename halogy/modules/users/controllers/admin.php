@@ -22,7 +22,7 @@ class Admin extends MX_Controller {
 	var $table = 'users';						// table to update
 	var $includes_path = '/includes/admin';		// path to includes for header and footer
 	var $redirect = '/admin/users/viewall';		// default redirect
-	var $objectID = 'userID';					// default unique ID	
+	var $objectID = 'userID';					// default unique ID
 	var $permissions = array();
 
 	function __construct()
@@ -34,7 +34,7 @@ class Admin extends MX_Controller {
 		{
 			redirect('/admin/login/'.$this->core->encode($this->uri->uri_string()));
 		}
-		
+
 		// get permissions and redirect if they don't have access to this module
 		if (!$this->permission->permissions)
 		{
@@ -43,7 +43,7 @@ class Admin extends MX_Controller {
 
 		// get site permissions
 		$this->permission->sitePermissions = $this->permission->get_group_permissions($this->site->config['groupID']);
-		
+
 		// get siteID, if available
 		if (defined('SITEID'))
 		{
@@ -53,12 +53,12 @@ class Admin extends MX_Controller {
 		//  load models and libs
 		$this->load->model('users_model', 'users');
 	}
-	
+
 	function index()
 	{
 		redirect($this->redirect);
 	}
-	
+
 	function viewall()
 	{
 		// check permissions for this page
@@ -66,7 +66,7 @@ class Admin extends MX_Controller {
 		{
 			redirect('/admin/dashboard/permissions');
 		}
-		
+
 		// if search
 		$where = '';
 		if (count($_POST) && ($query = $this->input->post('searchbox')))
@@ -76,7 +76,7 @@ class Admin extends MX_Controller {
 			{
 				$firstName = $name[0];
 				$lastName = $name[1];
-				
+
 				$where = '(email LIKE "%'.$this->db->escape_like_str($query).'%" OR firstName LIKE "%'.$this->db->escape_like_str($firstName).'%" AND lastName LIKE "%'.$this->db->escape_like_str($lastName).'%")';
 			}
 			else
@@ -105,7 +105,7 @@ class Admin extends MX_Controller {
 				$output['normalGroups'][] = $group['groupID'];
 			}
 		}
-		
+
 		// get all groups
 		if ($userGroups = $this->permission->get_groups())
 		{
@@ -127,7 +127,7 @@ class Admin extends MX_Controller {
 		{
 			redirect('/admin/dashboard/permissions');
 		}
-				
+
 		// required
 		$this->core->required = array(
 			'username' => array('label' => 'Username', 'rules' => 'really_unique[users.username]|trim'),
@@ -138,7 +138,7 @@ class Admin extends MX_Controller {
 
 		// get values
 		$output['data'] = $this->core->get_values($this->table);
-		$output['groups'] = $this->permission->get_groups();		
+		$output['groups'] = $this->permission->get_groups();
 
 		// set date
 		$this->core->set['dateCreated'] = date("Y-m-d H:i:s");
@@ -199,9 +199,9 @@ class Admin extends MX_Controller {
 		{
 			show_error('You do have permission to edit this user.');
 		}
-		
+
 		// set object ID
-		$objectID = array($this->objectID => $userID);		
+		$objectID = array($this->objectID => $userID);
 
 		// required
 		$this->core->required = array(
@@ -213,7 +213,7 @@ class Admin extends MX_Controller {
 
 		// get values
 		$output['data'] = $this->core->get_values($this->table, $objectID);
-		$output['groups'] = $this->permission->get_groups();			
+		$output['groups'] = $this->permission->get_groups();
 
 		// deal with post
 		if (count($_POST))
@@ -250,7 +250,7 @@ class Admin extends MX_Controller {
 				redirect('/admin/dashboard/permissions');
 				die();
 			}
-	
+
 			// set siteID
 			if ($this->input->post('siteID') && $this->session->userdata('groupID') < 0)
 			{
@@ -266,6 +266,13 @@ class Admin extends MX_Controller {
 			{
 				$output['message'] = '<p>Your details have been updated.</p>';
 			}
+		}
+
+		$message = $this->session->flashdata('message');
+		// save any messages to output
+		if (strlen($message) > 0)
+		{
+			$output['message'] = '<p>'.$message.'</p>';
 		}
 
 		// set image path
@@ -286,7 +293,7 @@ class Admin extends MX_Controller {
 		{
 			redirect('/admin/dashboard/permissions');
 		}
-				
+
 		if ($this->core->delete($this->table, array($this->objectID => $objectID)))
 		{
 			// where to redirect to
@@ -301,7 +308,7 @@ class Admin extends MX_Controller {
 		{
 			redirect('/admin/dashboard/permissions');
 		}
-				
+
 		$output = '';
 		if (isset($_FILES['csv']))
 		{
@@ -310,7 +317,7 @@ class Admin extends MX_Controller {
 				$output['message'] = '<strong>'.$numImported.'</strong> rows have been imported or updated successfully.';
 			}
 		}
-				
+
 		$this->load->view($this->includes_path.'/header');
 		$this->load->view('import', $output);
 		$this->load->view($this->includes_path.'/footer');
@@ -323,14 +330,14 @@ class Admin extends MX_Controller {
 		{
 			redirect('/admin/dashboard/permissions');
 		}
-		
+
 		// export orders as CSV
 		$this->load->dbutil();
 
 		$query = $this->users->export();
-		
-		$csv = $this->dbutil->csv_from_result($query); 
-		
+
+		$csv = $this->dbutil->csv_from_result($query);
+
 		header("Pragma: public");
 		header("Expires: 0");
 		header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
@@ -339,12 +346,12 @@ class Admin extends MX_Controller {
 		header("Content-Length: " .(string)(strlen($csv)));
 		header("Content-Disposition: attachment; filename=users-".date('U').".csv");
 		header("Content-Description: File Transfer");
-		
+
 		$this->output->set_output($csv);
 	}
 
 	function ac_users()
-	{	
+	{
 		$q = strtolower($_POST["q"]);
         if (!$q) return;
 
@@ -377,7 +384,7 @@ class Admin extends MX_Controller {
 
 		// wheres
 		$where['groupID !='] = $this->site->config['groupID'];
-				
+
 		// if return
 		$output = $this->core->viewall('permission_groups', $where);
 
@@ -392,7 +399,7 @@ class Admin extends MX_Controller {
 		if (!in_array('users_groups', $this->permission->permissions))
 		{
 			redirect('/admin/dashboard/permissions');
-		}	
+		}
 
 		// required
 		$this->core->required = array(
@@ -401,7 +408,7 @@ class Admin extends MX_Controller {
 
 		// deal with post
 		if (count($_POST))
-		{			
+		{
 			// check groupID is not being overridden
 			if ($this->input->post('groupID') < 0 && $this->session->userdata('groupID') >= 0)
 			{
@@ -414,21 +421,21 @@ class Admin extends MX_Controller {
 			{
 				// get new groupID
 				$groupID = $this->db->insert_id();
-				
+
 				// add permissions on new groupID
 				$this->permission->add_permissions($groupID, $this->siteID);
-								
+
 				// where to redirect to
 				redirect('/admin/users/groups');
-			}			
+			}
 		}
-				
+
 		// get values
 		$output['data'] = $this->core->get_values('permission_groups');
 
 		// get permissions
 		$output['permissions'] = $this->permission->get_permissions($this->session->userdata('groupID'));
-		
+
 		// templates
 		$this->load->view($this->includes_path.'/header');
 		$this->load->view('add_group',$output);
@@ -441,10 +448,10 @@ class Admin extends MX_Controller {
 		if (!in_array('users_groups', $this->permission->permissions))
 		{
 			redirect('/admin/dashboard/permissions');
-		}	
-				
+		}
+
 		// set object ID
-		$objectID = array('groupID' => $groupID);		
+		$objectID = array('groupID' => $groupID);
 
 		// required
 		$this->core->required = array(
@@ -453,7 +460,7 @@ class Admin extends MX_Controller {
 
 		// deal with post
 		if (count($_POST))
-		{			
+		{
 			// check groupID is not being overridden
 			if ($this->input->post('groupID') < 0 && $this->session->userdata('groupID') >= 0)
 			{
@@ -466,12 +473,19 @@ class Admin extends MX_Controller {
 			{
 				// add permissions
 				$this->permission->add_permissions($groupID, $this->siteID);
-								
+
 				// where to redirect to
 				redirect('/admin/users/groups');
-			}			
+			}
 		}
-				
+
+		$message = $this->session->flashdata('message');
+		// save any messages to output
+		if (strlen($message) > 0)
+		{
+			$output['message'] = '<p>'.$message.'</p>';
+		}
+
 		// get values
 		$output['data'] = $this->core->get_values('permission_groups', $objectID);
 
@@ -484,7 +498,7 @@ class Admin extends MX_Controller {
 		{
 			$output['data']['perm'.$perm['permissionID']] = 1;
 		}
-		
+
 		// templates
 		$this->load->view($this->includes_path.'/header');
 		$this->load->view('edit_group',$output);
@@ -498,12 +512,105 @@ class Admin extends MX_Controller {
 		{
 			redirect('/admin/dashboard/permissions');
 		}
-				
+
 		if ($this->core->delete('permission_groups', array('groupID' => $objectID)))
-		{		
+		{
 			// where to redirect to
 			redirect('/admin/users/groups');
 		}
-	}	
-	
+	}
+
+	// send a message to all users in a group
+	function send_group_message()
+	{
+		// TBD: if groupName == '', send to ALL group users
+		$error = '';
+
+		$groupName = $this->input->post('groupName');
+		// TBD:
+		$groupID = 1;
+		$userlist = $this->users->get_users_by_group($groupName);
+
+		// get userIDs for users
+		if ($userlist)
+		{
+			foreach ($userlist as $user)
+			{
+				$error = $this->send_message($user['userID']);
+				$groupID = $user['groupID'];
+			}
+		}
+
+		// save the message through the redirect
+		if (strlen($error) > 0) $this->session->set_flashdata('message', $error);
+
+		redirect('/admin/users/edit_group/'.$groupID);
+	}
+
+	// send a message to a single user
+	function send_user_message()
+	{
+		$toUserID = $this->input->post('userID');
+		$error = $this->send_message($toUserID);
+
+		// save the message through the redirect
+		if ($error) $this->session->set_flashdata('message', $error);
+
+		redirect('/admin/users/edit/'.$toUserID);
+	}
+
+	// allow for both single user and group emails
+	function send_message($toUserID = '')
+	{
+		$errors = '';
+
+		// make sure toUserID is set
+		if (!$toUserID || !($data['user'] = $this->users->get_user($toUserID)) || $toUserID == $this->session->userdata('userID'))
+		{
+			$errors = 'No user specified. No email sent.';
+			return $errors;
+		}
+
+		if (count($_POST))
+		{
+			$message = $this->input->post('body');
+		}
+		else
+		{
+			$message = '';
+		}
+
+		if (strlen($message) > 0)
+		{
+			// get user data
+			$data['user'] = $this->users->get_user($toUserID);
+
+			if ($data['user']['notifications'])
+			{
+				// set header and footer
+				$emailHeader = str_replace('{name}', $data['user']['firstName'].' '.$data['user']['lastName'], $this->site->config['emailHeader']);
+				$emailHeader = str_replace('{email}', $data['user']['email'], $emailHeader);
+				$emailFooter = str_replace('{name}', $data['user']['firstName'].' '.$data['user']['lastName'], $this->site->config['emailFooter']);
+				$emailFooter = str_replace('{email}', $data['user']['email'], $emailFooter);
+
+				// send email
+				$this->load->library('email');
+				$this->email->set_mailtype('html');
+				$this->email->from($this->site->config['siteEmail'], $this->site->config['siteName']);
+				$this->email->to($data['user']['email']);
+				$this->email->subject('New Message from '.$this->site->config['siteName']);
+				$this->email->message($emailHeader."<br />".
+					$message."<br />".
+					$emailFooter);
+				$this->email->send();
+			}
+		}
+		else
+		{
+			// error?
+			$errors .= "The message body was empty. No email sent.";
+		}
+
+		return $errors;
+	}
 }

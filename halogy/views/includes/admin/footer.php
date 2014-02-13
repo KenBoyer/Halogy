@@ -2,15 +2,11 @@
 			<div id="halogycms_browser" class="loading"></div>
 
 		</div>
-
+	  </div>
 	</div>
 
-
-	<div id="footer" class="content">
-
-		<div class="container">
-
-		
+	<div class="container">
+		<div id="footer" class="content">
 			<p class="copyright">
 			Powered by <a href="http://www.halogy.com" title="Halogy">Halogy</a>
 			</p>
@@ -22,11 +18,8 @@
 			
 			<a href="http://www.halogy.com"><img src="<?php echo $this->config->item('staticPath'); ?>/images/halogy_marque.gif" alt="Powered by Halogy" /></a>
 
-
 		</div>
-
 	</div>
-
 </div>
 	
 </body>

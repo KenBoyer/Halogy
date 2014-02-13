@@ -4,11 +4,14 @@
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	<link rel="icon" href="<?php echo $this->config->item('staticPath'); ?>/images/favicon.ico" type="image/x-icon" />
+	<link rel="stylesheet" href="<?php echo $this->config->item('staticPath'); ?>/css/font-awesome.min.css" />
 
-	<link rel="stylesheet" type="text/css" href="<?php echo $this->config->item('staticPath'); ?>/css/bootstrap.min.css" media="all" />
-    <link rel="stylesheet" type="text/css" href="<?php echo $this->config->item('staticPath'); ?>/css/bootstrap-image-gallery.min.css" />
-	<link rel="stylesheet" type="text/css" href="<?php echo $this->config->item('staticPath'); ?>/css/bootstrap-responsive.min.css" media="all" />
-	<link rel="stylesheet" href="<?php echo $this->config->item('staticPath'); ?>/css/font-awesome.min.css">
+	<style>
+<?php
+	include "css/bootstrap.min.css";
+    include "css/bootstrap-image-gallery.min.css";
+?>
+	</style>
 
 	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css">
 
@@ -17,32 +20,49 @@
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-    <script src="<?php echo $this->config->item('staticPath'); ?>/js/bootstrap.min.js"></script>
+<!--	<link rel="stylesheet" type="text/css" href="admin.css" media="all" /> -->
+	<style>
+<?php
+	include "css/admin.css";
+	include "css/datepicker.css";
+?>
+	</style>
 
-	<link rel="stylesheet" type="text/css" href="<?php echo $this->config->item('staticPath'); ?>/css/admin.css" media="all" />
-	<link rel="stylesheet" type="text/css" href="<?php echo $this->config->item('staticPath'); ?>/css/datepicker.css" media="screen" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script>
+<?php
+	include "js/bootstrap.min.js";
+?>
+	</script>
 
 	<!-- Vizlogix code to enable AJAX form submission with CSRF protection -->
 	<script language="javascript" type="text/javascript" src="<?php echo $this->config->item('staticPath'); ?>/js/jquery.cookie.js"></script>
 	<script language="javascript" type="text/javascript">
 	$(function($) {
-		$.ajaxSetup({
-			data: {
-				csrf_test_name: $.cookie('csrf_cookie_name')
+		$("body").bind("ajaxSend", function(elm, xhr, s) {
+			var token;
+			token = '<?php echo $this->security->get_csrf_hash(); ?>';
+			if (s.type == "POST") {
+				s.data += ("&csrf_test_name=" + token);
+			} else if (s.type == "GET") {
+			//	s.url += ("&csrf_test_name='" + token + "'");
 			}
-			});
 		});
+	});
 	</script>
 
 	<script language="javascript" type="text/javascript" src="<?php echo $this->config->item('staticPath'); ?>/js/jquery.scrollTo.min.js"></script>
-
-	<script language="javascript" type="text/javascript" src="<?php echo $this->config->item('staticPath'); ?>/js/admin.js"></script>
-
 	<script language="javascript" type="text/javascript" src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
 	<script language="javascript" type="text/javascript" src="<?php echo $this->config->item('staticPath'); ?>/js/jquery-ui-timepicker-addon.js"></script>
+    <script>
+<?php
+	include "js/admin.js";
+?>
+	</script>
 
 	<title><?php echo (isset($this->site->config['siteName'])) ? $this->site->config['siteName'] : 'Login to'; ?> Admin - Halogy</title>
+
+	<?php echo header("X-XSS-Protection: 0"); ?>
 	
 </head>
 <body>
@@ -50,9 +70,9 @@
 <div class="bg">
 	
 	<div class="container">
-
-		<div class="row-fluid" style="background-color: #f4f4f4;">
-		<div class="span4">
+	<div class="content">
+		<div class="row">
+		<div class="col-lg-4">
 		<div id="header">
 
 			<div id="logo">
@@ -63,32 +83,28 @@
 					elseif ($image = $this->uploads->load_image('admin-logo')) $logo = $image['src'];
 					else $logo = $this->config->item('staticPath').'/images/halogy_logo.jpg';
 				?>
-
-				<h1><a href="<?php echo site_url('/admin'); ?>"><?php echo (isset($this->site->config['siteName'])) ? $this->site->config['siteName'] : 'Login to'; ?> Admin</a></h1>
-				<a href="<?php echo site_url('/admin'); ?>"><img src="<?php echo $logo; ?>" alt="Logo" /></a>
+				<a href="http://www.vroomcms.com" target="_blank"><img src="<?php echo $logo; ?>" alt="Logo" /></a>
 
 			</div>
 		</div>
 		</div>
 
-		<div class="span8">
+		<div class="col-lg-8">
 			<div id="siteinfo">
 				<ul id="toolbar">
-					<li><a href="<?php echo site_url('/home'); ?>" class="btn">View Site <i class="icon-eye-open"></i></a></li>				
+					<li><a href="<?php echo site_url('/home'); ?>" class="btn btn-default">View Site <i class="icon-eye-open"></i></a></li>				
 					<?php if ($this->session->userdata('session_admin')): ?>				
-						<li><a href="<?php echo site_url('/admin/dashboard'); ?>" class="btn">Dashboard <i class="icon-dashboard"></i></a></li>
-						<li><a href="<?php echo site_url('/admin/users/edit/'.$this->session->userdata('userID')); ?>" class="btn">My Account <i class="icon-table"></i></a></li>
+						<li><a href="<?php echo site_url('/admin/dashboard'); ?>" class="btn btn-default">Dashboard <i class="icon-dashboard"></i></a></li>
+						<li><a href="<?php echo site_url('/admin/users/edit/'.$this->session->userdata('userID')); ?>" class="btn btn-default">Your Account <i class="icon-table"></i></a></li>
 						<?php if ($this->session->userdata('groupID') == $this->site->config['groupID'] || $this->session->userdata('groupID') < 0): ?>
-							<li><a href="<?php echo site_url('/admin/site/'); ?>" class="btn">My Site <i class="icon-cog"></i></a></li>
+							<li><a href="<?php echo site_url('/admin/site/'); ?>" class="btn btn-default">This Site <i class="icon-cog"></i></a></li>
 						<?php endif; ?>
 						<?php if ($this->session->userdata('groupID') < 0 && @file_exists(APPPATH.'modules/halogy/controllers/halogy.php')): ?>
-							<li class="noborder"><a href="<?php echo site_url('/admin/logout'); ?>" class="btn">Logout <i class="icon-signout"></i></a></li>
-							<li class="superuser"><a href="<?php echo site_url('/halogy/sites'); ?>" class="btn btn-warning">Sites <i class="icon-cogs"></i></a></li>
-						<?php else: ?>
-							<li class="last"><a href="<?php echo site_url('/admin/logout'); ?>" class="btn">Logout <i class="icon-signout"></i></a></li>
+							<li class="superuser"><a href="<?php echo site_url('/halogy/sites'); ?>" class="btn btn-warning">All Sites <i class="icon-cogs"></i></a></li>
 						<?php endif; ?>						
+						<li class="noborder"><a href="<?php echo site_url('/admin/logout'); ?>" class="btn btn-default">Logout <i class="icon-signout"></i></a></li>
 					<?php else: ?>
-						<li class="last"><a href="<?php echo site_url('/admin'); ?>" class="btn">Login <i class="icon-signin"></i></a></li>
+						<li class="last"><a href="<?php echo site_url('/admin'); ?>" class="btn btn-default">Login <i class="icon-signin"></i></a></li>
 					<?php endif; ?>
 				</ul>
 
@@ -101,17 +117,16 @@
 		</div>
 		</div>
 	</div>
+	</div>
 
     <div class="container">
     <div class="navbar navbar-static-top">
-      <div class="navbar-inner">
         <div class="container">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+		  <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
             <i class="icon-reorder"></i> MENU
-          </a>
-<!--          <a class="brand" href="#">Online Store Demo</a> -->
-          <div class="nav-collapse collapse">
-            <ul class="nav">
+          </button>
+          <div class="nav-collapse collapse navbar-responsive-collapse">
+            <ul class="nav navbar-nav">
 			<?php if($this->session->userdata('session_admin')): ?>
 				<?php if (in_array('pages', $this->permission->permissions)): ?>
 					<li class="dropdown">
@@ -128,10 +143,11 @@
 					<li class="dropdown">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Templates<i class="icon-caret-down"></i></a>
 						<ul class="dropdown-menu">
-							<li><a href="<?php echo site_url('/admin/pages/templates'); ?>">All Templates</a></li>
+							<li><a href="<?php echo site_url('/admin/pages/templates'); ?>">Page Templates</a></li>
 							<li><a href="<?php echo site_url('/admin/pages/includes'); ?>">Includes</a></li>
-							<li><a href="<?php echo site_url('/admin/pages/includes/css'); ?>">CSS</a></li>
-							<li><a href="<?php echo site_url('/admin/pages/includes/js'); ?>">Javascript</a></li>
+							<li><a href="<?php echo site_url('/admin/pages/includes/css'); ?>">CSS Files</a></li>
+							<li><a href="<?php echo site_url('/admin/pages/includes/less'); ?>">LESS Files</a></li>
+							<li><a href="<?php echo site_url('/admin/pages/includes/js'); ?>">Javascript Files</a></li>
 						</ul>
 					</li>
 				<?php endif; ?>	
@@ -176,8 +192,10 @@
 							<?php endif; ?>
 							<?php if (in_array('blog_cats', $this->permission->permissions)): ?>
 								<li><a href="<?php echo site_url('/admin/blog/categories'); ?>">Categories</a></li>
-							<?php endif; ?>							
-							<li><a href="<?php echo site_url('/admin/blog/comments'); ?>">Comments</a></li>
+							<?php endif; ?>
+							<?php if (in_array('blog', $this->permission->permissions)): ?>
+								<li><a href="<?php echo site_url('/admin/blog/comments'); ?>">Comments</a></li>
+							<?php endif; ?>
 						</ul>
 					</li>
 				<?php endif; ?>
@@ -267,8 +285,8 @@
             </ul>
           </div><!--/.nav-collapse -->
         </div>
-      </div>
     </div>
     </div>
 
-	<div id="content" class="content container">
+	<div class="container">
+	  <div id="content" class="content">

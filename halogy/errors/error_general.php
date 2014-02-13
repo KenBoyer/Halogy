@@ -28,11 +28,13 @@
 
 			<center>
 
-				<h1>Slight problem...</h1>
+				<h1>"Houston, we've had a problem..."</h1>
 
-				<?php echo $message; ?>
+				<h3><?php echo $message; ?></h3>
 
-				<img src="http://static.halogy.com/images/halogy_device.jpg" alt="Halogy" />
+				<a href="http://www.vroomcms.com"><img src="/static/images/VROOMCMS_logo_2013_Dashboard.png" alt="VROOM CMS" /></a>
+				<br />
+				<a href="http://www.halogy.com"><img src="http://static.halogy.com/images/halogy_device.jpg" alt="Halogy" /></a>
 				
 			</center>
 

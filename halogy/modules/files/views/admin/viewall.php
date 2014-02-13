@@ -9,6 +9,22 @@
 </style>
 
 <script type="text/javascript">
+function setOrder(){
+	$.post('<?php echo site_url('/admin/files/order/file'); ?>',$(this).sortable('serialize'),function(data){ });
+};
+
+function initOrder(el){
+	$('ol.order').height($('ol.order').height());
+	$(el).sortable({ 
+		axis: 'y',
+	    revert: false, 
+	    delay: '80',
+		distance: '10',
+	    opacity: '0.5',
+	    update: setOrder
+	});
+};
+
 $(function(){
 	$('.toggle').click(function(event){ 
 		event.preventDefault();		
@@ -35,6 +51,8 @@ $(function(){
 		var folderID = ($(this).val());
 		window.location.href = '<?php echo site_url('/admin/files/viewall'); ?>/'+folderID;
 	});
+
+	initOrder('ol.order, ol.order ol');
 });
 </script>
 
@@ -69,7 +87,7 @@ $(function(){
 
 	<?php if ($this->site->config['plan'] = 0 || $this->site->config['plan'] = 6 || (($this->site->config['plan'] > 0 && $this->site->config['plan'] < 6) && $quota < $this->site->plans['storage'])): ?>
 
-		<a href="#" class="btn btn-info toggle">Upload File <i class="icon-upload"></i></a>
+		<a href="#upload-file" class="btn btn-info accordion-toggle" data-toggle="collapse" data-parent="#accordion">Upload File <i class="icon-upload"></i></a>
 
 	<?php endif; ?>
 	
@@ -80,37 +98,6 @@ $(function(){
 		<?php echo $errors; ?>
 	</div>
 <?php endif; ?>
-
-<div id="upload-file"class="hidden clear">
-	<form method="post" action="<?php echo site_url($this->uri->uri_string()); ?>" enctype="multipart/form-data" class="default">
-	
-		<label for="file">File:</label>
-		<div class="uploadfile">
-			<?php echo @form_upload('file',$this->validation->file, 'size="16" id="file"'); ?>
-		</div>
-		<br class="clear" />
-
-		<label for="fileFolderID">Folder: <small>[<a href="<?php echo site_url('/admin/files/folders'); ?>" onclick="return confirm('You will lose any unsaved changes.\n\nContinue anyway?')">update</a>]</small></label>
-		<?php
-			$options = '';		
-			$options[0] = 'No Folder';
-			if ($folders):
-				foreach ($folders as $folderID):
-					$options[$folderID['folderID']] = $folderID['folderName'];
-				endforeach;
-			endif;
-				
-			echo @form_dropdown('folderID',$options,set_value('folderID', $data['folderID']),'id="fileFolderID" class="formelement"');
-		?>	
-		<br class="clear" /><br />
-			
-		<input type="submit" value="Upload File" class="button nolabel" id="submit" />
-		<a href="<?php echo site_url('/admin/files'); ?>" class="button cancel grey">Cancel</a>
-		
-	</form>
-</div>
-
-<div id="loader" class="hidden clear"></div>
 
 <?php if ($this->site->config['plan'] > 0 && $this->site->config['plan'] < 6): ?>
 
@@ -136,54 +123,79 @@ $(function(){
 
 <?php endif; ?>
 
+<div class="panel-group" id="accordion">
+<div id="upload-file" class="panel collapse">
+<div class="panel-heading">Upload File</div>
+	<div class="panel-body">
+	<form method="post" action="<?php echo site_url($this->uri->uri_string()); ?>" enctype="multipart/form-data" class="default">
+	
+		<label for="file">File:</label>
+		<div class="uploadfile">
+			<?php echo @form_upload('file',$this->validation->file, 'size="16" id="file"'); ?>
+		</div>
+		<br class="clear" />
+
+		<label for="fileFolderID">Folder: <small>[<a href="<?php echo site_url('/admin/files/folders'); ?>" onclick="return confirm('You will lose any unsaved changes.\n\nContinue anyway?')">update</a>]</small></label>
+		<?php
+			$options = '';		
+			$options[0] = 'No Folder';
+			if ($folders):
+				foreach ($folders as $folderID):
+					$options[$folderID['folderID']] = $folderID['folderName'];
+				endforeach;
+			endif;
+				
+			echo @form_dropdown('folderID',$options,set_value('folderID', $data['folderID']),'id="fileFolderID" class="form-control"');
+		?>	
+		<br class="clear" /><br />
+<?php
+		// Vizlogix CSRF protection:
+		echo '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+?>
+		<input type="submit" value="Upload File" class="btn btn-success" id="submit" />
+		<a href="#upload-file" class="btn btn-default accordion-toggle" data-toggle="collapse" data-parent="#accordion">Cancel <i class="icon-remove-sign"></i></a>
+
+	</form>
+	</div>
+</div>
+
+<div id="loader" class="clear"></div>
+</div>
+
 <?php if ($files): ?>
 
 	<?php echo $this->pagination->create_links(); ?>
-
-	<table class="images files clear" style="border-collapse: separate;">	
-		<tr>
+	<ol class="order">
 		<?php
 			$numItems = sizeof($files);
-			$itemsPerRow = 6;
-			$i = 0;
-						
 			foreach ($files as $file)
 			{
-				if (($i % $itemsPerRow) == 0 && $i > 1)
-				{
-					echo '</tr><tr>'."\n";
-					$i = 0;
-				}
-				echo '<td align="center" valign="bottom" width="'.floor(( 1 / $itemsPerRow) * 100).'%">';
-
 				$extension = substr($file['filename'], strpos($file['filename'], '.')+1);
 				$filePath = '/files/'.$file['fileRef'].'.'.$extension;				
-
 		?>
+				<li class="files" id="file-<?php echo $file['fileID']; ?>">
+				<div class="col1">
 				<a href="<?php echo $filePath; ?>" title="<?php echo $file['fileRef']; ?>"><img src="<?php echo $this->config->item('staticPath'); ?>/fileicons/<?php echo $extension; ?>.png" alt="<?php echo $file['fileRef']; ?>" class="file" /></a>
+				<strong><?php echo $file['description']; ?></strong>
+				</div>
 
-				<p><strong><?php echo $file['fileRef']; ?></strong></p>
+				<div class="col2"><p><?php echo $file['fileRef']; ?></p></div>
 
 				<div class="buttons">
 					<?php echo anchor('/admin/files/edit/'.$file['fileID'].'/', 'Edit <i class="icon-edit"></i>', 'class="btn btn-info edit"'); ?>
 					<?php echo anchor('/admin/files/delete/'.$file['fileID'], 'Delete <i class="icon-trash"></i>', array('onclick' => 'return confirm(\'Are you sure you want to delete this file?\')', 'class' => 'btn btn-danger')); ?>
 				</div>
 
+				<div class="clear"></div>
+				</li>
 		<?php
-				echo '</td>'."\n";
-				$i++;
-			}
-		
-			for($x = 0; $x < ($itemsPerRow - $i); $x++)
-			{
-				echo '<td width="'.floor((1 / $itemsPerRow) * 100).'%">&nbsp;</td>';
 			}
 		?>
-		</tr>
-	</table>
-	
+	</ol>
+
 	<?php echo $this->pagination->create_links(); ?>
 
+	<br class="clear" />
 	<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>
 
 <?php else: ?>

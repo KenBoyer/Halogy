@@ -8,7 +8,7 @@ $(function(){
 <h1 class="headingleft">Shipping Costs</h1>
 
 <div class="headingright">	
-	<a href="<?php echo site_url('/admin/shop/add_postage'); ?>" class="showform button blue">Add Shipping Rate</a>
+	<a href="<?php echo site_url('/admin/shop/add_postage'); ?>" class="showform btn btn-success">Add Shipping Rate</a>
 </div>
 
 <div class="clear"></div>

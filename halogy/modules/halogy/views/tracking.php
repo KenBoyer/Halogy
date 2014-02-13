@@ -14,9 +14,13 @@ $(function(){
 <a href="<?php echo site_url('/admin'); ?>" class="btn">Back to Dashboard <i class="icon-arrow-up"></i></a>
 </div>
 
-<br />
+<br class="clear"/>
 
+<div class="row">
+<div class="col-lg-12">
 <div class="loader"></div>
+</div>
+</div>
 
 <br class="clear" />
 

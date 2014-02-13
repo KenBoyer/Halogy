@@ -1,4 +1,3 @@
-<script type="text/javascript" src="<?php echo $this->config->item('staticPath'); ?>/js/templates.js" /></script>
 <script src="<?php echo $this->config->item('staticPath'); ?>/codemirror/lib/codemirror.js"></script>
 <link rel="stylesheet" href="<?php echo $this->config->item('staticPath'); ?>/codemirror/lib/codemirror.css">
 <style>
@@ -19,6 +18,8 @@ height: 400px;
 
 <script src="<?php echo $this->config->item('staticPath'); ?>/codemirror/mode/htmlmixed/htmlmixed.js"></script>
 <script type="text/javascript">
+var editor;
+
 $(function(){
 	$('.helpbutton').popover({placement: 'right', html: 'true'});
 
@@ -32,7 +33,7 @@ $(function(){
 			mode: "vbscript"}]
 	};
 
-	var editor = CodeMirror.fromTextArea(document.getElementById("body"), {
+	editor = CodeMirror.fromTextArea(document.getElementById("body"), {
 		autoCloseTags: true,
 		lineNumbers: true,
 		mode: mixedMode,
@@ -41,6 +42,7 @@ $(function(){
 	});
 });
 </script>
+<script type="text/javascript" src="<?php echo $this->config->item('staticPath'); ?>/js/templates.js" /></script>
 
 <form method="post" action="<?php echo site_url($this->uri->uri_string()); ?>" id="templateform" class="default">
 
@@ -77,7 +79,7 @@ $(function(){
 
 	<div class="showModuleName">
 		<label for="templateName">Name:</label>
-		<?php echo @form_input('templateName',set_value('templateName', $data['templateName']), 'id="templateName" class="formelement"'); ?>
+		<?php echo @form_input('templateName',set_value('templateName', $data['templateName']), 'id="templateName" class="form-control"'); ?>
 		<br class="clear" />
 	</div>
 
@@ -147,7 +149,7 @@ $(function(){
 
 		$values['custom'] = 'Custom Module';
 
-		echo @form_dropdown('moduleSelect',$values, (($data['templateName'] == 'custom') ? 'custom' : $data['modulePath']), 'id="moduleSelect" class="formelement" rel="'.site_url('/admin/pages/module').'"'); 
+		echo @form_dropdown('moduleSelect',$values, (($data['templateName'] == 'custom') ? 'custom' : $data['modulePath']), 'id="moduleSelect" class="form-control" rel="'.site_url('/admin/pages/module').'"'); 
 	?>
 	<span class="help">
 	<a href="#" class="btn helpbutton" data-toggle="popover" data-original-title="Module Help" data-content="To make a module template (e.g., for the blog), select the module here."><i class="icon-question-sign" title="Module Help"></i></a>
@@ -156,37 +158,37 @@ $(function(){
 
 	<div class="showModulePath">
 		<label for="modulePath">Module Reference:</label>
-		<?php echo @form_input('modulePath',set_value('modulePath', $data['modulePath']), 'id="modulePath" class="formelement"'); ?>
+		<?php echo @form_input('modulePath',set_value('modulePath', $data['modulePath']), 'id="modulePath" class="form-control"'); ?>
 		<br class="clear" />
 	</div>
 
-	<label for="header">Header:</label>
+<!--	<label for="header">Header:</label>
 <?php
-	$headers = array();
-	$headers[0] = 'No header selected';
-	foreach ($includes as $include):
-		$headers[$include['includeID']] = $include['includeRef'];
-	endforeach;
+	// $headers = array();
+	// $headers[0] = 'No header selected';
+	// foreach ($includes as $include):
+		// $headers[$include['includeID']] = $include['includeRef'];
+	// endforeach;
 
-	echo @form_dropdown('header', $headers, 0, 'id="header" class="formelement"');
+	// echo @form_dropdown('header', $headers, 0, 'id="header" class="form-control"');
 ?>
-	<br class="clear" />
+	<br class="clear" /> -->
 
 	<label for="body">Markup:</label>
 	<?php echo @form_textarea('body', set_value('body', $data['body']), 'id="body" class="code editor"'); ?>
 	<br class="clear" />
 
-	<label for="footer">Footer:</label>
+<!--	<label for="footer">Footer:</label>
 <?php
-	$footers = array();
-	$footers[0] = 'No footer selected';
-	foreach ($includes as $include):
-		$footers[$include['includeID']] = $include['includeRef'];
-	endforeach;
+	// $footers = array();
+	// $footers[0] = 'No footer selected';
+	// foreach ($includes as $include):
+		// $footers[$include['includeID']] = $include['includeRef'];
+	// endforeach;
 
-	echo @form_dropdown('footer', $footers, 0, 'id="footer" class="formelement"');
+	// echo @form_dropdown('footer', $footers, 0, 'id="footer" class="form-control"');
 ?>
-	<br class="clear" />
+	<br class="clear" /> -->
 
 <p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>
 <?php

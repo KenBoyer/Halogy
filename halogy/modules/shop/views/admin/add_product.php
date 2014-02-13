@@ -123,28 +123,30 @@ $(function(){
 
 <div class="tab-content">
 <div id="details" class="tab-pane active">
+	<div class="row">
+	<div class="col-lg-6">
 	<h2 class="underline">Product Details</h2>
 	
 	<label for="productName">Product name:</label>
-	<?php echo @form_input('productName',set_value('productName', $data['productName']), 'id="productName" class="formelement"'); ?>
+	<?php echo @form_input('productName',set_value('productName', $data['productName']), 'id="productName" class="form-control"'); ?>
 	<br class="clear" />
 
 	<label for="catalogueID">Catalog ID:</label>
-	<?php echo @form_input('catalogueID',set_value('catalogueID', $data['catalogueID']), 'id="catalogueID" class="formelement"'); ?>
+	<?php echo @form_input('catalogueID',set_value('catalogueID', $data['catalogueID']), 'id="catalogueID" class="form-control"'); ?>
 	<span class="help">
 	<a href="javascript:void(0)" class="btn helpbutton" data-toggle="popover" data-original-title="Catalog ID Help" data-content="The catalog ID can be used for your own catalog reference and stockkeeping."><i class="icon-question-sign" title="Catalog ID Help"></i></a>
 	</span>
 	<br class="clear" />
 
 	<label for="subtitle">Ext. URL / Subtitle:</label>
-	<?php echo @form_input('subtitle',set_value('subtitle', $data['subtitle']), 'id="subtitle" class="formelement"'); ?>
+	<?php echo @form_input('subtitle',set_value('subtitle', $data['subtitle']), 'id="subtitle" class="form-control"'); ?>
 	<span class="help">
 	<a href="javascript:void(0)" class="btn helpbutton" data-toggle="popover" data-original-title="External URL Help" data-content="If your product has an external website, enter the URL for the site here."><i class="icon-question-sign" title="External URL Help"></i></a>
 	</span>
 	<br class="clear" />
 
 	<label for="tags">Tags:</label>
-	<?php echo @form_input('tags', set_value('tags', $data['tags']), 'id="tags" class="formelement"'); ?>
+	<?php echo @form_input('tags', set_value('tags', $data['tags']), 'id="tags" class="form-control"'); ?>
 	<span class="help">
 	<a href="javascript:void(0)" class="btn helpbutton" data-toggle="popover" data-original-title="Tag Help" data-content="Separate tags with a comma (e.g. &ldquo;places, hobbies, favorite work&rdquo;)"><i class="icon-question-sign" title="Tag Help"></i></a>
 	</span>
@@ -152,7 +154,7 @@ $(function(){
 	
 	<label for="price">Price:</label>
 	<span class="price"><strong><?php echo currency_symbol(); ?></strong></span>
-	<?php echo @form_input('price',number_format(set_value('price', $data['price']),2,'.',''), 'id="price" class="formelement small"'); ?>
+	<?php echo @form_input('price',number_format(set_value('price', $data['price']),2,'.',''), 'id="price" class="form-control small"'); ?>
 	<br class="clear" />
 
 	<label for="image">Image:</label>
@@ -182,6 +184,8 @@ $(function(){
 	<a href="<?php echo site_url('/admin/shop/categories'); ?>" onclick="return confirm('You will lose any unsaved changes.\n\nContinue anyway?')" class="btn">Edit Categories <i class="icon-edit"></i></a>
 	<br class="clear" /><br />
 
+	</div>
+	<div class="col-lg-6">
 	<h2 class="underline">Availability</h2>
 	
 	<label for="status">Status:</label>
@@ -192,13 +196,13 @@ $(function(){
 			'P' => 'Pre-order',
 			'D' => 'Display only'
 		);
-		echo @form_dropdown('status',$values,set_value('status', $data['status']), 'id="status" class="formelement"'); 
+		echo @form_dropdown('status',$values,set_value('status', $data['status']), 'id="status" class="form-control"'); 
 	?>
 	<br class="clear" />
 	
 	<?php if ($this->site->config['shopStockControl']): ?>
 		<label for="stock">Stock:</label>
-		<?php echo @form_input('stock',set_value('stock', $data['stock']), 'id="stock" class="formelement small"'); ?>
+		<?php echo @form_input('stock',set_value('stock', $data['stock']), 'id="stock" class="form-control small"'); ?>
 		<br class="clear" />
 	<?php endif; ?>	
 
@@ -208,7 +212,7 @@ $(function(){
 			'N' => 'No',
 			'Y' => 'Yes',
 		);
-		echo @form_dropdown('featured',$values,set_value('featured', $data['featured']), 'id="featured" class="formelement"'); 
+		echo @form_dropdown('featured',$values,set_value('featured', $data['featured']), 'id="featured" class="form-control"'); 
 	?>
 	<span class="help">
 	<a href="javascript:void(0)" class="btn helpbutton" data-toggle="popover" data-original-title="Featured Product Help" data-content="Featured products will show on the online store front page."><i class="icon-question-sign" title="Featured Product Help"></i></a>
@@ -224,8 +228,8 @@ $(function(){
 		echo @form_dropdown('published',$values,set_value('published', $data['published']), 'id="published"'); 
 	?>
 	<br class="clear" />
-
-
+	</div>
+	</div>
 
 </div>
 
@@ -243,16 +247,16 @@ $(function(){
 		<a href="#" class="btn urlbutton"><i class="icon-link" title="Insert URL Link"></i></a>
 		<a href="<?php echo site_url('/admin/images/browser'); ?>" class="btn halogycms_imagebutton" title="Insert Image"><i class="icon-picture"></i></a>
 		<a href="<?php echo site_url('/admin/files/browser'); ?>" class="btn halogycms_filebutton" title="Insert File"><i class="icon-file-alt"></i></a>
-		<a href="#" class="btn helpbutton" data-toggle="popover" data-original-title="Formatting Help" data-content="<p>Select desired text, then click button to format or insert.</p><p>Additional formatting options:</p><ul><li>+ before list elements</li><li>> before block quotes</li><li>4 space indentation to format code listings</li><li>3 hyphens on a line by themselves to make a horizontal rule</li><li>` (backtick quote) to span code within text</li></ul>"><i class="icon-question-sign" title="Formatting Help"></i></a>
+		<a href="javascript:void(0)" class="btn helpbutton" data-toggle="popover" data-original-title="Formatting Help" data-content="<p>Select desired text, then click button to format or insert.</p><p>Additional formatting options:</p><ul><li>+ before list elements</li><li>> before block quotes</li><li>4 space indentation to format code listings</li><li>3 hyphens on a line by themselves to make a horizontal rule</li><li>` (backtick quote) to span code within text</li></ul>"><i class="icon-question-sign" title="Formatting Help"></i></a>
 		<a href="#" class="btn previewbutton" title="Update Preview"><i class="icon-eye-open"></i></a>
 	</div>
 	<label for="body">Body:</label>
-	<?php echo @form_textarea('description', set_value('description', $data['description']), 'id="body" class="formelement code half"'); ?>
+	<?php echo @form_textarea('description', set_value('description', $data['description']), 'id="body" class="form-control code half"'); ?>
 	<div class="preview"></div>
 	<br class="clear" /><br />
 
 	<label for="excerpt">Excerpt:</label>
-	<?php echo @form_textarea('excerpt',set_value('excerpt', $data['excerpt']), 'id="excerpt" class="formelement short"'); ?>
+	<?php echo @form_textarea('excerpt',set_value('excerpt', $data['excerpt']), 'id="excerpt" class="form-control short"'); ?>
 	<span class="help">
 	<a href="javascript:void(0)" class="btn helpbutton" data-toggle="popover" data-original-title="Excerpt Help" data-content="The excerpt is a brief description of your product which is used in some templates."><i class="icon-question-sign" title="Excerpt Help"></i></a>
 	</span>
@@ -284,7 +288,7 @@ $(function(){
 				$options[$file['fileID']] = $file['fileRef'].' ('.strtoupper($ext[1]).')';
 			endforeach;
 		endif;					
-		echo @form_dropdown('fileID',$options,set_value('fileID', $data['fileID']),'id="files" class="formelement"');
+		echo @form_dropdown('fileID',$options,set_value('fileID', $data['fileID']),'id="files" class="form-control"');
 	?>
 	<span class="help">
 	<a href="javascript:void(0)" class="btn helpbutton" data-toggle="popover" data-original-title="File Help" data-content="You can make this product a downloadable file (e.g. a premium MP3 or document)."><i class="icon-question-sign" title="File Help"></i></a>
@@ -300,7 +304,7 @@ $(function(){
 				$options[$band['bandID']] = $band['bandName'];
 			endforeach;
 		endif;					
-		echo @form_dropdown('bandID', $options, set_value('bandID', $data['bandID']),'id="bands" class="formelement"');
+		echo @form_dropdown('bandID', $options, set_value('bandID', $data['bandID']),'id="bands" class="form-control"');
 	?>
 	<span class="help">
 		<a href="javascript:void(0)" class="btn helpbutton" data-toggle="popover" data-original-title="Shipping Help" data-content="You can restrict this product to a shipping band if necessary."><i class="icon-question-sign" title="Shipping Help"></i></a>
@@ -319,7 +323,7 @@ $(function(){
 			<?php foreach (range(1,5) as $x): $i = $x-1; ?>
 				
 			<label for="variation1-<?php echo $x; ?>"><?php echo $this->site->config['shopVariation1']; ?> <?php echo $x; ?>:</label>
-			<?php echo @form_input('variation1-'.$x,set_value('variation1-'.$x, $variation1[$i]['variation']), 'id="variation1-'.$x.'" class="formelement"'); ?><span class="price"><strong><?php echo currency_symbol(); ?></strong></span><?php echo @form_input('variation1_price-'.$x,number_format(set_value('variation1_price-'.$x, $variation1[$i]['price']),2), 'class="formelement small"'); ?>
+			<?php echo @form_input('variation1-'.$x,set_value('variation1-'.$x, $variation1[$i]['variation']), 'id="variation1-'.$x.'" class="form-control"'); ?><span class="price"><strong><?php echo currency_symbol(); ?></strong></span><?php echo @form_input('variation1_price-'.$x,number_format(set_value('variation1_price-'.$x, $variation1[$i]['price']),2), 'class="form-control small"'); ?>
 			<br class="clear" />		
 
 			<?php endforeach; ?>		
@@ -338,7 +342,7 @@ $(function(){
 			<?php foreach (range(1,5) as $x): $i = $x-1; ?>
 				
 			<label for="variation2-<?php echo $x; ?>"><?php echo $this->site->config['shopVariation2']; ?> <?php echo $x; ?>:</label>
-			<?php echo @form_input('variation2-'.$x,set_value('variation2-'.$x, $variation2[$i]['variation']), 'id="variation2-'.$x.'" class="formelement"'); ?><span class="price"><strong><?php echo currency_symbol(); ?></strong></span><?php echo @form_input('variation2_price-'.$x,number_format(set_value('variation2_price-'.$x, $variation2[$i]['price']),2), 'class="formelement small"'); ?>
+			<?php echo @form_input('variation2-'.$x,set_value('variation2-'.$x, $variation2[$i]['variation']), 'id="variation2-'.$x.'" class="form-control"'); ?><span class="price"><strong><?php echo currency_symbol(); ?></strong></span><?php echo @form_input('variation2_price-'.$x,number_format(set_value('variation2_price-'.$x, $variation2[$i]['price']),2), 'class="form-control small"'); ?>
 			<br class="clear" />		
 
 			<?php endforeach; ?>
@@ -356,7 +360,7 @@ $(function(){
 			<?php foreach (range(1,5) as $x): $i = $x-1; ?>
 				
 			<label for="variation3-<?php echo $x; ?>"><?php echo $this->site->config['shopVariation3']; ?> <?php echo $x; ?>:</label>
-			<?php echo @form_input('variation3-'.$x,set_value('variation3-'.$x, $variation3[$i]['variation']), 'id="variation3-'.$x.'" class="formelement"'); ?><span class="price"><strong><?php echo currency_symbol(); ?></strong></span><?php echo @form_input('variation3_price-'.$x,number_format(set_value('variation3_price-'.$x, $variation3[$i]['price']),2), 'class="formelement small"'); ?>
+			<?php echo @form_input('variation3-'.$x,set_value('variation3-'.$x, $variation3[$i]['variation']), 'id="variation3-'.$x.'" class="form-control"'); ?><span class="price"><strong><?php echo currency_symbol(); ?></strong></span><?php echo @form_input('variation3_price-'.$x,number_format(set_value('variation3_price-'.$x, $variation3[$i]['price']),2), 'class="form-control small"'); ?>
 			<br class="clear" />		
 
 			<?php endforeach; ?>

@@ -11,7 +11,7 @@ div#halogycms_admin table { border-collapse: collapse; border-spacing: 0; }
 /* reserved stuff (do not edit unless you have to!) */
 body#hwcms { position: relative; height: 100%; margin: 0; padding: 0; }
 #halogycms_bar { position: fixed; top: 0; bottom: 0; width: 100%; z-index: 1000; }
-#halogycms_admin { position: fixed; left: 8px; top: -20px;  height: 18px; background: #fff; border:1px solid #ddd; -moz-border-radius:3px; -webkit-border-radius:5px; border-radius:5px; padding: 20px 8px 8px; opacity: 0.6; font-family: "Lucida Grande", verdana, sans-serif !important; font-size: 11px; z-index: 1000; -moz-box-shadow: 0px 0px 15px #ccc; -webkit-box-shadow: 0px 0px 15px #ccc; box-shadow: 0px 0px 15px #ccc; }
+#halogycms_admin { position: fixed; left: 8px; top: -20px;  height: 18px; background: #fff; border:1px solid #ddd; -moz-border-radius:3px; -webkit-border-radius:5px; border-radius:5px; padding: 20px 8px 8px; opacity: 0.6; font-family: "Lucida Grande", verdana, sans-serif !important; font-size: 11px; z-index: 1000; -moz-box-shadow: 0px 0px 15px #ccc; -webkit-box-shadow: 0px 0px 15px #ccc; box-shadow: 0px 0px 15px #ccc; -webkit-box-sizing: content-box; -moz-box-sizing: border-box; box-sizing: content-box; }
 div.halogycms_edit { position: relative; float: none !important; min-height: 30px !important; padding: 0; margin: 0; border: 1px dashed #e0e0e0; cursor: pointer; }
 div.halogycms_editblock * { position: static; padding: 0; margin: 0; }
 div.halogycms_edit.halogycms_preview { border: none !important; cursor: auto; } 
@@ -76,7 +76,7 @@ div.halogycms_buttons a.halogycms_savebutton { display: none; z-index: 550; }
 #halogycms_popup .halogycms_form { float: left; padding: 10px; margin: 0 0 10px; border-top: 1px solid #ddd; color: #333; text-align: left; }
 #halogycms_popup .halogycms_form .pic { display: block; max-width: 100px; max-height: 100px; margin: 0 auto 5px; clear: both; }
 #halogycms_popup .halogycms_form label { display: block; float: left; width: 150px; margin: 4px 0; text-align: left; }
-#halogycms_popup .halogycms_form .formelement { display: block; float: left; width: 220px; padding: 4px; margin: 0 0 5px; background: #f5f5f5; border: 1px solid #ccc; text-align: left; }
+#halogycms_popup .halogycms_form .form-control { display: block; float: left; width: 220px; padding: 4px; margin: 0 0 5px; background: #f5f5f5; border: 1px solid #ccc; text-align: left; }
 #halogycms_popup .halogycms_form .uploadfile input { border: 1px solid #ddd; }
 #halogycms_popup .halogycms_form .button { display: block; float:left; padding:4px 5px; margin: 0; font-size:11px; color:#000; text-decoration:none; font-weight:bold; -moz-border-radius:3px; -webkit-border-radius:3px; border-radius:3px; outline:none;  background: #6ec621; border: 1px solid #57ab0e; color: #fff; cursor: pointer; }
 div.halogycms_edit div.grippie { background:#EEEEEE url(../images/grippie.png) no-repeat scroll center 2px; border-color:#DDDDDD; border-style:solid; border-width:0pt 1px 1px; cursor:s-resize; height:9px; overflow:hidden; }

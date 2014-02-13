@@ -40,8 +40,9 @@ class Files_model extends CI_Model {
 		
 		$this->db->where('(fileRef LIKE "%'.$this->db->escape_like_str($query).'%")');
 				
-		$this->db->order_by('fileRef', 'asc');
-		
+//		$this->db->order_by('fileRef', 'asc');
+		$this->db->order_by('fileOrder');
+
 		$query = $this->db->get('files', $limit);
 		
 		if ($query->num_rows())
@@ -58,14 +59,15 @@ class Files_model extends CI_Model {
 	{
 		$this->db->where(array('files.siteID' => $this->siteID, 'files.deleted' => 0));
 
-//		$this->db->where('folderSafe', $ref);
+		$this->db->where('folderName', $ref);
 
 		$this->db->select('files.*, folderName');
 		$this->db->join('file_folders', 'file_folders.folderID = files.folderID');
 
 		// TBD: we may want to make this ordered by date
-		$this->db->order_by('fileRef', 'asc');
-		
+//		$this->db->order_by('fileRef', 'asc');
+		$this->db->order_by('fileOrder');
+
 		$query = $this->db->get('files', $limit);
 		
 		if ($query->num_rows())

@@ -22,22 +22,24 @@ div.content h2.underline, div.content h3.underline { border: none; }
 
 <form action="<?php echo site_url($this->uri->uri_string()); ?>" method="post" class="default">
 
-	<h1 class="headingleft">View Order <small class="printhide">(<a href="<?php echo site_url('/admin/shop/orders'); ?>">Back to Orders</a>)</small></h1>
-	
+	<div class="headingleft">
+	<h1 class="headingleft">View Order</h1>
+	<a href="<?php echo site_url('/admin/shop/orders'); ?>" class="btn">Back to Orders <i class="icon-arrow-up"></i></a>
+	</div>
+
 	<div class="headingright">
-		<a href="#" class="button blue" onclick="window.print();">Print Shipping Label</a>
-		<input type="submit" value="Update Order" class="button printhide confirm" />
+		<button type="submit" class="btn btn-success printhide confirm">Update Order <i class="icon-refresh"></i></button>
 	</div>
 	
 	<div class="clear"></div>
 	
 	<?php if (isset($message)): ?>
-		<div class="message">
+		<div class="alert">
 			<?php echo $message; ?>
 		</div>
 	<?php endif; ?>
 
-	<div class="message">
+	<div class="alert alert-info">
 		<p>
 			<strong>Order ID #:</strong> <?php echo $order['transactionCode']; ?><br /> 
 			<strong>Date:</strong> <?php echo dateFmt($order['dateCreated'], '', '', TRUE); ?><br />
@@ -47,10 +49,9 @@ div.content h2.underline, div.content h3.underline { border: none; }
 		</p>
 	</div>
 	
-	<div id="tpl-3col">
-	
-		<div class="col1">	
-	
+	<div class="row">
+		<div class="col-lg-6">
+
 			<h2 class="underline">Products Ordered</h2>
 		
 			<?php if ($item_orders): ?>
@@ -110,21 +111,21 @@ div.content h2.underline, div.content h3.underline { border: none; }
 					</tr>
 				<?php endif; ?>
 				<tr class="shade">
-					<td colspan="2">Sub total:</td>
+					<td colspan="2">Subtotal:</td>
 					<td><?php echo currency_symbol(); ?><?php echo number_format(($order['amount'] - $order['postage'] - $order['tax']), 2); ?></td>
 				</tr>
 				<tr class="shade">
-					<td colspan="2">Postage &amp; packing:</td>
+					<td colspan="2">Shipping &amp; Handling:</td>
 					<td><?php echo currency_symbol(); ?><?php echo number_format($order['postage'], 2); ?></td>
 				</tr>
 				<?php if ($order['tax'] > 0): ?>
 					<tr class="shade">
-						<td colspan="2">Tax:</td>
+						<td colspan="2">Sales Tax:</td>
 						<td><?php echo currency_symbol(); ?><?php echo number_format($order['tax'], 2); ?></td>
 					</tr>
 				<?php endif; ?>
 				<tr class="shade">
-					<td colspan="2"><strong>Total amount:</strong></td>
+					<td colspan="2"><strong>Total:</strong></td>
 					<td><strong><?php echo currency_symbol(); ?><?php echo number_format($order['amount'], 2); ?></strong></td>
 				</tr>
 				
@@ -133,7 +134,7 @@ div.content h2.underline, div.content h3.underline { border: none; }
 	
 		</div>
 	
-		<div class="col2">
+		<div class="col-lg-3">
 		
 			<h3 class="underline">Shipping Address</h3>
 		
@@ -146,16 +147,18 @@ div.content h2.underline, div.content h3.underline { border: none; }
 				<?php echo ($order['address1']) ? $order['address1'].'<br />' : ''; ?>
 				<?php echo ($order['address2']) ? $order['address2'].'<br />' : ''; ?>
 				<?php echo ($order['address3']) ? $order['address3'].'<br />' : ''; ?>
-				<?php echo ($order['city']) ? $order['city'].'<br />' : ''; ?>
+				<?php echo ($order['city']) ? $order['city'] : ''; ?>
+				<?php echo ($order['state']) ? ', '.$order['state'].' ' : ' '; ?>
+				<?php echo ($order['postcode']) ? $order['postcode'].'<br />' : '<br />'; ?>
 				<?php echo ($order['country']) ? lookup_country($order['country']).'<br />' : ''; ?>
-				<?php echo ($order['postcode']) ? $order['postcode'].'<br />' : ''; ?>
-				<?php echo ($order['phone']) ? $order['phone'] : ''; ?>
+				<?php echo ($order['phone']) ? $order['phone'].'<br />' : ''; ?>
 				<?php echo ($order['email']) ? mailto($order['email']) : ''; ?>
 			</p>
-			
+			<a href="#" class="btn btn-info" onclick="window.print();">Print Shipping Label <i class="icon-print"></i></a>
+
 		</div>
 
-		<div class="col3">
+		<div class="col-lg-3">
 		
 			<h3 class="underline">Billing Address</h3>
 		
@@ -165,9 +168,10 @@ div.content h2.underline, div.content h3.underline { border: none; }
 					<?php echo ($order['billingAddress1']) ? $order['billingAddress1'].'<br />' : ''; ?>
 					<?php echo ($order['billingAddress2']) ? $order['billingAddress2'].'<br />' : ''; ?>
 					<?php echo ($order['billingAddress3']) ? $order['billingAddress3'].'<br />' : ''; ?>
-					<?php echo ($order['billingCity']) ? $order['billingCity'].'<br />' : ''; ?>
+					<?php echo ($order['billingCity']) ? $order['billingCity'] : ''; ?>
+					<?php echo ($order['billingState']) ? ', '.$order['billingState'].' ' : ' '; ?>
+					<?php echo ($order['billingPostcode']) ? $order['billingPostcode'].'<br />' : '<br />'; ?>
 					<?php echo ($order['billingCountry']) ? lookup_country($order['billingCountry']).'<br />' : ''; ?>
-					<?php echo ($order['billingPostcode']) ? $order['billingPostcode'].'<br />' : ''; ?>
 				<?php else: ?>
 					<small><em>Same as Shipping Address</em></small>
 				<?php endif; ?>
@@ -198,10 +202,15 @@ div.content h2.underline, div.content h3.underline { border: none; }
 		<br class="clear" />
 	
 		<label for="notes">Order notes:</label>
-		<?php echo form_textarea('notes',set_value('notes', $data['notes']), 'id="notes" class="formelement"'); ?>
-		<br class="clear" /><br />	
-	
-		<p class="clear" style="text-align: right;"><a href="#" class="button grey" id="totop">Back to top</a></p>
+		<?php echo form_textarea('notes',set_value('notes', $data['notes']), 'id="notes" class="form-control"'); ?>
 	</div>
-	
+	<br class="clear" /><br />	
+
+<?php
+	// Vizlogix CSRF protection:
+	echo '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+?>
 </form>
+<br class="clear" />
+
+<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>

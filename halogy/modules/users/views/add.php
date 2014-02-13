@@ -59,11 +59,11 @@ $(function(){
 	<br class="clear" />
 
 	<label for="firstName">First Name:</label>
-	<?php echo @form_input('firstName',set_value('firstName', $data['firstName']), 'id="firstName" class="formelement"'); ?>
+	<?php echo @form_input('firstName',set_value('firstName', $data['firstName']), 'id="firstName" class="form-control"'); ?>
 	<br class="clear" />
 
 	<label for="lastName">Last Name:</label>
-	<?php echo @form_input('lastName',set_value('lastName', $data['lastName']), 'id="lastName" class="formelement"'); ?>
+	<?php echo @form_input('lastName',set_value('lastName', $data['lastName']), 'id="lastName" class="form-control"'); ?>
 	<br class="clear" />
 
 <ul class="nav nav-tabs" id="user-tabs">
@@ -86,11 +86,11 @@ $(function(){
 	<h2 class="underline">User Details</h2>
 
 	<label for="username">Username:</label>
-	<?php echo @form_input('username', set_value('username', $data['username']), 'id="username" class="formelement"'); ?>
+	<?php echo @form_input('username', set_value('username', $data['username']), 'id="username" class="form-control"'); ?>
 	<br class="clear" />
 
 	<label for="password">Password:</label>
-	<?php echo @form_password('password','', 'id="password" class="formelement"'); ?>
+	<?php echo @form_password('password','', 'id="password" class="form-control"'); ?>
 	<br class="clear" />
 
 <?php if (@in_array('users_groups', $this->permission->permissions)): ?>
@@ -113,7 +113,7 @@ $(function(){
 				$values[$group['groupID']] = $group['groupName'];
 			}
 		}
-		echo @form_dropdown('groupID',$values,set_value('groupIDs', $data['groupID']), 'id="groupIDs" class="formelement"'); 
+		echo @form_dropdown('groupID',$values,set_value('groupIDs', $data['groupID']), 'id="groupIDs" class="form-control"'); 
 	?>
 	<span class="help">
 		<a href="javascript:void(0)" class="btn helpbutton" data-toggle="popover" data-original-title="Help" data-content="To edit permissions click on `User Groups` in the Users tab."><i class="icon-question-sign" title="Help"></i></a>
@@ -123,17 +123,17 @@ $(function(){
 <?php endif; ?>
 
 	<label for="email">Email:</label>
-	<?php echo @form_input('email',set_value('email', $data['email']), 'id="email" class="formelement"'); ?>
+	<?php echo @form_input('email',set_value('email', $data['email']), 'id="email" class="form-control"'); ?>
 	<br class="clear" />	
 
 	<label for="displayName">Display Name:</label>
-	<?php echo @form_input('displayName', set_value('displayName', $data['displayName']), 'id="displayName" class="formelement" maxlength="15"'); ?>
+	<?php echo @form_input('displayName', set_value('displayName', $data['displayName']), 'id="displayName" class="form-control" maxlength="15"'); ?>
 	<span class="help">
 		<a href="javascript:void(0)" class="btn helpbutton" data-toggle="popover" data-original-title="Help" data-content="For use in the forums (optional)."><i class="icon-question-sign" title="Help"></i></a>
 	</span>
 
 	<label for="signature">Signature:</label>
-	<?php echo @form_textarea('signature',set_value('signature', $data['signature']), 'id="signature" class="formelement small"'); ?>
+	<?php echo @form_textarea('signature',set_value('signature', $data['signature']), 'id="signature" class="form-control small"'); ?>
 	<br class="clear" />
 
 	<label for="active">Active?</label>
@@ -142,7 +142,7 @@ $(function(){
 			1 => 'Yes',
 			0 => 'No'			
 		);
-		echo @form_dropdown('active',$values,set_value('active', $data['active']), 'id="active" class="formelement"'); 
+		echo @form_dropdown('active',$values,set_value('active', $data['active']), 'id="active" class="form-control"'); 
 	?>
 	<br class="clear" />
 	</div>
@@ -175,16 +175,17 @@ $(function(){
 	<br class="clear" />
 
 	<label for="bio">Bio:</label>
-	<?php echo @form_textarea('bio',set_value('bio', $data['bio']), 'id="bio" class="formelement small"'); ?>
+	<?php echo @form_textarea('bio',set_value('bio', $data['bio']), 'id="bio" class="form-control small"'); ?>
 	<br class="clear" />
 
 	<label for="privacy">Privacy:</label>
 	<?php
 		$values = array(
 			'V' => 'Everyone can see my profile',
+			'F' => 'Only logged-in users can see my profile',
 			'H' => 'Hide my profile and feed'
 		);
-		echo @form_dropdown('privacy', $values, set_value('privacy', $data['privacy']), 'id="privacy" class="formelement"'); 
+		echo @form_dropdown('privacy', $values, set_value('privacy', $data['privacy']), 'id="privacy" class="form-control"'); 
 	?>
 	<br class="clear" />
 
@@ -194,12 +195,12 @@ $(function(){
 			0 => 'No',
 			1 => 'Yes',
 		);
-		echo @form_dropdown('notifications', $values, set_value('notifications', $data['notifications']), 'id="notifications" class="formelement"'); 
+		echo @form_dropdown('notifications', $values, set_value('notifications', $data['notifications']), 'id="notifications" class="form-control"'); 
 	?>
 	<br class="clear" />
 
 	<label for="kudos">Kudos:</label>
-	<?php echo @form_input('kudos',set_value('kudos', $data['kudos']), 'id="kudos" class="formelement"'); ?>
+	<?php echo @form_input('kudos',set_value('kudos', $data['kudos']), 'id="kudos" class="form-control"'); ?>
 	<br class="clear" />
 
 	<?php endif; ?>
@@ -218,35 +219,35 @@ $(function(){
 	<h2 class="underline">Delivery Address</h2>
 
 	<label for="address1">Address 1:</label>
-	<?php echo @form_input('address1',set_value('address1', $data['address1']), 'id="address1" class="formelement"'); ?>
+	<?php echo @form_input('address1',set_value('address1', $data['address1']), 'id="address1" class="form-control"'); ?>
 	<br class="clear" />
 
 	<label for="address2">Address 2:</label>
-	<?php echo @form_input('address2',set_value('address2', $data['address2']), 'id="address2" class="formelement"'); ?>
+	<?php echo @form_input('address2',set_value('address2', $data['address2']), 'id="address2" class="form-control"'); ?>
 	<br class="clear" />
 
 	<label for="address3">Address 3:</label>
-	<?php echo @form_input('address3',set_value('address3', $data['address3']), 'id="address3" class="formelement"'); ?>
+	<?php echo @form_input('address3',set_value('address3', $data['address3']), 'id="address3" class="form-control"'); ?>
 	<br class="clear" />
 
 	<label for="city">City:</label>
-	<?php echo @form_input('city',set_value('city', $data['city']), 'id="city" class="formelement"'); ?>
+	<?php echo @form_input('city',set_value('city', $data['city']), 'id="city" class="form-control"'); ?>
 	<br class="clear" />
 
 	<label for="state">State:</label>
-	<?php echo @display_states('state', $data['state'], 'id="state" class="formelement"'); ?>
+	<?php echo @display_states('state', $data['state'], 'id="state" class="form-control"'); ?>
 	<br class="clear" />
 
 	<label for="postcode">Post /ZIP Code:</label>
-	<?php echo @form_input('postcode',set_value('postcode', $data['postcode']), 'id="postcode" class="formelement"'); ?>
+	<?php echo @form_input('postcode',set_value('postcode', $data['postcode']), 'id="postcode" class="form-control"'); ?>
 	<br class="clear" />
 
 	<label for="country">Country:</label>
-	<?php echo @display_countries('country', $data['country'], 'id="country" class="formelement"'); ?>
+	<?php echo @display_countries('country', $data['country'], 'id="country" class="form-control"'); ?>
 	<br class="clear" />
 
 	<label for="phone">Phone:</label>
-	<?php echo @form_input('phone',set_value('phone', $data['phone']), 'id="phone" class="formelement"'); ?>
+	<?php echo @form_input('phone',set_value('phone', $data['phone']), 'id="phone" class="form-control"'); ?>
 	<br class="clear" /><br />
 
 	</div>
@@ -260,31 +261,31 @@ $(function(){
 	<div id="billing">
 
 		<label for="billingAddress1">Address 1:</label>
-		<?php echo @form_input('billingAddress1',set_value('billingAddress1', $data['billingAddress1']), 'id="billingAddress1" class="formelement"'); ?>
+		<?php echo @form_input('billingAddress1',set_value('billingAddress1', $data['billingAddress1']), 'id="billingAddress1" class="form-control"'); ?>
 		<br class="clear" />
 	
 		<label for="billingAddress2">Address 2:</label>
-		<?php echo @form_input('billingAddress2',set_value('billingAddress2', $data['billingAddress2']), 'id="billingAddress2" class="formelement"'); ?>
+		<?php echo @form_input('billingAddress2',set_value('billingAddress2', $data['billingAddress2']), 'id="billingAddress2" class="form-control"'); ?>
 		<br class="clear" />
 	
 		<label for="billingAddress3">Address 3:</label>
-		<?php echo @form_input('billingAddress3',set_value('billingAddress3', $data['billingAddress3']), 'id="billingAddress3" class="formelement"'); ?>
+		<?php echo @form_input('billingAddress3',set_value('billingAddress3', $data['billingAddress3']), 'id="billingAddress3" class="form-control"'); ?>
 		<br class="clear" />
 	
 		<label for="billingCity">City:</label>
-		<?php echo @form_input('billingCity',set_value('billingCity', $data['billingCity']), 'id="billingCity" class="formelement"'); ?>
+		<?php echo @form_input('billingCity',set_value('billingCity', $data['billingCity']), 'id="billingCity" class="form-control"'); ?>
 		<br class="clear" />
 
 		<label for="billingState">State:</label>
-		<?php echo display_states('billingState', '', 'id="billingState" class="formelement"'); ?>
+		<?php echo display_states('billingState', '', 'id="billingState" class="form-control"'); ?>
 		<br class="clear" />
 	
 		<label for="billingPostcode">Post /ZIP Code:</label>
-		<?php echo @form_input('billingPostcode',set_value('billingPostcode', $data['billingPostcode']), 'id="billingPostcode" class="formelement"'); ?>
+		<?php echo @form_input('billingPostcode',set_value('billingPostcode', $data['billingPostcode']), 'id="billingPostcode" class="form-control"'); ?>
 		<br class="clear" />
 	
 		<label for="billingCountry">Country:</label>
-		<?php echo display_countries('billingCountry', '', 'id="billingCountry" class="formelement"'); ?>
+		<?php echo display_countries('billingCountry', '', 'id="billingCountry" class="form-control"'); ?>
 		<br class="clear" />
 
 	</div>
@@ -303,15 +304,15 @@ $(function(){
 	<h2 class="underline">Organization</h2>
 
 	<label for="companyName">Name:</label>
-	<?php echo @form_input('companyName',set_value('companyName', $data['companyName']), 'id="companyName" class="formelement"'); ?>
+	<?php echo @form_input('companyName',set_value('companyName', $data['companyName']), 'id="companyName" class="form-control"'); ?>
 	<br class="clear" />
 
 	<label for="companyDescription">Description:</label>
-	<?php echo @form_textarea('companyDescription',set_value('companyDescription', $data['companyDescription']), 'id="companyDescription" class="formelement small"'); ?>
+	<?php echo @form_textarea('companyDescription',set_value('companyDescription', $data['companyDescription']), 'id="companyDescription" class="form-control small"'); ?>
 	<br class="clear" />
 
 	<label for="companyWebsite">Website:</label>
-	<?php echo @form_input('companyWebsite',set_value('companyWebsite', $data['companyWebsite']), 'id="companyWebsite" class="formelement"'); ?>
+	<?php echo @form_input('companyWebsite',set_value('companyWebsite', $data['companyWebsite']), 'id="companyWebsite" class="form-control"'); ?>
 	<br class="clear" />
 	
 </div>

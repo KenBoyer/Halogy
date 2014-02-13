@@ -114,6 +114,9 @@ class Blog extends MX_Controller {
 		// set title
 		$output['page:title'] = 'Blog'.(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
 
+		// Vizlogix CSRF protection:
+		$output['form:csrf'] = '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+
 		// set pagination and breadcrumb
 		$output['blog:newer'] = ($this->pagination->offset) ? 
 			(($this->pagination->offset - $this->num > 0) ? 
@@ -137,6 +140,9 @@ class Blog extends MX_Controller {
 
 		// set title
 		$output['page:title'] = 'Blog'.(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
+
+		// Vizlogix CSRF protection:
+		$output['form:csrf'] = '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
 
 		// set pagination and breadcrumb
 		$output['blog:newer'] = ($this->pagination->offset) ? 
@@ -363,6 +369,9 @@ class Blog extends MX_Controller {
 		$output['tag:title'] = ucwords(str_replace('-', ' ', $tag));
 		$output['tag:link'] = '/blog/tag/'.$tag;
 
+		// Vizlogix CSRF protection:
+		$output['form:csrf'] = '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+
 		// set pagination and breadcrumb
 		$output['blog:newer'] = ($this->pagination->offset) ? 
 			(($this->pagination->offset - $this->num > 0) ? 
@@ -403,7 +412,10 @@ class Blog extends MX_Controller {
 		// set title
 		$output['page:title'] = ucwords(str_replace('-', ' ', $cat)).(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
 		$output['page:heading'] = '<small>Category:</small> '.ucwords(str_replace('-', ' ', $cat));
-		
+
+		// Vizlogix CSRF protection:
+		$output['form:csrf'] = '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+
 		// display with cms layer
 		$this->pages->view('blog', $output, TRUE);
 	}
@@ -424,6 +436,9 @@ class Blog extends MX_Controller {
 		// set title
 		$output['page:title'] = 'Posts For '.date('F Y', mktime(0,0,0,$month,1,$year)).(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
 		$output['page:heading'] = '<small>Archive:</small> '.date('F Y', mktime(0,0,0,$month,1,$year));
+
+		// Vizlogix CSRF protection:
+		$output['form:csrf'] = '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
 
 		// set pagination and breadcrumb
 		$output['blog:newer'] = ($this->pagination->offset) ? 
@@ -452,6 +467,9 @@ class Blog extends MX_Controller {
 		// set title
 		$output['page:title'] = 'Posts For '.date('Y', mktime(0,0,0,1,1,$year)).(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
 		$output['page:heading'] = '<small>Archive:</small> '.date('Y', mktime(0,0,0,1,1,$year));		
+
+		// Vizlogix CSRF protection:
+		$output['form:csrf'] = '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
 
 		// set pagination and breadcrumb
 		$output['blog:newer'] = ($this->pagination->offset) ? 
@@ -483,6 +501,9 @@ class Blog extends MX_Controller {
 		// set title
 		$output['page:title'] = 'Search the Blog'.(($this->site->config['siteName']) ? ' - '.$this->site->config['siteName'] : '');
 		$output['page:heading'] = 'Search for "'.$output['query'].'"';	
+
+		// Vizlogix CSRF protection:
+		$output['form:csrf'] = '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
 
 		// set pagination and breadcrumb
 		$output['blog:older'] = ($this->pagination->offset) ? anchor('/blog/more/page/'.($this->pagination->offset - $this->num), 'Older &raquo;') : '';

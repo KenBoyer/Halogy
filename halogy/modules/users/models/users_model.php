@@ -48,7 +48,10 @@ class Users_model extends CI_Model {
 		{
 			$this->db->where('(email LIKE "%'.$q.'%" OR firstName LIKE "%'.$q.'%" OR lastName LIKE "%'.$q.'%")');
 		}
-			
+
+		// order
+		$this->db->order_by('lastName', 'asc');
+
 		$query = $this->db->get('users', 30);
 
 		if ($query->num_rows() > 0)
@@ -71,7 +74,7 @@ class Users_model extends CI_Model {
 		$totalRows = $query_total->num_rows();
 
 		// order
-//		$this->db->order_by('lastName', 'asc');
+		$this->db->order_by('lastName', 'asc');
 
 		// grab
 		$where = array('users.siteID' => $this->siteID, 'privacy !=' => 'H', 'permission_groups.groupName' => $groupName);

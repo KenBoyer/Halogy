@@ -36,6 +36,9 @@ $route['shop/donation/(:any)'] = 'shop/donation/$1';
 $route['shop/invoice/(:any)/(:any)'] = 'shop/invoice/$1/$2';
 $route['shop/ipn'] = 'shop/ipn';
 $route['shop/response'] = 'shop/response';
+$route['shop/upload'] = 'shop/upload';
+$route['shop/update_upload'] = 'shop/update_upload';
+$route['shop/select_upload/(:num)'] = 'shop/select_upload/$1';
 
 $route['shop/(:any)/(:any)/page/(:num)'] = 'shop/browse/$2/$1/page/$3';
 $route['shop/(:any)/(:any)/page'] = 'shop/browse/$2/$1/page';

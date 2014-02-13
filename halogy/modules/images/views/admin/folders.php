@@ -35,26 +35,31 @@ $(function(){
 
 <div class="headingright">
 	<a href="<?php echo site_url('/admin/images/viewall'); ?>" class="btn btn-info">View Images <i class="icon-eye-open"></i></a>
-	<a href="#" class="toggle btn btn-info">Add Folder <i class="icon-plus-sign"></i></a>
+	<a href="#add-folder" class="btn btn-info accordion-toggle" data-toggle="collapse" data-parent="#accordion">Add Folder <i class="icon-plus-sign"></i></a>
 </div>
 
 <div class="clear"></div>
 
-<div class="hidden">
+<div class="panel-group" id="accordion">
+<div id="add-folder" class="panel collapse">
+<div class="panel-heading">Add File Folder</div>
+  <div class="panel-body">
 	<form method="post" action="<?php echo site_url($this->uri->uri_string()); ?>" class="default">
 	
 		<label for="folderName">Folder Name:</label>
 		
-		<?php echo @form_input('folderName',$images_folders['folderName'], 'class="formelement" id="folderName"'); ?>
+		<?php echo @form_input('folderName',$images_folders['folderName'], 'class="form-control" id="folderName"'); ?>
 <?php
 		// Vizlogix CSRF protection:
 		echo '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
 ?>
-		<input type="submit" value="Add Folder" id="submit" class="button" />
+		<input type="submit" value="Add Folder" id="submit" class="btn btn-success" />
 
 		<br class="clear" />
 		
 	</form>
+</div>
+</div>
 </div>
 
 <?php if ($folders): ?>
@@ -66,7 +71,7 @@ $(function(){
 		<li id="image_folders-<?php echo $folder['folderID']; ?>">
 			<div class="col1">
 				<span><strong><?php echo $folder['folderName']; ?></strong> <small>(<?php echo url_title(strtolower($folder['folderName'])); ?>)</small></span>
-				<?php echo @form_input($folder['folderID'].'[folderName]', $folder['folderName'], 'class="formelement hide" title="folder Name"'); ?><button type="submit" class="btn btn-success hide">Edit <i class="icon-edit"></i></button>
+				<?php echo @form_input($folder['folderID'].'[folderName]', $folder['folderName'], 'class="form-control hide" title="folder Name"'); ?><button type="submit" class="btn btn-success hide">Edit <i class="icon-edit"></i></button>
 			</div>
 			<div class="col2">
 				&nbsp;

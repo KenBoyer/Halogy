@@ -96,9 +96,9 @@ $(function(){
 });
 </script>
 
-<div class="row-fluid" id="tpl-2col">
-	
-	<div class="span8" style="min-width:660px;">
+<div class="row" id="tpl-2col">
+
+	<div class="col-lg-8" style="min-width:660px;">
 
 		<div class="headingleft">
 		<h1><strong><?php echo ($this->session->userdata('firstName')) ? ucfirst($this->session->userdata('firstName')) : $this->session->userdata('username'); ?>'s</strong> Dashboard</h1>
@@ -118,11 +118,11 @@ $(function(){
 		<?php endif; ?>
 
 		<div class="dashboardnav btn-group">
-			<a href="<?php echo site_url('/admin/dashboard/90'); ?>" class="btn btn-small <?php echo ($days == 90) ? 'active' : ''; ?>">Last 90 days</a>
-			<a href="<?php echo site_url('/admin/dashboard/60'); ?>" class="btn btn-small <?php echo ($days == 60) ? 'active' : ''; ?>">Last 60 Days</a>
-			<a href="<?php echo site_url('/admin'); ?>" class="btn btn-small <?php echo ($days == 30) ? 'active' : ''; ?>">Last 30 Days</a>
-			<a href="<?php echo site_url('/admin/dashboard/7'); ?>" class="btn btn-small <?php echo ($days == 7) ? 'active' : ''; ?>">Last 7 Days</a>
-			<a href="<?php echo site_url('/admin/tracking'); ?>" class="btn btn-small">Most Recent Visits</a>
+			<a href="<?php echo site_url('/admin/dashboard/90'); ?>" class="btn btn-sm btn-default <?php echo ($days == 90) ? 'active' : ''; ?>">Last 90 days</a>
+			<a href="<?php echo site_url('/admin/dashboard/60'); ?>" class="btn btn-sm btn-default <?php echo ($days == 60) ? 'active' : ''; ?>">Last 60 Days</a>
+			<a href="<?php echo site_url('/admin'); ?>" class="btn btn-sm btn-default <?php echo ($days == 30) ? 'active' : ''; ?>">Last 30 Days</a>
+			<a href="<?php echo site_url('/admin/dashboard/7'); ?>" class="btn btn-sm btn-default <?php echo ($days == 7) ? 'active' : ''; ?>">Last 7 Days</a>
+			<a href="<?php echo site_url('/admin/tracking'); ?>" class="btn btn-sm btn-default">Most Recent Visits</a>
 		</div>
 
 		<div id="placeholder"></div>
@@ -230,11 +230,11 @@ $(function(){
 	
 	</div>
 	
-	<div class="span4">
+	<div class="col-lg-4">
 
 		<h3>Site Info</h3>
 		
-		<table class="default">
+		<table class="table table-bordered table-striped table-condensed">
 			<tr>
 				<th class="narrow">Site name:</th>
 				<td><?php echo $this->site->config['siteName']; ?></td>
@@ -247,11 +247,60 @@ $(function(){
 				<th class="narrow">Site email:</th>
 				<td><small><a href="mailto:<?php echo $this->site->config['siteEmail']; ?>"><?php echo $this->site->config['siteEmail']; ?></a></small></td>
 			</tr>
+			<tr>
+				<th class="narrow">CSRF Protection:</th>
+				<td>
+					<?php if ($this->config->item('csrf_protection')) { ?>
+						<span class="label label-success">Enabled</span>
+					<?php } else { ?>
+						<span class="label label-warning">Disabled</span>
+					<?php } ?>
+				</td>
+			</tr>
+			<tr>
+				<th class="narrow">XSS Filtering:</th>
+				<td>
+					<?php if ($this->config->item('global_xss_filtering')) { ?>
+						<span class="label label-success">Enabled</span>
+					<?php } else { ?>
+						<span class="label label-warning">Disabled</span>
+					<?php } ?>
+				</td>
+			</tr>
+			<tr>
+				<th class="narrow">Output Compression:</th>
+				<td>
+					<?php if ($this->config->item('compress_output')) { ?>
+						<span class="label label-success">Enabled</span>
+					<?php } else { ?>
+						<span class="label label-warning">Disabled</span>
+					<?php } ?>
+				</td>
+			</tr>
+			<tr>
+				<th class="narrow">Time Reference:</th>
+				<td>
+					<?php echo strtoupper($this->config->item('time_reference')); ?>
+				</td>
+			</tr>
+			<tr>
+				<th class="narrow">Application Folder:</th>
+				<td>
+					<?php echo APPPATH; ?>
+				</td>
+			</tr>
+			<tr>
+				<th class="narrow">Environment Setting:</th>
+				<td>
+					<?php echo strtoupper(ENVIRONMENT); ?>
+				</td>
+			</tr>
 		</table>
 
 		<h3>Site Stats</h3>
 		
-		<table class="default">
+		<table class="table table-bordered table-striped table-condensed">
+
 			<tr>
 				<th class="narrow">Disk space used:</th>
 				<td><?php echo number_format($quota); ?> <small>KB</small></td>
@@ -274,7 +323,8 @@ $(function(){
 
 		<h3>User Stats</h3>
 		
-		<table class="default">
+		<table class="table table-bordered table-striped table-condensed">
+
 			<tr>
 				<th class="narrow">Total users:</th>
 				<td colspan="2"><?php echo number_format($numUsers); ?> <small>user<?php echo ($numUsers != 1) ? 's' : ''; ?></small></td>

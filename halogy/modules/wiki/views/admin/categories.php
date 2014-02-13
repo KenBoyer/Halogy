@@ -1,3 +1,4 @@
+<script type="text/javascript" src="<?php echo $this->config->item('staticPath'); ?>/js/tinymce/tinymce.min.js"></script>
 <script type="text/javascript">
 function setOrder(){
 	$.post('<?php echo site_url('/admin/wiki/order/cat'); ?>',$(this).sortable('serialize'),function(data){ });
@@ -18,13 +19,16 @@ $(function(){
 });
 </script>
 
-<h1 class="headingleft">Wiki Categories</h1>
-
-<div class="headingright">
-	<a href="<?php echo site_url('/admin/wiki/add_cat'); ?>" class="showform button blue">Add Category</a>
+<div class="headingleft">
+	<h1 class="headingleft">Wiki Categories</h1>
 </div>
 
-<div class="clear"></div>
+<div class="headingright">
+	<a href="<?php echo site_url('/admin/wiki/viewall'); ?>" class="btn btn-info">View Wiki Pages</a>
+	<a href="<?php echo site_url('/admin/wiki/add_cat'); ?>" class="showform btn btn-success">Add Category <i class="icon-plus-sign"></i></a>
+</div>
+
+<p class="clear">Order your categories below by dragging the items up or down.</p>
 
 <div class="hidden"></div>
 
@@ -49,7 +53,7 @@ $(function(){
 				<?php foreach ($children[$cat['catID']] as $child): ?>
 					<li id="wiki_cat-<?php echo $child['catID']; ?>">
 						<div class="col1">
-							<span class="padded">--</span>
+							<span class="padded"><img src="<?php echo $this->config->item('staticPath'); ?>/images/arrow_child.gif" alt="Arrow" /></span>
 							<span><strong><?php echo $child['catName']; ?></strong></span>
 						</div>
 						<div class="col2">&nbsp;</div>

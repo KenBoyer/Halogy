@@ -31,11 +31,11 @@
 		</td>	
 		<td><?php echo dateFmt($form['dateCreated'], '', '', TRUE); ?></td>
 		<td class="tiny">
-			<?php echo anchor('/admin/webforms/edit_form/'.$form['formID'], 'Edit'); ?>
+			<?php echo anchor('/admin/webforms/edit_form/'.$form['formID'], 'Edit <i class="icon-edit"></i>', 'class="btn btn-info"'); ?>
 		</td>
 		<td class="tiny">
 			<?php if (in_array('webforms_delete', $this->permission->permissions)): ?>	
-				<?php echo anchor('/admin/webforms/delete_form/'.$form['formID'], 'Delete', 'onclick="return confirm(\'Are you sure you want to delete this?\')"'); ?>
+				<?php echo anchor('/admin/webforms/delete_form/'.$form['formID'], 'Delete <i class="icon-trash"></i>', array('onclick' => 'return confirm(\'Are you sure you want to delete this?\')', 'class' => 'btn btn-danger')); ?>
 			<?php endif; ?>
 		</td>
 	</tr>

@@ -8,31 +8,33 @@
 .ac_over { background-color: #0A246A; color: white; }
 
 div#gallery p {
-margin: 10px 0 10px;
-font-size: 1.6em;
+margin: 8px 0 4px;
+font-size: 1.2em;
 }
 </style>
 
 <script type="text/javascript">
+function setOrder(){
+	$.post('<?php echo site_url('/admin/images/order/image'); ?>',$(this).sortable('serialize'),function(data){ });
+};
+
+function initOrder(el){
+	$('ol.order').height($('ol.order').height());
+	$(el).sortable({ 
+		axis: 'y',
+	    revert: false, 
+	    delay: '80',
+		distance: '10',
+	    opacity: '0.5',
+	    update: setOrder
+	});
+};
+
 $(function(){
-	$('.toggle-image').click(function(event){ 
-		event.preventDefault();		
-		$('div#upload-image').slideToggle('400');
-		$('div#upload-zip:visible, div#loader:visible').slideToggle('400');
-	});
-
-	$('.toggle-zip').click(function(event){ 
-		event.preventDefault();		
-		$('div#upload-zip').slideToggle('400');
-		$('div#upload-image:visible, div#loader:visible').slideToggle('400');
-	});
-
 	$('.edit').click(function(event){
 		event.preventDefault();
 		$.scrollTo(0, '200');
 		$('div#loader').load(this.href, function(){
-			$('div#loader:hidden').toggle('400');
-			$('div#upload-zip:visible, div#upload-image:visible').slideToggle('400');
 		});
 	});
 	
@@ -45,7 +47,17 @@ $(function(){
 		var folderID = ($(this).val());
 		window.location.href = '<?php echo site_url('/admin/images/viewall'); ?>/'+folderID;
 	});
+
+	initOrder('ol.order, ol.order ol');
 });
+</script>
+
+<link rel="stylesheet" href="<?php echo $this->config->item('staticPath'); ?>/css/jquery.hoverZoom.css">
+<script src="<?php echo $this->config->item('staticPath'); ?>/js/jquery.hoverZoom.js"></script>
+<script type="text/javascript">
+	$(document).ready(function(){
+		$('.thumb img').hoverZoom({speedView:600, speedRemove:400, showCaption:true, speedCaption:600, debug:true, hoverIntent: true, loadingIndicatorPos: 'center'});
+	});
 </script>
 
 <div class="headingleft">
@@ -54,6 +66,7 @@ $(function(){
 
 <div class="headingright">
 
+	<div class="controls controls-row">
 	<form method="post" action="<?php echo site_url('/admin/images/viewall'); ?>" class="search" id="search" style="display: none;">
 		<div class="input-append">
 			<input type="text" name="searchbox" id="searchbox" class="span2 inactive" title="Search Images..." />
@@ -74,15 +87,16 @@ $(function(){
 				endforeach;
 			endif;
 		endif;
-		echo form_dropdown('folderID', $options, $folderID, 'id="folderID"');
+		echo form_dropdown('folderID', $options, $folderID, 'id="folderID" class="form-control"');
 	?>
 
 	<?php if ($this->site->config['plan'] = 0 || $this->site->config['plan'] = 6 || (($this->site->config['plan'] > 0 && $this->site->config['plan'] < 6) && $quota < $this->site->plans['storage'])): ?>
 
-		<a href="#" class="btn btn-info toggle-zip">Upload Zip <i class="icon-upload"></i></a>
-		<a href="#" class="btn btn-info toggle-image">Upload Image <i class="icon-upload"></i></a>
+		<a href="#upload-zip" class="btn btn-info accordion-toggle" data-toggle="collapse" data-parent="#accordion">Upload Zip <i class="icon-upload"></i></a>
+		<a href="#upload-image" class="btn btn-info accordion-toggle" data-toggle="collapse" data-parent="#accordion">Upload Image <i class="icon-upload"></i></a>
 
 	<?php endif; ?>
+	</div>
 
 </div>
 
@@ -116,8 +130,13 @@ $(function(){
 
 <?php endif; ?>
 
-<div id="upload-image" class="hidden clear">
-	<form method="post" action="<?php echo site_url($this->uri->uri_string()); ?>" enctype="multipart/form-data" class="default">
+<div class="clear">
+
+<div class="panel-group" id="accordion">
+<div id="upload-image" class="panel collapse">
+<div class="panel-heading">Upload Image</div>
+  <div class="panel-body">
+  <form method="post" action="<?php echo site_url($this->uri->uri_string()); ?>" enctype="multipart/form-data" class="default">
 	
 		<label for="image">Image:</label>
 		<div class="uploadfile">
@@ -134,16 +153,16 @@ $(function(){
 				endforeach;
 			endif;
 				
-			echo @form_dropdown('folderID',$options,set_value('folderID', $data['folderID']),'id="imageFolderID" class="formelement"');
+			echo @form_dropdown('folderID',$options,set_value('folderID', $data['folderID']),'id="imageFolderID" class="form-control"');
 		?>	
 		<br class="clear" />
 		
 		<label for="imageName">Name:</label>
-		<?php echo @form_input('imageName', $data['imageName'], 'class="formelement" id="imageName"'); ?>
+		<?php echo @form_input('imageName', $data['imageName'], 'class="form-control" id="imageName"'); ?>
 		<br class="clear" />
 
 		<label for="imageDesc">Description:</label>
-		<?php echo @form_textarea('description', set_value('description', $data['description']), 'id="body" class="formelement code"'); ?>
+		<?php echo @form_textarea('description', set_value('description', $data['description']), 'id="body" class="form-control code"'); ?>
 		<br class="clear" />
 
 <?php
@@ -151,11 +170,14 @@ $(function(){
 		echo '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
 ?>
 		<button type="submit" class="btn btn-success" id="submit">Upload Image <i class="icon-upload"></i></button>
-		<a href="<?php echo $this->session->userdata('lastPage'); ?>" class="btn cancel">Cancel <i class="icon-remove-sign"></i></a>
+		<a href="#upload-image" class="btn btn-default accordion-toggle" data-toggle="collapse" data-parent="#accordion">Cancel <i class="icon-remove-sign"></i></a>
 	</form>
+	</div>
 </div>
 
-<div id="upload-zip" class="hidden clear">
+<div id="upload-zip" class="panel collapse">
+<div class="panel-heading">Upload ZIP</div>
+	<div class="panel-body">
 	<form method="post" action="<?php echo site_url($this->uri->uri_string()); ?>" enctype="multipart/form-data" class="default">
 	
 		<label for="image">ZIP File:</label>
@@ -173,20 +195,22 @@ $(function(){
 				endforeach;
 			endif;
 				
-			echo @form_dropdown('folderID',$options,set_value('folderID', $data['folderID']),'id="zipFolderID" class="formelement"');
+			echo @form_dropdown('folderID',$options,set_value('folderID', $data['folderID']),'id="zipFolderID" class="form-control"');
 		?>
 		<br class="clear" /><br />		
 <?php
 		// Vizlogix CSRF protection:
 		echo '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
 ?>
-		<input type="submit" value="Upload Zip" name="upload_zip" class="button nolabel" />
-		<a href="<?php echo site_url('/admin/images'); ?>" class="button cancel grey">Cancel</a>
+		<input type="submit" value="Upload Zip" name="upload_zip" class="btn btn-success" />
+		<a href="#upload-zip" class="btn btn-default accordion-toggle" data-toggle="collapse" data-parent="#accordion">Cancel</a>
 			
 	</form>
+	</div>
 </div>
 
-<div id="loader" class="hidden clear"></div>
+<div id="loader" class="clear"></div>
+</div>
 
 <?php if ($images): ?>
 
@@ -212,54 +236,49 @@ $(function(){
 	<script src="<?php echo $this->config->item('staticPath'); ?>/js/bootstrap-image-gallery.min.js"></script>
 
 	<?php echo $this->pagination->create_links(); ?>
-
-	<table class="images clear" style="border-collapse: separate;">	
-		<tr>
+	<ol class="order thumb">
 		<?php
 			$numItems = sizeof($images);
-			$itemsPerRow = 5;
-			$i = 0;
-						
 			foreach ($images as $image)
 			{
-				if (($i % $itemsPerRow) == 0 && $i > 1)
-				{
-					echo '</tr><tr>'."\n";
-					$i = 0;
-				}
-				echo '<td valign="bottom" align="center" width="'.floor(( 1 / $itemsPerRow) * 100).'%">';
-
 				$imageData = $this->uploads->load_image($image['imageRef']);
 				$imagePath = $imageData['src'];
 				$imageData = $this->uploads->load_image($image['imageRef'], true);				
 				$imageThumbPath = $imageData['src'];
 		?>
+				<li class="images" id="images-<?php echo $image['imageID']; ?>">
+				<div class="col1">
 				<a data-gallery="gallery" href="<?php echo $imagePath; ?>" title="<?php echo $image['imageName']; ?>">
-				<?php echo ($thumb = display_image($imageThumbPath, $image['imageName'], 100, 'title="pic"')) ? $thumb : display_image($imagePath, $image['imageName'], 100, 'title="pic"'); ?>
+				<?php echo ($thumb = display_image($imageThumbPath, $image['imageName'], 40, 'title="pic"')) ? $thumb : display_image($imagePath, $image['imageName'], 40, 'title="pic"'); ?>
 				</a>
-
-				<p><strong><?php echo $image['imageRef']; ?></strong></p>
-
-				<div class="buttons">
-					<?php echo anchor('/admin/images/edit/'.$image['imageID'].'/'.$this->core->encode($this->uri->uri_string()),  'Edit <i class="icon-edit"></i>', 'class="btn btn-info edit"'); ?>
-					<?php echo anchor('/admin/images/delete/'.$image['imageID'].'/'.$this->core->encode($this->uri->uri_string()),  'Delete <i class="icon-trash"></i>', array('onclick' => 'return confirm(\'Are you sure you want to delete this image?\')', 'class' => 'btn btn-danger')); ?>
 				</div>
 
+				<div class="col2">
+					<p><strong>
+					<?php
+					if ($options):
+						$folderName = $options[$imageData['folderID']];
+						echo $folderName.'/';
+					endif;
+					echo $image['imageRef'];
+					?>
+					</strong></p>
+				</div>
+
+				<div class="buttons">
+					<?php echo anchor('/admin/images/edit/'.$image['imageID'].'/'.$this->core->encode($this->uri->uri_string()),  'Edit <i class="icon-edit"></i>', 'class="btn btn-info edit" data-parent="#accordion"'); ?>
+					<?php echo anchor('/admin/images/delete/'.$image['imageID'].'/'.$this->core->encode($this->uri->uri_string()),  'Delete <i class="icon-trash"></i>', array('onclick' => 'return confirm(\'Are you sure you want to delete this image?\')', 'class' => 'btn btn-danger')); ?>
+				</div>
+				<div class="clear"></div>
+				</li>
 		<?php
-				echo '</td>'."\n";
-				$i++;
-			}
-		
-			for($x = 0; $x < ($itemsPerRow - $i); $x++)
-			{
-				echo '<td width="'.floor((1 / $itemsPerRow) * 100).'%">&nbsp;</td>';
 			}
 		?>
-		</tr>
-	</table>
-	
+	</ol>
+
 	<?php echo $this->pagination->create_links(); ?>
 
+	<br class="clear" />
 	<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>
 	</div>
 

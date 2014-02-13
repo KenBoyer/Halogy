@@ -1,7 +1,7 @@
 <?php if ($tracking): ?>
-	<table class="default">
+	<table class="table table-striped table-bordered table-condensed">
 		<tr>
-			<th width="120">Date</th>
+			<th>Date</th>
 			<th>Name</th>
 			<th>Referer</th>
 			<th>Last Page</th>
@@ -18,7 +18,7 @@
 			// get userdata
 			$userdata = @unserialize($visit['userdata']);
 		?>
-			<tr class="<?php echo $class; ?>" style="<?php echo $style; ?>">
+			<tr>
 				<td><small><?php echo dateFmt($visit['date'], '', '', TRUE); ?></small></td>
 				<td>
 					<?php if ($visit['userdata']): ?>
@@ -27,7 +27,7 @@
 						Guest
 					<?php endif; ?>
 				</td>
-				<td><?php echo ($visit['referer']) ? anchor($visit['referer'], htmlentities($visit['referer'])) : 'Direct (no referrer)'; ?></td>
+				<td><div style="width: 300px; overflow: hidden;"><?php echo ($visit['referer']) ? anchor($visit['referer'], htmlentities($visit['referer'])) : 'Direct (no referrer)'; ?></div></td>
 				<td><?php echo $visit['lastPage']; ?></td>
 				<td><?php echo $visit['views']+1; ?></td>
 			</tr>

@@ -56,12 +56,12 @@ $(function(){
 	<?php endif; ?>
 
 	<label for="groupName">Group Name:</label>
-	<?php echo @form_input('groupName',set_value('groupName', $data['groupName']), 'id="groupName" class="formelement"'); ?>
-	<br class="clear" /><br />
+	<?php echo @form_input('groupName',set_value('groupName', $data['groupName']), 'id="groupName" class="form-control"'); ?>
+	<br class="clear" />
 
 	<?php if ($permissions): ?>
 
-	<h3>Administrative Permissions</h3>
+	<h2 class="underline">Administrative Permissions</h2>
 	
 	<p><a href="#" class="selectall btn">Select All</a> <a href="#" class="deselectall btn">De-Select All</a></p>
 	

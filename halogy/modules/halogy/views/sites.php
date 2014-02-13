@@ -24,7 +24,7 @@ $(function(){
 </script>
 
 <div class="headingleft">
-	<h1 class="headingleft">Your Sites</h1>
+	<h1 class="headingleft">All Sites</h1>
 </div>
 
 <div class="headingright">
@@ -70,15 +70,15 @@ $(function(){
 		<td><?php echo $site['altDomain']; ?></td>		
 		<td>
 			<?php
-				if ($site['active']) echo '<span style="color:green"><strong>Active</strong></span>';
-				if (!$site['active']) echo '<span style="color:red">Suspended</span>';
+				if ($site['active']) echo '<span class="label label-success">Active</span>';
+				if (!$site['active']) echo '<span class="label label-warning">Suspended</span>';
 			?>
 		</td>	
 		<td class="tiny">
-			<?php echo anchor('/halogy/edit_site/'.$site['siteID'], 'Edit'); ?>
+			<?php echo anchor('/halogy/edit_site/'.$site['siteID'], 'Edit <i class="icon-edit"></i>', 'class="btn btn-info"'); ?>
 		</td>
 		<td class="tiny">
-			<?php echo anchor('/halogy/delete_site/'.$site['siteID'], 'Delete', 'onclick="return confirm(\'Are you absolutely SURE you want to delete this site?\n\nThere is no undo!\')"'); ?>
+			<?php echo anchor('/halogy/delete_site/'.$site['siteID'], 'Delete <i class="icon-trash"></i>', array('onclick' => 'return confirm(\'Are you sure you want to delete this site?\n\nThere is no undo!\')', 'class' => 'btn btn-danger')); ?>
 		</td>
 	</tr>
 <?php endforeach; ?>

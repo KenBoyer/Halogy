@@ -35,17 +35,6 @@ class Template {
 			$this->siteID = SITEID;
 		}
 
-		// $this->CI->load->library('gcal');				// Google Calendar API Library
-		// $events = $this->CI->gcal->listEvents(array(
-			// 'ispublic' => false,  // defaults to false
-			// 'calendarId' => 'odvn8c23uktpcj0kte9mptr71o@group.calendar.google.com',   // required
-			// 'usecache' => true,  // defaults to true
-// //			'cachefile' => '[/path/to/custom/cache/file]',  // optional, defaults to [yourClientID]-calendars.json
-			// 'cacheduration' => 5,  // in minutes, defaults to 5
-			// 'redirectURI' => 'http://news.notecan.net/index.php'  // defaults to the URL of the current page
-		// ));
-//		print "<h1>Calendar Event List</h1><pre>" . print_r($events, true) . "</pre>";
-
 		$this->uploadsPath = $this->CI->config->item('uploadsPath');
 
 		// populate module templates array
@@ -119,7 +108,7 @@ class Template {
 		@$this->template['page:uri:segment(1)'] = $this->CI->uri->segment(1);
 		@$this->template['page:uri:segment(2)'] = $this->CI->uri->segment(2);
 		@$this->template['page:uri:segment(3)'] = $this->CI->uri->segment(3);
-		@$this->template['page:template'] = ($this->template['page:template']) ? $this->template['page:template'] : '';
+		@$this->template['page:template'] = (isset($this->template['page:template'])) ? $this->template['page:template'] : '';
 
 		// find out if logged in
 		$this->template['logged-in'] = ($this->CI->session->userdata('session_user')) ? TRUE : FALSE;
@@ -315,6 +304,7 @@ class Template {
 
 		// set active state on menu
 		// TBD: need to fix selection of modules like the blog
+		// TBD: also needs to handle redirects
 		$currentNav = $uri;
 		$output .= '<li class="';
 		if (($currentNav != '/' && $currentNav == $this->CI->uri->uri_string()) ||
@@ -584,28 +574,28 @@ class Template {
 						<div class="control-group formrow field-fullName">
 						<div class="controls">
 							<label class="control-label" for="fullName">Full Name:</label>
-							<input type="text" id="fullName" name="fullName" value="'.$this->CI->input->post('fullName').'" class="required formelement" />
+							<input type="text" id="fullName" name="fullName" value="'.$this->CI->input->post('fullName').'" class="required form-control" />
 						</div>
 						</div>
 
 						<div class="control-group formrow field-email">
 						<div class="controls">
 							<label class="control-label" for="email">Email:</label>
-							<input type="text" id="email" name="email" value="'.$this->CI->input->post('email').'" class="required email formelement" />
+							<input type="text" id="email" name="email" value="'.$this->CI->input->post('email').'" class="required email form-control" />
 						</div>
 						</div>
 
 						<div class="control-group formrow field-subject">
 						<div class="controls">
 							<label class="control-label" for="subject">Subject:</label>
-							<input type="text" id="subject" name="subject" value="'.$this->CI->input->post('subject').'" class="required formelement" />
+							<input type="text" id="subject" name="subject" value="'.$this->CI->input->post('subject').'" class="required form-control" />
 						</div>
 						</div>
 
 						<div class="control-group formrow field-message">
 						<div class="controls">
 							<label class="control-label" for="message">Message:</label>
-							<textarea id="message" name="message" class="required formelement small">'.$this->CI->input->post('message').'</textarea>
+							<textarea id="message" name="message" class="required form-control small">'.$this->CI->input->post('message').'</textarea>
 						</div>
 						</div>
 
@@ -641,14 +631,14 @@ class Template {
 						<div class="control-group formrow field-fullName">
 						<div class="controls">
 							<label class="control-label" for="fullName">Full Name:</label>
-							<input type="text" id="fullName" name="fullName" value="'.$this->CI->input->post('fullName').'" class="required formelement" />
+							<input type="text" id="fullName" name="fullName" value="'.$this->CI->input->post('fullName').'" class="required form-control" />
 						</div>
 						</div>
 
 						<div class="control-group formrow field-email">
 						<div class="controls">
 							<label class="control-label" for="email">Email:</label>
-							<input type="text" id="email" name="email" value="'.$this->CI->input->post('email').'" class="required email formelement" />
+							<input type="text" id="email" name="email" value="'.$this->CI->input->post('email').'" class="required email form-control" />
 						</div>
 						</div>
 
@@ -690,28 +680,28 @@ class Template {
 						<div class="control-group formrow field-fullName">
 						<div class="controls">
 							<label class="control-label" for="fullName">Full Name:</label>
-							<input type="text" id="fullName" name="fullName" value="'.$this->CI->input->post('fullName').'" class="required formelement" />
+							<input type="text" id="fullName" name="fullName" value="'.$this->CI->input->post('fullName').'" class="required form-control" />
 						</div>
 						</div>
 
 						<div class="control-group formrow field-email">
 						<div class="controls">
 							<label class="control-label" for="email">Email:</label>
-							<input type="text" id="email" name="email" value="'.$this->CI->input->post('email').'" class="required email formelement" />
+							<input type="text" id="email" name="email" value="'.$this->CI->input->post('email').'" class="required email form-control" />
 						</div>
 						</div>
 
 						<div class="control-group formrow field-subject">
 						<div class="controls">
 							<label class="control-label" for="subject">Subject:</label>
-							<input type="text" id="subject" name="subject" value="'.$this->CI->input->post('subject').'" class="required formelement" />
+							<input type="text" id="subject" name="subject" value="'.$this->CI->input->post('subject').'" class="required form-control" />
 						</div>
 						</div>
 
 						<div class="control-group formrow field-message">
 						<div class="controls">
 							<label class="control-label" for="message">Message:</label>
-							<textarea id="message" name="message" class="required formelement small">'.$this->CI->input->post('message').'</textarea>
+							<textarea id="message" name="message" class="required form-control small">'.$this->CI->input->post('message').'</textarea>
 						</div>
 						</div>
 
@@ -790,8 +780,8 @@ class Template {
 			}
 
 			// TBD: Set other template elements
-//			$output['select:state'] = @display_states('state', set_value('state', $this->input->post('state')), 'id="state" class="formelement"');
-//			$output['select:country'] = @display_countries('country', set_value('country', $this->input->post('country')), 'id="country" class="formelement"');
+//			$output['select:state'] = @display_states('state', set_value('state', $this->input->post('state')), 'id="state" class="form-control"');
+//			$output['select:country'] = @display_countries('country', set_value('country', $this->input->post('country')), 'id="country" class="form-control"');
 		}
 
 		// get blog headlines
@@ -1123,7 +1113,7 @@ class Template {
 		// get (community) user list
 		if (preg_match_all('/{community:userlist(:group(\(([A-Za-z0-9_-]+)\))?)?(:limit(\(([0-9]+)\))?)?}/i', $body, $matches))
 		{
-			// load blog model
+			// load users model
 			$this->CI->load->model('community/users_model', 'users');
 
 			// filter through matches

@@ -739,6 +739,9 @@ class Core {
 				{
 					$filepaths .= '<br /><a href="'.site_url($this->CI->uploads->uploadsPath.'/'.$fileData['file_name']).'">'.$fileData['client_name'].'</a>';
 				}
+
+				// save for display of what was just uploaded
+				$this->CI->session->set_userdata('uploads', $files);
 			}
 			
 			// get posted message
@@ -1306,7 +1309,7 @@ class Core {
 		// set pagination config
 		$config['total_rows'] = $totalRows;		
 		$config['per_page'] = $limit;
-		$config['full_tag_open'] = '<div class="pagination"><ul>';
+		$config['full_tag_open'] = '<ul class="pagination right">';
 		$config['prev_tag_open'] = '<li>';
 		$config['prev_link'] = '&laquo;';
 		$config['prev_tag_close'] = '</li>';
@@ -1317,7 +1320,7 @@ class Core {
 		$config['next_tag_open'] = '<li>';
 		$config['next_link'] = '&raquo;';
 		$config['next_tag_close'] = '</li>';
-		$config['full_tag_close'] = '</ul></div>';
+		$config['full_tag_close'] = '</ul>';
 		$config['num_links'] = 6;
 		$this->CI->pagination->initialize($config);
 	}	

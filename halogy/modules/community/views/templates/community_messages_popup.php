@@ -18,15 +18,15 @@
 		<form method="post" action="/messages/send_message/{form:recipient-id}" class="default">
 		
 			<label for="to">To:</label>
-			<input type="text" name="to" value="{form:to}" id="to" class="formelement" disabled="disabled" />
+			<input type="text" name="to" value="{form:to}" id="to" class="form-control" disabled="disabled" />
 			<br class="clear" />
 		
 			<label for="subject">Subject:</label>
-			<input type="text" name="subject" value="{form:subject}" id="subject" class="formelement" />
+			<input type="text" name="subject" value="{form:subject}" id="subject" class="form-control" />
 			<br class="clear" />
 		
 			<label for="message">Message:</label>
-			<textarea name="message" id="message" class="formelement small">{form:message}</textarea>
+			<textarea name="message" id="message" class="form-control small">{form:message}</textarea>
 			<br class="clear" /><br />
 		
 			<input type="submit" value="Send Message" id="submit" class="button nolabel" />

@@ -359,7 +359,10 @@ class Admin extends MX_Controller {
 
 	function order($field = '')
 	{
-		$this->core->order(key($_POST), $field);
+		if (!$this->core->order(key($_POST), $field))
+		{
+			show_error('Something went wrong!');
+		}
 	}
 	
 	function ac_files()

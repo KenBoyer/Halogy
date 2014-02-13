@@ -9,9 +9,9 @@
 		<button type="submit" class="btn btn-success">Update Ticket <i class="icon-refresh"></i></button>	
 	</div>
 
-	<div class="clear"></div>
+	<br class="clear" />
 
-	<div class="alert">
+	<div class="alert alert-info">
 		<p>
 			<strong>Subject:</strong> [#<?php echo $data['ticketID']; ?>]:</strong> <?php echo $data['subject']; ?><br />
 			<strong>Date sent:</strong> <?php echo dateFmt($data['dateCreated']); ?><br />
@@ -21,43 +21,51 @@
 		</p>
 	</div>
 
-	<div id="tpl-2col">
-
-		<div class="col1">
+	<div class="row-fluid">
+		<div class="span6">
 		
 			<h2 class="underline">Body</h2>
-		
-			<p><?php echo nl2br(auto_link($data['body'])); ?></p>
-			
+
+			<div class="well">
+			<?php echo nl2br(auto_link($data['body'])); ?>
+			</div>
+
 		</div>
-		<div class="col2">
+
+		<div class="span6">
 		
 			<h2 class="underline">User Details</h2>
 		
-			<p><strong>Full name:</strong> <?php echo $data['fullName']; ?></p>
-			<p><strong>Email:</strong> <a href="mailto:<?php echo $data['email']; ?>?subject=Re: [#<?php echo $data['ticketID']; ?>]: <?php echo $data['subject']; ?>"><?php echo $data['email']; ?></a></p>
-			
+			<label for="name">Full name:</label>
+			<p><?php echo $data['fullName']; ?></p>
+
+			<label for="email">Email:</label>
+			<p><a href="mailto:<?php echo $data['email']; ?>?subject=Re: [#<?php echo $data['ticketID']; ?>]: <?php echo $data['subject']; ?>"><?php echo $data['email']; ?></a></p>
+			<br class="clear" />
+
+			<h2 class="underline">Process Ticket</h2>
+
+			<label for="closed">Status:</label>
+			<?php
+				$options = array(
+						0 => 'Open',
+						1 => 'Closed');
+				
+				echo form_dropdown('closed',$options,set_value('closed', $data['closed']),'id="closed"');
+			?>
+
+			<br class="clear" />
+
+			<label for="notes">Ticket notes:</label>
+			<?php echo form_textarea('notes',set_value('notes', $data['notes']), 'id="notes" class="form-control"'); ?>
+
 		</div>
-		<div class="clear"></div>
 	</div>
-	
-	<br />
-		
-	<h2 class="underline">Process Ticket</h2>
 
-	<label for="closed">Status:</label>
-	<?php
-		$options = array(
-				0 => 'Open',
-				1 => 'Closed');
-		
-		echo form_dropdown('closed',$options,set_value('closed', $data['closed']),'id="closed"');
-	?>
-	<br class="clear" />
-
-	<label for="notes">Ticket notes:</label>
-	<?php echo form_textarea('notes',set_value('notes', $data['notes']), 'id="notes" class="formelement small"'); ?>
-
+<?php
+	// Vizlogix CSRF protection:
+	echo '<input style="display: none;" type="hidden" name="'.$this->security->get_csrf_token_name().'" value="'.$this->security->get_csrf_hash().'" />';
+?>
 </form>
 <br class="clear" />
 

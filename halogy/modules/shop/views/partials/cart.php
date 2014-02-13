@@ -24,7 +24,7 @@ if ($cart):
 		<div class="control-group">
 			<div class="controls">
 				<div class="input-append">
-					<input style="margin:0px;" name="quantity[<?php echo $key; ?>]"  value="<?php echo $item['quantity']; ?>" size="3" type="text"><button class="btn btn-danger" type="button" onclick="if(confirm('Are you sure you want to remove this item?')){window.location='/shop/cart/remove/<?php echo $key; ?>';}"><i class="icon-remove icon-white"></i></button>
+					<input style="margin:0px;" name="quantity[<?php echo $key; ?>]"  value="<?php echo $item['quantity']; ?>" size="3" type="text"><button class="btn btn-danger" type="button" onclick="if(confirm('Are you sure you want to remove this item from your cart?')){window.location='/shop/cart/remove/<?php echo $key; ?>';}"><i class="icon-remove icon-white"></i></button>
 				</div>
 			</div>
 		</div>
@@ -34,7 +34,7 @@ if ($cart):
 		<div class="control-group">
 			<div class="controls">
 				<div class="input-append">
-					<input style="margin:0px;" name="quantity[<?php echo $key; ?>]"  value="<?php echo $item['quantity']; ?>" size="3" maxlength="2" type="text"><button class="btn btn-danger" type="button" onclick="if(confirm('Are you sure you want to remove this item?')){window.location='/shop/cart/remove/<?php echo $key; ?>';}"><i class="icon-remove icon-white"></i></button>
+					<input style="margin:0px;" name="quantity[<?php echo $key; ?>]"  value="<?php echo $item['quantity']; ?>" size="3" maxlength="2" type="text"><button class="btn btn-danger" type="button" onclick="if(confirm('Are you sure you want to remove this item from your cart?')){window.location='/shop/cart/remove/<?php echo $key; ?>';}"><i class="icon-remove icon-white"></i></button>
 				</div>
 			</div>
 		</div>

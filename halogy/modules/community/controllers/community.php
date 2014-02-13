@@ -76,10 +76,10 @@ class Community extends MX_Controller {
 					'member:id' => $user['userID'],
 					'member:avatar' => anchor('/users/profile/'.$user['userID'], display_image($this->users->get_avatar($user['avatar']), 'User Avatar', 80, 'class="avatar"', $this->config->item('staticPath').'/images/noavatar.gif')),
 					'member:name' => ($user['displayName']) ? $user['displayName'] : $user['firstName'].' '.$user['lastName'],
-					'member:email' => $user['email'],
+					'member:email' => ($user['email']) ? $user['email'] : '',
 					'member:group' => ($user['groupName']) ? $user['groupName'] : '',
 					'member:link' => site_url('/users/profile/'.$user['userID']),
-					'member:bio' => $user['bio'] // added to include staff positions, etc.
+					'member:bio' => ($user['bio']) ? $user['bio'] : '' // added to include staff positions, etc.
 				);
 			}
 		}

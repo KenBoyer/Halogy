@@ -29,6 +29,8 @@ function getTemplate(el){
 
 function loadTemplate(data){
 	$('textarea#body').val(data);
+	// codemirror
+	editor.setValue(data);
 }
 
 function revertTemplate(){
@@ -37,9 +39,10 @@ function revertTemplate(){
 		getTemplate($('select#moduleSelect'));
 
 		if (selectedModule == ''){
-			$('textarea#body').val("{include:header}\n\n{block1}\n\n{include:footer}");
+			// load a standard template body
+			loadTemplate("{include:header}\n\n{block1}\n\n{include:footer}");
 		} else {
-			$.get($('select#moduleSelect').attr('rel')+'/'+selectedModule, loadTemplate);
+			$.post('/admin/pages/module', { modulePath: selectedModule }, loadTemplate);
 		}
 
 		return true;

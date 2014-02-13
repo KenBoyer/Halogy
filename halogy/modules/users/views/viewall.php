@@ -8,6 +8,21 @@
 .ac_over { background-color: #0A246A; color: white; }
 </style>
 
+<script language="javascript" type="text/javascript" src="<?php echo $this->config->item('staticPath'); ?>/js/jquery.fieldreplace.js"></script>
+<script type="text/javascript">
+$(function(){
+    $('#searchbox').fieldreplace();
+	function formatItem(row) {
+		if (row[0].length) return row[1]+'<br /><span class="email">('+row[0]+')</span>';
+		else return 'No results';
+	}
+	$('#searchbox').autocomplete("<?php echo site_url('/admin/users/ac_users'); ?>", { delay: "0", selectFirst: false, matchContains: true, formatItem: formatItem, minChars: 2 });
+	$('#searchbox').result(function(event, data, formatted){
+		$(this).parent('form').submit();
+	});	
+});
+</script>
+
 <div class="headingleft">
 	<h1 class="headingleft">Users</h1>
 </div>
@@ -77,12 +92,12 @@
 		</td>
 		<td class="tiny">
 			<?php if (in_array('users_edit', $this->permission->permissions)): ?>
-				<?php echo anchor('/admin/users/edit/'.$user['userID'], 'Edit'); ?>
+				<?php echo anchor('/admin/users/edit/'.$user['userID'], 'Edit <i class="icon-edit"></i>', 'class="btn btn-info"'); ?>
 			<?php endif; ?>
 		</td>
 		<td class="tiny">
 			<?php if (in_array('users_delete', $this->permission->permissions)): ?>
-				<?php echo anchor('/admin/users/delete/'.$user['userID'], 'Delete', 'onclick="return confirm(\'Are you sure you want to delete this?\')"'); ?>
+				<?php echo anchor('/admin/users/delete/'.$user['userID'], 'Delete <i class="icon-trash"></i>', array('onclick' => 'return confirm(\'Are you sure you want to delete this user?\')', 'class' => 'btn btn-danger')); ?>
 			<?php endif; ?>
 
 		</td>

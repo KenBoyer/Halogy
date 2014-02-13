@@ -738,6 +738,11 @@ class Admin extends MX_Controller {
 			$type = 'C';
 			$file = 'css';
 		}
+		elseif ($type == 'less')
+		{
+			$type = 'L';
+			$file = 'less';			
+		}
 		elseif ($type == 'js')
 		{
 			$type = 'J';
@@ -932,6 +937,26 @@ class Admin extends MX_Controller {
 		{
 			show_error('Something went wrong!');
 		}
+	}
+
+	function compile_less($includeID)
+	{
+		// TBD: need both source (.less) and output (.css) files to be specified
+		// - base them on input name?
+		// need to determine how to compile a "mixed" group of files (i.e., from disk and database)
+		// base it on how templates are managed?
+
+//		$this->load->library('lessphp');
+
+		// Compile a string
+//		$test = "body { a { color: red } }";
+//		$css = $this->lessphp->object()->parse($test)
+
+		// Compile a file (has automatic cache functionality)
+//		$this->lessphp->object()->compileFile('/static/css/site.less','/static/css/site.css');
+
+		// Latest documentation: TBD change to bootstrap.less
+//		$less->compileFile("input.less");
 	}
 
 	function navigation()

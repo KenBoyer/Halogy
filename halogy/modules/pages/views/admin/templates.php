@@ -88,7 +88,7 @@ $(function(){
 	$class = ($i % 2) ? ' class="alt"' : ''; $i++;
 ?>
 	<tr<?php echo $class;?>>
-		<td><?php echo anchor(site_url('/admin/pages/edit_template/'.$template['templateID']), ($template['modulePath'] != '') ? '<small>Module</small>: '.$template['modulePath'].' <em>('.ucfirst(preg_replace('/^(.+)_/i', '', $template['modulePath'])).')</em>' : $template['templateName']); ?></td>
+		<td><?php echo anchor(site_url('/admin/pages/edit_template/'.$template['templateID']), ($template['modulePath'] != '') ? '<span class="label label-info">Module</span> '.$template['modulePath'].' <em>('.ucfirst(preg_replace('/^(.+)_/i', '', $template['modulePath'])).')</em>' : $template['templateName']); ?></td>
 		<td><?php echo dateFmt($template['dateCreated']); ?></td>		
 		<td><?php if ($this->pages->get_template_count($template['templateID']) > 0): ?>
 				<?php echo $this->pages->get_template_count($template['templateID']); ?> <small>page(s)</small>

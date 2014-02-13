@@ -642,7 +642,7 @@ class Admin extends MX_Controller {
 
 					// load email lib and email user and admin
 					$this->load->library('email');
-
+//					$this->email->set_mailtype('html');
 					$this->email->to($output['order']['email']);
 					$this->email->subject('Your order has been shipped (#'.$output['order']['transactionCode'].')');
 					$this->email->message($userBody.$footerBody);

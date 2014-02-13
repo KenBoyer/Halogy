@@ -5,7 +5,7 @@
 (function(){
 	var jqscript=document.createElement('script');
 	jqscript.setAttribute("type","text/javascript");
-	jqscript.setAttribute("src","<?php echo $this->config->item('staticPath'); ?>/js/loader.js");
+	jqscript.setAttribute("src","<?php echo $this->config->item('staticPath'); ?>/js/cms.js");
 	document.getElementsByTagName("head")[0].appendChild(jqscript);
 })();
 </script>

@@ -2,18 +2,6 @@
 
 <h1>{page:heading}</h1>
 
-<div class="search">
-
-	<form method="post" action="/messages/search">
-
-		<label for="searchbox">Search:</label>
-		<input type="text" name="query" id="searchbox" class="searchbox" maxlength="255" value="" />
-		<input type="image" src="/static/images/btn_search.gif" id="searchbutton" />
-
-	</form>
-
-</div>
-	
 {if messages}
 
 <table class="default">
@@ -47,7 +35,7 @@
 				</p>
 			</td>
 			<td><small>{message:date}</small></td>
-			<td><a href="/messages/delete_message/{message:id}" onclick="return confirm('This will delete all the messages in the thread.\n\nAre you sure you want to delete these messages?');">Delete</a></td>
+			<td><a href="/messages/delete_message/{message:id}" onclick="return confirm('This will delete all the messages in the thread.\n\nAre you sure you want to delete these messages?');" class="btn">Delete</a></td>
 			
 		</tr>
 	
@@ -65,4 +53,18 @@
 
 {/if}
 
+<div class="search">
+
+	<form method="post" action="/messages/search">
+
+		<label for="searchbox">Search:</label>
+        <div class="input-append">
+            <input name="query" class="textbox" type="text">
+            <button class="btn" type="submit" ><i class="icon-search"></i></button>
+        </div>
+
+	</form>
+
+</div>
+	
 {include:footer}

@@ -1,4 +1,6 @@
-<h1>Most Recent Changes</h1>
+<div class="headingleft">
+	<h1 class="headingleft">Most Recent Wiki Changes</h1>
+</div>
 
 <?php if ($changes): ?>
 
@@ -21,8 +23,8 @@
 <?php endforeach; ?>
 </table>
 
-
-<p style="text-align: right;"><a href="#" class="button grey" id="totop">Back to top</a></p>
+<br class="clear" />
+<p style="text-align: right;"><a href="#" class="btn" id="totop">Back to top <i class="icon-circle-arrow-up"></i></a></p>
 
 <?php else: ?>
 

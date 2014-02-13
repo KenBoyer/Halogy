@@ -16,7 +16,7 @@ function initOrder(el){
 $(function(){
 	$('a.toggle').click(function(event){ 
 		event.preventDefault();		
-		$('div.hidden').slideToggle('400');
+		$('div.hidden-form').slideToggle('400');
 	});
 
 	$('.col2').children('input').hide();
@@ -47,12 +47,12 @@ $(function(){
 
 <div class="clear"></div>
 
-<div class="hidden">
+<div class="hidden-form">
 	<form method="post" action="<?php echo site_url($this->uri->uri_string()); ?>" class="default">
 	
 		<label for="categoryName">Category name:</label>
 		
-		<?php echo @form_input('catName',$blog_cats['catName'], 'class="formelement" id="catName"'); ?>
+		<?php echo @form_input('catName',$blog_cats['catName'], 'class="form-control" id="catName"'); ?>
 			
 		<input type="submit" value="Add Category" id="submit" class="btn btn-success" />
 
@@ -77,7 +77,7 @@ $(function(){
 				<span><strong><?php echo $category['catName']; ?></strong> <small>(<?php echo url_title(strtolower(trim($category['catName']))); ?>)</small></span>
 			</div>
 			<div class="col2">
-				<?php echo @form_input($category['catID'].'[catName]', $category['catName'], 'class="formelement hide" title="Category Name"'); ?>
+				<?php echo @form_input($category['catID'].'[catName]', $category['catName'], 'class="form-control hide" title="Category Name"'); ?>
 				<input type="submit" class="btn btn-success hide" value="Save Changes" />
 				<input type="button" class="btn hide" value="Cancel" id="cancel" />
 			</div>

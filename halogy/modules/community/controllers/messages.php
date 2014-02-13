@@ -191,6 +191,7 @@ class Messages extends MX_Controller {
 										
 					// send email
 					$this->load->library('email');
+//					$this->email->set_mailtype('html');
 					$this->email->from($this->site->config['siteEmail'], $this->site->config['siteName']);
 					$this->email->to($data['user']['email']);			
 					$this->email->subject('New Message on '.$this->site->config['siteName']);
@@ -276,6 +277,7 @@ class Messages extends MX_Controller {
 										
 					// send email
 					$this->load->library('email');
+//					$this->email->set_mailtype('html');
 					$this->email->from($this->site->config['siteEmail'], $this->site->config['siteName']);
 					$this->email->to($data['user']['email']);			
 					$this->email->subject('New Message on '.$this->site->config['siteName']);
